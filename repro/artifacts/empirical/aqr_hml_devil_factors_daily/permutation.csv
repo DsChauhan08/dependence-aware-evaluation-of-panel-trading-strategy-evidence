@@ -1,0 +1,2 @@
+threshold,observed_sharpe,null_mean,null_sd,null_q025,null_q500,null_q975,p_positive,n_perms,status,seed
+0.0,0.33607007108129094,,,,,,,0,not_applicable_single_series,123

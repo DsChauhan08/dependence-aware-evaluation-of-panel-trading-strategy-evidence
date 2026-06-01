@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: "Dependence-Aware Decision Audits for Panel Trading Strategy Evaluation"
+message: "If you use this audit code or manuscript, please cite the paper and archived release."
+type: software
+authors:
+  - family-names: Chauhan
+    given-names: D. S.
+repository-code: "https://github.com/REPLACE_WITH_REPOSITORY"
+abstract: "Reproducible code and manuscript artifacts for dependence-aware panel trading strategy audits."
+license: Apache-2.0

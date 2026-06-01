@@ -1,0 +1,17 @@
+{
+  "description": "AQR Quality Minus Junk daily long-short factor series. Recorded as a factor-series source; cross-sectional permutation is not applicable.",
+  "family": "aqr",
+  "id": "aqr_qmj_factors_daily",
+  "loader": "aqr_factor_excel",
+  "metadata_url": "https://www.aqr.com/Insights/Datasets",
+  "preferred_columns": [
+    "USA",
+    "QMJ USA",
+    "QMJ"
+  ],
+  "primary_threshold": 0.0,
+  "source_url": "https://www.aqr.com/-/media/AQR/Documents/Insights/Data-Sets/Quality-Minus-Junk-Factors-Daily.xlsx",
+  "thresholds": [
+    0.0
+  ]
+}

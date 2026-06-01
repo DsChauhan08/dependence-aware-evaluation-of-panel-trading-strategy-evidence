@@ -1,0 +1,183 @@
+{
+  "candidates": [
+    {
+      "description": "Daily 10 portfolios formed on prior 12-2 returns; static signed decile-rank threshold-profile stress candidate.",
+      "factor_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily_CSV.zip",
+      "family": "kenneth_french",
+      "groups": [
+        "loser",
+        "loser",
+        "middle",
+        "middle",
+        "middle",
+        "middle",
+        "middle",
+        "middle",
+        "winner",
+        "winner"
+      ],
+      "id": "french_momentum_deciles_daily_rank",
+      "loader": "french_ranked_portfolios",
+      "metadata_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.French/Data_Library/det_10_port_form_pr_12_2_daily.html",
+      "momentum_factor_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Momentum_Factor_daily_CSV.zip",
+      "portfolio_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/10_Portfolios_Prior_12_2_Daily_CSV.zip",
+      "primary_threshold": 0.7,
+      "sample_tail": 0,
+      "source_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/10_Portfolios_Prior_12_2_Daily_CSV.zip",
+      "thresholds": [
+        0.0,
+        0.3,
+        0.5,
+        0.7,
+        0.9
+      ]
+    },
+    {
+      "description": "Daily 10 portfolios formed on prior 12-2 returns; canonical winner-minus-loser extreme-decile benchmark.",
+      "factor_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily_CSV.zip",
+      "family": "kenneth_french",
+      "id": "french_momentum_deciles_daily_wml",
+      "loader": "french_ranked_portfolios",
+      "metadata_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.French/Data_Library/det_10_port_form_pr_12_2_daily.html",
+      "momentum_factor_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Momentum_Factor_daily_CSV.zip",
+      "portfolio_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/10_Portfolios_Prior_12_2_Daily_CSV.zip",
+      "primary_threshold": 0.9,
+      "sample_tail": 0,
+      "source_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/10_Portfolios_Prior_12_2_Daily_CSV.zip",
+      "thresholds": [
+        0.9
+      ]
+    },
+    {
+      "description": "Daily 25 Size-B/M portfolios with skipped compounded momentum signal.",
+      "factor_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily_CSV.zip",
+      "family": "kenneth_french",
+      "id": "french_size_bm_daily_dynamic_momentum",
+      "loader": "french_dynamic_momentum",
+      "lookback": 21,
+      "metadata_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html",
+      "momentum_factor_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Momentum_Factor_daily_CSV.zip",
+      "portfolio_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/25_Portfolios_5x5_Daily_CSV.zip",
+      "primary_threshold": 0.5,
+      "sample_tail": 3500,
+      "skip": 2,
+      "source_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/25_Portfolios_5x5_Daily_CSV.zip",
+      "thresholds": [
+        0.0,
+        0.3,
+        0.5,
+        0.7,
+        0.9
+      ]
+    },
+    {
+      "description": "Fixed ETF/index proxy universe from Stooq with skipped compounded momentum signal; exploratory because ETF availability differs by inception date.",
+      "family": "stooq",
+      "id": "stooq_fixed_etf_daily_dynamic_momentum",
+      "loader": "stooq_etf_momentum",
+      "lookback": 63,
+      "metadata_url": "https://stooq.com/db/h/",
+      "primary_threshold": 0.5,
+      "sample_tail": 0,
+      "skip": 2,
+      "source_url": "https://stooq.com/db/h/",
+      "symbols": [
+        "spy.us",
+        "qqq.us",
+        "iwm.us",
+        "efa.us",
+        "eem.us",
+        "tlt.us",
+        "ief.us",
+        "gld.us",
+        "dbc.us",
+        "vnq.us",
+        "hyg.us"
+      ],
+      "thresholds": [
+        0.0,
+        0.3,
+        0.5,
+        0.7,
+        0.9
+      ]
+    },
+    {
+      "description": "AQR Betting Against Beta daily long-short equity factor series. Recorded as a factor-series source; cross-sectional permutation is not applicable.",
+      "family": "aqr",
+      "id": "aqr_bab_equity_factors_daily",
+      "loader": "aqr_factor_excel",
+      "metadata_url": "https://www.aqr.com/Insights/Datasets",
+      "preferred_columns": [
+        "USA",
+        "BAB USA",
+        "BAB"
+      ],
+      "primary_threshold": 0.0,
+      "source_url": "https://www.aqr.com/-/media/AQR/Documents/Insights/Data-Sets/Betting-Against-Beta-Equity-Factors-Daily.xlsx",
+      "thresholds": [
+        0.0
+      ]
+    },
+    {
+      "description": "AQR Quality Minus Junk daily long-short factor series. Recorded as a factor-series source; cross-sectional permutation is not applicable.",
+      "family": "aqr",
+      "id": "aqr_qmj_factors_daily",
+      "loader": "aqr_factor_excel",
+      "metadata_url": "https://www.aqr.com/Insights/Datasets",
+      "preferred_columns": [
+        "USA",
+        "QMJ USA",
+        "QMJ"
+      ],
+      "primary_threshold": 0.0,
+      "source_url": "https://www.aqr.com/-/media/AQR/Documents/Insights/Data-Sets/Quality-Minus-Junk-Factors-Daily.xlsx",
+      "thresholds": [
+        0.0
+      ]
+    },
+    {
+      "description": "AQR Devil in HML daily long-short factor series. Recorded as a factor-series source; cross-sectional permutation is not applicable.",
+      "family": "aqr",
+      "id": "aqr_hml_devil_factors_daily",
+      "loader": "aqr_factor_excel",
+      "metadata_url": "https://www.aqr.com/Insights/Datasets",
+      "preferred_columns": [
+        "USA",
+        "HML Devil USA",
+        "HML Devil"
+      ],
+      "primary_threshold": 0.0,
+      "source_url": "https://www.aqr.com/-/media/AQR/Documents/Insights/Data-Sets/The-Devil-in-HMLs-Details-Factors-Daily.xlsx",
+      "thresholds": [
+        0.0
+      ]
+    },
+    {
+      "description": "AQR Value and Momentum Everywhere monthly factor series. Recorded as lower-frequency supporting evidence.",
+      "family": "aqr",
+      "id": "aqr_value_momentum_everywhere_monthly",
+      "loader": "aqr_factor_excel",
+      "metadata_url": "https://www.aqr.com/Insights/Datasets",
+      "preferred_columns": [
+        "MOM",
+        "VAL",
+        "Global"
+      ],
+      "primary_threshold": 0.0,
+      "source_url": "https://www.aqr.com/-/media/AQR/Documents/Insights/Data-Sets/Value-and-Momentum-Everywhere-Factors-Monthly.xlsx",
+      "thresholds": [
+        0.0
+      ]
+    }
+  ],
+  "created_for": "full_research_experiment_campaign",
+  "default_thresholds": [
+    0.0,
+    0.3,
+    0.5,
+    0.7,
+    0.9
+  ],
+  "version": 1
+}

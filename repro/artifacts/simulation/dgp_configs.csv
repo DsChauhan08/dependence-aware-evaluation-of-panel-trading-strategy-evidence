@@ -1,0 +1,15 @@
+DGP,true_mu,sigma,garch_alpha,garch_beta,n_factors,regime_switch,regime_mu_low,regime_p_stay,name,T,N,ar1_serial,rho_cross
+01_iid,0.0004,0.015,0.0,0.0,1,False,-0.0002,0.98,IID baseline,1000,50,0.0,0.0
+02_ser_mild,0.0004,0.015,0.0,0.0,1,False,-0.0002,0.98,Serial mild,1000,50,0.2,0.0
+03_ser_strong,0.0004,0.015,0.0,0.0,1,False,-0.0002,0.98,Serial strong,1000,50,0.5,0.0
+04_xs_mild,0.0004,0.015,0.0,0.0,1,False,-0.0002,0.98,Cross mild,1000,50,0.0,0.2
+05_xs_strong,0.0004,0.015,0.0,0.0,1,False,-0.0002,0.98,Cross strong,1000,50,0.0,0.5
+06_both_mod,0.0004,0.015,0.0,0.0,1,False,-0.0002,0.98,Both moderate,1000,50,0.2,0.2
+07_both_strong,0.0004,0.015,0.0,0.0,1,False,-0.0002,0.98,Both strong,1000,50,0.5,0.5
+08_realistic,0.0004,0.015,0.0,0.0,1,False,-0.0002,0.98,Realistic,2500,100,0.15,0.35
+09_garch_mild,0.0004,0.015,0.05,0.9,1,False,-0.0002,0.98,GARCH mild,1000,50,0.2,0.2
+10_garch_strong,0.0004,0.015,0.1,0.85,1,False,-0.0002,0.98,GARCH strong,1000,50,0.3,0.4
+11_multifactor,0.0004,0.015,0.0,0.0,3,False,-0.0002,0.98,Multi-factor K=3,1000,50,0.2,0.3
+12_regime,0.0004,0.015,0.0,0.0,1,True,-0.0002,0.98,Regime-switching,2000,50,0.15,0.25
+13_high_ar1,0.0004,0.015,0.0,0.0,1,False,-0.0002,0.98,High-persistence AR(1),1000,50,0.7,0.3
+14_garch_highvol,0.0004,0.015,0.15,0.8,1,False,-0.0002,0.98,High-volatility GARCH,1000,50,0.2,0.3

@@ -1,0 +1,19 @@
+dgp,name,method,rejection_rate,se,n
+null_iid,Null IID,date_iid,0.06,0.007509993342207435,1000
+null_iid,Null IID,hac_delta,0.06,0.007509993342207435,1000
+null_iid,Null IID,moving_block,0.061,0.0075682891065286355,1000
+null_iid,Null IID,romano_wolf,0.06,0.007509993342207435,1000
+null_iid,Null IID,row_naive,0.062,0.007626008130076967,1000
+null_iid,Null IID,stationary,0.062,0.007626008130076967,1000
+null_dep,Null dependence,date_iid,0.094,0.009228434320078352,1000
+null_dep,Null dependence,hac_delta,0.066,0.007851369307324678,1000
+null_dep,Null dependence,moving_block,0.07,0.008068457101577725,1000
+null_dep,Null dependence,romano_wolf,0.068,0.007960904471226871,1000
+null_dep,Null dependence,row_naive,0.352,0.015102847413650183,1000
+null_dep,Null dependence,stationary,0.067,0.007906389820898032,1000
+null_garch,Null GARCH dependence,date_iid,0.098,0.009401914698613257,1000
+null_garch,Null GARCH dependence,hac_delta,0.063,0.007683163410991596,1000
+null_garch,Null GARCH dependence,moving_block,0.07,0.008068457101577725,1000
+null_garch,Null GARCH dependence,romano_wolf,0.067,0.007906389820898032,1000
+null_garch,Null GARCH dependence,row_naive,0.351,0.015093011627902497,1000
+null_garch,Null GARCH dependence,stationary,0.068,0.007960904471226871,1000

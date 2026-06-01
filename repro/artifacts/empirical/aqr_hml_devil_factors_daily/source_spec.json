@@ -1,0 +1,17 @@
+{
+  "description": "AQR Devil in HML daily long-short factor series. Recorded as a factor-series source; cross-sectional permutation is not applicable.",
+  "family": "aqr",
+  "id": "aqr_hml_devil_factors_daily",
+  "loader": "aqr_factor_excel",
+  "metadata_url": "https://www.aqr.com/Insights/Datasets",
+  "preferred_columns": [
+    "USA",
+    "HML Devil USA",
+    "HML Devil"
+  ],
+  "primary_threshold": 0.0,
+  "source_url": "https://www.aqr.com/-/media/AQR/Documents/Insights/Data-Sets/The-Devil-in-HMLs-Details-Factors-Daily.xlsx",
+  "thresholds": [
+    0.0
+  ]
+}

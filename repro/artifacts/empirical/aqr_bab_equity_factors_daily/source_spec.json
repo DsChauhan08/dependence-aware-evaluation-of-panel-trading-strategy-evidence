@@ -1,0 +1,17 @@
+{
+  "description": "AQR Betting Against Beta daily long-short equity factor series. Recorded as a factor-series source; cross-sectional permutation is not applicable.",
+  "family": "aqr",
+  "id": "aqr_bab_equity_factors_daily",
+  "loader": "aqr_factor_excel",
+  "metadata_url": "https://www.aqr.com/Insights/Datasets",
+  "preferred_columns": [
+    "USA",
+    "BAB USA",
+    "BAB"
+  ],
+  "primary_threshold": 0.0,
+  "source_url": "https://www.aqr.com/-/media/AQR/Documents/Insights/Data-Sets/Betting-Against-Beta-Equity-Factors-Daily.xlsx",
+  "thresholds": [
+    0.0
+  ]
+}

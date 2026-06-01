@@ -1,0 +1,37 @@
+{
+  "candidate_id": "aqr_qmj_factors_daily",
+  "checks": {
+    "factor_alpha_positive_if_available": true,
+    "hac_positive_p_le_005": true,
+    "holdout_sharpe_positive": true,
+    "net_sharpe_5bps_positive": true,
+    "permutation_p_le_005": false,
+    "romano_wolf_p_le_005": true,
+    "subperiod_not_one_window": true
+  },
+  "exposure": "as_selected",
+  "family": "aqr",
+  "generated_at_utc": "2026-05-27T11:01:56.426734+00:00",
+  "gross_sharpe": 0.5362574272879999,
+  "hac_p_positive": 2.2570742738592386e-05,
+  "metadata_url": "https://www.aqr.com/Insights/Datasets",
+  "n_assets": 1,
+  "n_boot": 5000,
+  "n_dates": 17681,
+  "n_perms": 10000,
+  "net_sharpe_5bps": 0.5362574272879999,
+  "notes": [
+    "factor_series_source: cross-sectional signal permutation is not applicable"
+  ],
+  "permutation_p_primary": null,
+  "primary_threshold": 0.0,
+  "romano_wolf_p_primary": 0.0001999600079984003,
+  "sample_end": "2026-03-31",
+  "sample_start": "1957-07-01",
+  "seed": 42,
+  "source_url": "https://www.aqr.com/-/media/AQR/Documents/Insights/Data-Sets/Quality-Minus-Junk-Factors-Daily.xlsx",
+  "thresholds": [
+    0.0
+  ],
+  "viable": false
+}

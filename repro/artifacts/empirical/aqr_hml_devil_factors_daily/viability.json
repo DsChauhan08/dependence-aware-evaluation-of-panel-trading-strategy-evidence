@@ -1,0 +1,37 @@
+{
+  "candidate_id": "aqr_hml_devil_factors_daily",
+  "checks": {
+    "factor_alpha_positive_if_available": true,
+    "hac_positive_p_le_005": true,
+    "holdout_sharpe_positive": true,
+    "net_sharpe_5bps_positive": true,
+    "permutation_p_le_005": false,
+    "romano_wolf_p_le_005": true,
+    "subperiod_not_one_window": true
+  },
+  "exposure": "as_selected",
+  "family": "aqr",
+  "generated_at_utc": "2026-05-27T11:07:13.666961+00:00",
+  "gross_sharpe": 0.33607007108129094,
+  "hac_p_positive": 0.0037940638584494923,
+  "metadata_url": "https://www.aqr.com/Insights/Datasets",
+  "n_assets": 1,
+  "n_boot": 5000,
+  "n_dates": 26590,
+  "n_perms": 10000,
+  "net_sharpe_5bps": 0.3360700710812909,
+  "notes": [
+    "factor_series_source: cross-sectional signal permutation is not applicable"
+  ],
+  "permutation_p_primary": null,
+  "primary_threshold": 0.0,
+  "romano_wolf_p_primary": 0.0015996800639872025,
+  "sample_end": "2026-03-31",
+  "sample_start": "1926-07-01",
+  "seed": 42,
+  "source_url": "https://www.aqr.com/-/media/AQR/Documents/Insights/Data-Sets/The-Devil-in-HMLs-Details-Factors-Daily.xlsx",
+  "thresholds": [
+    0.0
+  ],
+  "viable": false
+}

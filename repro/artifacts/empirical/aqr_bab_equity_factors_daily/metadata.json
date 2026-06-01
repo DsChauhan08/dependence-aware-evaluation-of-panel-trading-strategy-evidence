@@ -1,0 +1,22 @@
+{
+  "candidate_id": "aqr_bab_equity_factors_daily",
+  "exposure": "as_selected",
+  "family": "aqr",
+  "generated_at_utc": "2026-05-27T10:54:21.665177+00:00",
+  "metadata_url": "https://www.aqr.com/Insights/Datasets",
+  "n_assets": 1,
+  "n_boot": 5000,
+  "n_dates": 25281,
+  "n_perms": 10000,
+  "notes": [
+    "factor_series_source: cross-sectional signal permutation is not applicable"
+  ],
+  "primary_threshold": 0.0,
+  "sample_end": "2026-03-31",
+  "sample_start": "1930-12-01",
+  "seed": 42,
+  "source_url": "https://www.aqr.com/-/media/AQR/Documents/Insights/Data-Sets/Betting-Against-Beta-Equity-Factors-Daily.xlsx",
+  "thresholds": [
+    0.0
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "candidate_id": "french_size_bm_daily_dynamic_momentum",
+  "exposure": "as_selected",
+  "family": "kenneth_french",
+  "generated_at_utc": "2026-05-27T10:48:56.486899+00:00",
+  "metadata_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html",
+  "n_assets": 25,
+  "n_boot": 5000,
+  "n_dates": 3477,
+  "n_perms": 10000,
+  "notes": [],
+  "primary_threshold": 0.5,
+  "sample_end": "2026-03-30",
+  "sample_start": "2012-05-31",
+  "seed": 42,
+  "source_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/25_Portfolios_5x5_Daily_CSV.zip",
+  "thresholds": [
+    0.0,
+    0.3,
+    0.5,
+    0.7,
+    0.9
+  ]
+}

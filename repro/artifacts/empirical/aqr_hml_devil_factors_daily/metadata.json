@@ -1,0 +1,22 @@
+{
+  "candidate_id": "aqr_hml_devil_factors_daily",
+  "exposure": "as_selected",
+  "family": "aqr",
+  "generated_at_utc": "2026-05-27T11:07:13.666961+00:00",
+  "metadata_url": "https://www.aqr.com/Insights/Datasets",
+  "n_assets": 1,
+  "n_boot": 5000,
+  "n_dates": 26590,
+  "n_perms": 10000,
+  "notes": [
+    "factor_series_source: cross-sectional signal permutation is not applicable"
+  ],
+  "primary_threshold": 0.0,
+  "sample_end": "2026-03-31",
+  "sample_start": "1926-07-01",
+  "seed": 42,
+  "source_url": "https://www.aqr.com/-/media/AQR/Documents/Insights/Data-Sets/The-Devil-in-HMLs-Details-Factors-Daily.xlsx",
+  "thresholds": [
+    0.0
+  ]
+}

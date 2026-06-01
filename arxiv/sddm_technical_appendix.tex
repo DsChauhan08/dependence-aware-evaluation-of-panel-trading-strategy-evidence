@@ -1,0 +1,206 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{setspace}
+\onehalfspacing
+
+\newtheorem{assumption}{Assumption}
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\mathbb{V}\mathrm{ar}}
+\newcommand{\Cov}{\mathbb{C}\mathrm{ov}}
+\newcommand{\Corr}{\mathbb{C}\mathrm{orr}}
+\newcommand{\SR}{\mathrm{SR}}
+\newcommand{\UVIF}{\mathrm{UVIF}}
+\DeclareMathOperator{\sign}{sign}
+
+\title{Technical Appendix: Dependence-Aware Evaluation of Panel Trading Strategy Evidence}
+\author{Dhananjay S. Chauhan}
+\date{June 1, 2026}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+This appendix contains proof details and secondary empirical artifacts
+that are omitted from the journal-facing main manuscript for length.
+The main manuscript is the claim boundary; this appendix is the audit
+trail for derivations, positive controls, robustness tables, and
+generated public-data artifacts.
+
+\section{Mean-Return Design-Effect Proof}
+
+For a selected row model \(y_{t,i}=\mu+\lambda_t+\epsilon_{t,i}\) with
+constant selected count \(\bar n\), same-date intraclass correlation
+\(\rho\), and independent dates, the row-pooled mean equals the average
+of date means:
+\[
+  \hat\mu =
+  \frac{1}{T\bar n}\sum_{t=1}^{T}\sum_{i=1}^{\bar n} y_{t,i}
+  =
+  \frac{1}{T}\sum_{t=1}^{T}\bar y_t .
+\]
+The row-naive variance report is \(\sigma^2/(T\bar n)\).  The true
+one-date variance is
+\[
+  \Var(\bar y_t)
+  =
+  \frac{1}{\bar n^2}
+  \{\bar n\sigma^2+\bar n(\bar n-1)\rho\sigma^2\}
+  =
+  \frac{\sigma^2}{\bar n}\{1+(\bar n-1)\rho\}.
+\]
+Thus
+\[
+  \frac{se_{date,true}}{se_{row,naive}}
+  =
+  \sqrt{1+(\bar n-1)\rho}.
+\]
+This is the Moulton-like design effect used as the mean-return special
+case in the main text.
+
+\section{Sharpe UVIF Derivation}
+
+Let \(R_t\) be the date-level portfolio excess return and
+\(G_t=(R_t,R_t^2)'\).  The annualized Sharpe ratio is the smooth
+functional
+\[
+  f(\mu,m_2)=\sqrt{252}\frac{\mu}{(m_2-\mu^2)^{1/2}},
+  \qquad
+  d_R=\nabla f(\mu_R,m_{2,R}).
+\]
+On sets where \(v_R=m_{2,R}-\mu_R^2>0\), the first-order expansion is
+\[
+  \widehat{\SR}_R-\SR_R
+  =
+  d_R'(\hat\theta_R-\theta_R)+o_p(T_R^{-1/2}),
+  \qquad \theta_R=\E[G_t].
+\]
+With long-run covariance
+\(\Omega_R=\Gamma_0^R+\sum_{k\ge1}(\Gamma_k^R+\Gamma_k^{R\prime})\),
+\[
+  \Var_{LR}(\widehat{\SR}_R)
+  =
+  T_R^{-1}d_R'\Omega_Rd_R+o(T_R^{-1}).
+\]
+The row-pooled IID calculation applies the same delta method to
+\(\bar nT_R\) row observations \(H_{t,i}=(Y_{t,i},Y_{t,i}^2)'\):
+\[
+  \Var_{IID,row}(\widehat{\SR}_{row})
+  =
+  (\bar nT_R)^{-1}d_Y'\Psi_Yd_Y+o((\bar nT_R)^{-1}).
+\]
+Taking the ratio gives the Sharpe UVIF:
+\[
+  \UVIF_{\SR}
+  =
+  \frac{\bar n\,d_R'\Omega_Rd_R}{d_Y'\Psi_Yd_Y}
+  =
+  \frac{\bar n\,d_R'\Gamma_0^Rd_R}{d_Y'\Psi_Yd_Y}
+  \times
+  \frac{d_R'\Omega_Rd_R}{d_R'\Gamma_0^Rd_R}.
+\]
+The first term is the cross-sectional component and the second term is
+the serial long-run factor.  Componentwise,
+\[
+  d_R'\Omega_Rd_R
+  =
+  \frac{252}{v_R^3}
+  \left[
+    m_{2,R}^2\Omega_{11}
+    -\frac{\mu_Rm_{2,R}}{2}(\Omega_{12}+\Omega_{21})
+    +\frac{\mu_R^2}{4}\Omega_{22}
+  \right].
+\]
+The \(\Omega_{22}\) term contains long-run covariances of squared
+returns and therefore brings fourth moments into Sharpe-ratio variance.
+
+\section{Capacity Frontier Proof}
+
+For a square-root impact diagnostic, the dependence-adjusted one-sided
+lower confidence margin for gross mean return is
+\[
+  \bar r_{\mathrm{gross}}
+  - z_{\alpha}\mathcal M\sigma_{\mathrm{row}}/\sqrt{T},
+\]
+where \(\sigma_{\mathrm{row}}\) is the standard deviation of row-pooled
+returns before date aggregation or UVIF adjustment.  Square-root impact
+subtracts \(\lambda\widehat{TO}\sqrt{A/V}\).  Requiring the net lower
+margin to be nonnegative gives
+\[
+  \lambda\widehat{TO}\sqrt{A/V}
+  \le
+  \bar r_{\mathrm{gross}}
+  - z_{\alpha}\mathcal M\sigma_{\mathrm{row}}/\sqrt{T}.
+\]
+Rearranging yields the capacity frontier reported in the main text.  If
+the volatility input is already the date-level portfolio volatility, the
+date boundary has already embedded the cross-sectional UVIF component,
+so the cross-sectional part of \(\mathcal M\) must not be multiplied in
+again.
+
+\section{Higher-Moment UVIF and EIR Details}
+
+For \(\theta^{(4)}=(\mu,m_2,m_3,m_4)'\), define skewness and kurtosis
+from the central moments implied by \(\theta^{(4)}\).  Any adjusted
+Sharpe functional \(h(\theta^{(4)})\) has a delta-method variance
+\(\nabla h'\Omega^{(4)}\nabla h\), where \(\Omega^{(4)}\) is the
+long-run covariance matrix of \((R_t,R_t^2,R_t^3,R_t^4)'\).  The
+higher-moment UVIF is the corresponding ratio of date-level long-run
+variance to row-pooled IID variance.  It is a diagnostic extension, not
+an additional empirical rejection gate.
+
+The EIR diagnostic is
+\[
+  \mathrm{EIR}_t
+  =
+  \frac{I(S_t;R_t)}
+       {n_t\,\bar I_t},
+  \qquad
+  \bar I_t=n_t^{-1}\sum_{i=1}^{n_t}I(s_{t,i};r_{t+1,i}).
+\]
+Under the same equicorrelated Gaussian approximation used for the
+mean-return design effect,
+\[
+  \mathrm{EIR}_t(\rho)\approx \frac{1}{1+(n_t-1)\rho}.
+\]
+Thus an EIR of \(0.111\) means that roughly \(1-0.111=0.889\), or 89
+percent, of nominal row-level information is redundant under the
+diagnostic approximation.
+
+\section{Synthetic Positive Control}
+
+\input{generated_positive_control_artifacts.tex}
+
+\section{Full Empirical Artifacts}
+
+\input{generated_empirical_artifacts.tex}
+
+\section{Full Monte Carlo Artifacts}
+
+\input{generated_simulation_artifacts.tex}
+
+\section{Robustness and Registry Notes}
+
+The public registry is frozen in \path{code/campaign_registry.json}.  It
+records loaders, public source metadata, threshold menus, primary
+thresholds, and lookback/skip parameters.  Changing a source, lookback,
+threshold, cost assumption, or eligibility rule after seeing results
+creates a new researcher menu and must be reported as exploratory.
+
+Stationarity diagnostics, holdout splits, HAC bandwidth sweeps,
+prewhitened HAC, fixed-fraction HAC, moving-block bootstrap, and
+stationary bootstrap results are secondary robustness checks.  They are
+used to identify fragile claims, not to replace the main date-return
+decision boundary.
+
+\end{document}

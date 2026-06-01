@@ -1,0 +1,22 @@
+{
+  "description": "Daily 25 Size-B/M portfolios with skipped compounded momentum signal.",
+  "factor_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily_CSV.zip",
+  "family": "kenneth_french",
+  "id": "french_size_bm_daily_dynamic_momentum",
+  "loader": "french_dynamic_momentum",
+  "lookback": 21,
+  "metadata_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html",
+  "momentum_factor_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Momentum_Factor_daily_CSV.zip",
+  "portfolio_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/25_Portfolios_5x5_Daily_CSV.zip",
+  "primary_threshold": 0.5,
+  "sample_tail": 3500,
+  "skip": 2,
+  "source_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/25_Portfolios_5x5_Daily_CSV.zip",
+  "thresholds": [
+    0.0,
+    0.3,
+    0.5,
+    0.7,
+    0.9
+  ]
+}

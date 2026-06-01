@@ -1,0 +1,2 @@
+strategy,t_stat,p_raw,p_adjusted,block_size,n_boot,threshold
+0,4.215861969443032,0.0001999600079984003,0.0001999600079984003,4,5000,0.0

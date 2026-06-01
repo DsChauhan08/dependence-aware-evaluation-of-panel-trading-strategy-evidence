@@ -1,0 +1,20 @@
+{
+  "candidate_id": "french_momentum_deciles_daily_wml",
+  "exposure": "as_selected",
+  "family": "kenneth_french",
+  "generated_at_utc": "2026-06-01T04:21:45.839712+00:00",
+  "metadata_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.French/Data_Library/det_10_port_form_pr_12_2_daily.html",
+  "n_assets": 10,
+  "n_boot": 5000,
+  "n_dates": 26131,
+  "n_perms": 10000,
+  "notes": [],
+  "primary_threshold": 0.9,
+  "sample_end": "2026-04-29",
+  "sample_start": "1926-11-03",
+  "seed": 42,
+  "source_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/10_Portfolios_Prior_12_2_Daily_CSV.zip",
+  "thresholds": [
+    0.9
+  ]
+}
