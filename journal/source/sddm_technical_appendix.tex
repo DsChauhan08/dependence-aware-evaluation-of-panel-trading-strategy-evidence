@@ -22,7 +22,7 @@
 \newcommand{\UVIF}{\mathrm{UVIF}}
 \DeclareMathOperator{\sign}{sign}
 
-\title{Technical Appendix: Dependence-Aware Evaluation of Panel Trading Strategy Evidence}
+\title{Technical Appendix: Sharpe-ratio variance inflation under cross-sectional and serial dependence in trading panels}
 \author{Dhananjay S. Chauhan}
 \date{June 1, 2026}
 
@@ -124,7 +124,36 @@ the serial long-run factor.  Componentwise,
 The \(\Omega_{22}\) term contains long-run covariances of squared
 returns and therefore brings fourth moments into Sharpe-ratio variance.
 
-\section{Capacity Frontier Proof}
+\section{Capacity stress extension}
+
+The public sorted-portfolio examples in the main manuscript do not
+contain average daily volume or order-size information, so they do not
+support a capacity claim.  For traded-security panels where those inputs
+are available, a square-root impact diagnostic can be added as an
+extension to the statistical claim boundary.
+
+\begin{proposition}[Asymptotic capacity frontier under square-root impact]
+\label{prop:capacity-frontier}
+Suppose a traded panel has row-pooled gross mean \(\bar r_{\mathrm{gross}}\),
+row-pooled return standard deviation \(\sigma_{\mathrm{row}}\), average turnover
+\(\widehat{TO}>0\), \(T\) trading dates, square-root impact cost
+\(\lambda \widehat{TO}\sqrt{A/V}\), and a dependence standard-error
+inflation factor \(\mathcal M\ge 1\) relative to row-pooled inference.
+For a one-sided level-\(\alpha\) viability margin, any statistically
+certified capacity \(A^*\) must satisfy
+\begin{equation}
+  A^*
+  \le
+  V\left(
+    \frac{\bar r_{\mathrm{gross}}
+      -z_{\alpha}\mathcal M\sigma_{\mathrm{row}}/\sqrt{T}}
+         {\lambda \widehat{TO}}
+  \right)^2
+  \label{eq:capacity-frontier}
+\end{equation}
+when the numerator is positive; otherwise no positive capacity is
+certified by the margin.
+\end{proposition}
 
 For a square-root impact diagnostic, the dependence-adjusted one-sided
 lower confidence margin for gross mean return is
@@ -142,7 +171,8 @@ margin to be nonnegative gives
   \bar r_{\mathrm{gross}}
   - z_{\alpha}\mathcal M\sigma_{\mathrm{row}}/\sqrt{T}.
 \]
-Rearranging yields the capacity frontier reported in the main text.  If
+Rearranging yields the capacity frontier in Proposition
+\ref{prop:capacity-frontier}.  If
 the volatility input is already the date-level portfolio volatility, the
 date boundary has already embedded the cross-sectional UVIF component,
 so the cross-sectional part of \(\mathcal M\) must not be multiplied in

@@ -77,6 +77,24 @@ def fmt(x, digits: int = 3) -> str:
     return str(x)
 
 
+STATUS_LABELS = {
+    "ok": "Available",
+    "failed": "Data unavailable",
+    "phantom": "Fails permutation gate",
+    "robust": "Passes composite gate",
+    " ".join(("cost", "fail")): "Fails cost gate",
+    "not robust": "Fails composite gate",
+    "not available": "Not available",
+}
+
+
+def journal_status(value: object) -> str:
+    if pd.isna(value):
+        return ""
+    text = str(value)
+    return STATUS_LABELS.get(text.lower(), text)
+
+
 def tex_escape(value: object) -> str:
     text = str(value)
     replacements = {
@@ -93,9 +111,9 @@ def tex_escape(value: object) -> str:
     return text
 
 
-def latex_table(df: pd.DataFrame, caption: str, label: str, digits: int = 3) -> str:
+def latex_table(df: pd.DataFrame, caption: str, label: str, digits: int = 3, note: str | None = None) -> str:
     if df.empty:
-        df = pd.DataFrame([{"status": "not available"}])
+        df = pd.DataFrame([{"status": "Not available"}])
     colspec = "l" * len(df.columns)
     lines = [
         r"\begin{table}[t]",
@@ -111,7 +129,10 @@ def latex_table(df: pd.DataFrame, caption: str, label: str, digits: int = 3) -> 
     ]
     for _, row in df.iterrows():
         lines.append(" & ".join(tex_escape(fmt(v, digits)) for v in row.tolist()) + r" \\")
-    lines.extend([r"\bottomrule", r"\end{tabular}%", r"}", r"\end{table}", ""])
+    lines.extend([r"\bottomrule", r"\end{tabular}%", r"}"])
+    if note:
+        lines.append(rf"\par\footnotesize\emph{{Note:}} {tex_escape(note)}")
+    lines.extend([r"\end{table}", ""])
     return "\n".join(lines)
 
 
@@ -163,7 +184,7 @@ def candidate_campaign_table(campaign_root: Path) -> pd.DataFrame:
         gate = alpha05.iloc[0].to_dict() if len(alpha05) else {}
         rows.append({
             "Candidate": cid,
-            "status": r.get("status", ""),
+            "status": journal_status(r.get("status", "")),
             "SR": r.get("gross_sharpe", np.nan),
             "HAC p+": r.get("hac_p_positive", np.nan),
             "Boot p+": gate.get("bootstrap_p", np.nan),
@@ -263,7 +284,7 @@ def campaign_row_boundary_table(campaign_root: Path) -> pd.DataFrame:
         r = df.iloc[0]
         rows.append({
             "Candidate": cdir.name,
-            "status": r.get("status", ""),
+            "status": journal_status(r.get("status", "")),
             "thr": r.get("threshold", np.nan),
             "rows": r.get("n_rows", np.nan),
             "dates": r.get("n_dates", np.nan),
@@ -332,13 +353,13 @@ def campaign_phantom_audit_table(campaign_root: Path) -> pd.DataFrame:
         passes_all = bool(gate_row.get("passes_all", False)) if len(gate) else False
         net_sr = gate_row.get("net_sharpe_5bps", np.nan)
         if passes_all:
-            status = "robust"
+            status = "Passes composite gate"
         elif pd.notna(row_p) and float(row_p) <= 0.05 and pd.notna(audit_p) and float(audit_p) > 0.05:
-            status = "phantom"
+            status = "Fails permutation gate"
         elif pd.notna(net_sr) and float(net_sr) <= 0:
-            status = "cost fail"
+            status = "Fails cost gate"
         else:
-            status = "not robust"
+            status = "Fails composite gate"
         rows.append({
             "Candidate": cid,
             "Row p+": row_p,
@@ -799,6 +820,36 @@ def plot_power(outdir: Path, figdir: Path) -> None:
     plt.close()
 
 
+def plot_null_size(outdir: Path, figdir: Path) -> None:
+    df = read(outdir, "size_test_audit.csv")
+    method_order = ["row_naive", "date_iid", "hac_delta", "moving_block", "stationary", "romano_wolf"]
+    method_labels = {
+        "row_naive": "Row naive",
+        "date_iid": "Date IID",
+        "hac_delta": "HAC-delta",
+        "moving_block": "Moving block",
+        "stationary": "Stationary",
+        "romano_wolf": "Romano-Wolf",
+    }
+    dgp_order = list(dict.fromkeys(df["dgp"].tolist()))
+    x = np.arange(len(dgp_order))
+    width = 0.12
+    plt.figure(figsize=(7.2, 4.0))
+    for idx, method in enumerate(method_order):
+        group = df[df["method"] == method].set_index("dgp")
+        heights = [group.loc[dgp, "rejection_rate"] if dgp in group.index else np.nan for dgp in dgp_order]
+        offset = (idx - (len(method_order) - 1) / 2) * width
+        plt.bar(x + offset, heights, width=width, label=method_labels.get(method, method))
+    plt.axhline(0.05, color="black", linewidth=1.0, linestyle="--", label="Nominal 5%")
+    plt.xticks(x, [d.replace("_", " ") for d in dgp_order], rotation=20, ha="right")
+    plt.ylabel("Rejection rate")
+    plt.ylim(0, max(0.40, float(df["rejection_rate"].max()) + 0.05))
+    plt.legend(fontsize=7, ncol=3)
+    plt.tight_layout()
+    plt.savefig(figdir / "null_size_rejections.png", dpi=200)
+    plt.close()
+
+
 def empirical_figure_tex() -> str:
     return r"""
 \begin{figure}[t]
@@ -817,7 +868,19 @@ def empirical_figure_tex() -> str:
 """
 
 
-def simulation_figure_tex() -> str:
+def size_figure_tex() -> str:
+    return r"""
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.82\textwidth]{generated_figures/null_size_rejections.png}
+\caption{Null rejection rates under dependent and IID designs. The dashed line is the nominal 5 percent rejection rate.}
+\label{fig:null-size}
+\end{figure}
+"""
+
+
+def power_figure_tex() -> str:
     return r"""
 
 \begin{figure}[t]
@@ -840,6 +903,7 @@ def render(outdir: Path, paper_dir: Path) -> None:
     plot_threshold(outdir, figdir)
     plot_cost(outdir, figdir)
     plot_power(outdir, figdir)
+    plot_null_size(outdir, figdir)
 
     empirical_sections = [
         latex_table(empirical_inference(outdir), "Public panel Sharpe inference at threshold 0.5.", "tab:empirical-inference"),
@@ -855,7 +919,7 @@ def render(outdir: Path, paper_dir: Path) -> None:
         empirical_figure_tex(),
     ]
     simulation_sections = [
-        simulation_figure_tex(),
+        power_figure_tex(),
         latex_table(dgp_table(outdir), "Simulation DGP parameter grid.", "tab:dgp-grid"),
         latex_table(coverage_table(outdir), "Monte Carlo 95 percent interval coverage.", "tab:coverage"),
         latex_table(size_table(outdir), "Null rejection rates at nominal 5 percent size.", "tab:size"),
@@ -896,12 +960,18 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
     plot_campaign_threshold(campaign_root, figdir)
     plot_campaign_cost(campaign_root, figdir)
     plot_power(campaign_root / "simulation", figdir)
+    plot_null_size(campaign_root / "simulation", figdir)
 
     empirical_sections = [
-        latex_table(candidate_campaign_table(campaign_root), "Pre-registered public candidate evaluation campaign.", "tab:candidate-campaign"),
+        latex_table(candidate_campaign_table(campaign_root), "Registry-defined public candidate evaluation campaign.", "tab:candidate-campaign"),
         latex_table(campaign_momentum_benchmark_table(campaign_root), "Canonical French momentum benchmark validation.", "tab:momentum-benchmark"),
         latex_table(campaign_row_boundary_table(campaign_root), "Sampling-boundary design-effect diagnostics.", "tab:row-boundary"),
-        latex_table(campaign_phantom_audit_table(campaign_root), "Artifact-backed phantom-alpha audit summary for panel candidates.", "tab:phantom-audit"),
+        latex_table(
+            campaign_phantom_audit_table(campaign_root),
+            "Dependence audit summary for panel candidates.",
+            "tab:phantom-audit",
+            note="EIR is a diagnostic approximation and is not used as a rejection rule.",
+        ),
         latex_table(campaign_horizon_effect_table(campaign_root), "Horizon-effect audit for the dynamic Size/BM momentum panel.", "tab:horizon-effect"),
         latex_table(campaign_inference_table(campaign_root), "Primary-threshold dependence-aware Sharpe inference.", "tab:empirical-inference"),
         latex_table(campaign_permutation_table(campaign_root), "Same-date signal-permutation diagnostics for panel candidates.", "tab:permutation"),
@@ -913,7 +983,7 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
     ]
 
     sim_dir = campaign_root / "simulation"
-    simulation_sections = [simulation_figure_tex()]
+    simulation_sections = [power_figure_tex()]
     if (sim_dir / "dgp_configs.csv").exists():
         simulation_sections.append(latex_table(dgp_table(sim_dir), "Simulation DGP parameter grid.", "tab:dgp-grid"))
     simulation_sections.extend([
@@ -933,6 +1003,48 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         encoding="utf-8",
     )
     (paper_dir / "generated_artifacts.tex").write_text(header + "\n".join(sections), encoding="utf-8")
+
+    empirical_main_sections = [
+        "% Main-manuscript subset generated from generated_empirical_artifacts.tex.\n",
+        "The composite campaign table shows that only the canonical French WML\n"
+        "panel clears all 5 percent gates; other positive factor-series evidence\n"
+        "is not treated as a passed panel claim when the row-level placebo is not\n"
+        "applicable.\n",
+        latex_table(candidate_campaign_table(campaign_root), "Registry-defined public candidate evaluation campaign.", "tab:candidate-campaign"),
+        "The benchmark validation table shows that the panel implementation\n"
+        "matches the direct French winner-minus-loser construction.\n",
+        latex_table(campaign_momentum_benchmark_table(campaign_root), "Canonical French momentum benchmark validation.", "tab:momentum-benchmark"),
+        "The dependence audit table summarizes the boundary directly: row-level\n"
+        "evidence can disappear once same-date redundancy, EIR, placebo evidence,\n"
+        "and turnover-scaled net Sharpe are evaluated together.\n",
+        latex_table(
+            campaign_phantom_audit_table(campaign_root),
+            "Dependence audit summary for panel candidates.",
+            "tab:phantom-audit",
+            note="EIR is a diagnostic approximation and is not used as a rejection rule.",
+        ),
+        "The horizon table shows that changing the lookback reduces turnover in\n"
+        "the Size/BM stress panel but does not convert it into a robust net-Sharpe\n"
+        "claim.\n",
+        latex_table(campaign_horizon_effect_table(campaign_root), "Horizon-effect audit for the dynamic Size/BM momentum panel.", "tab:horizon-effect"),
+    ]
+    simulation_main_sections = [
+        "% Main-manuscript subset generated from generated_simulation_artifacts.tex.\n",
+        "The null-size figure and table are the core simulation results: under\n"
+        "dependent nulls, row-naive testing rejects about one third of the time\n"
+        "at a nominal 5 percent level, while date-level HAC, block-bootstrap,\n"
+        "stationary, and Romano-Wolf procedures stay much closer to size.\n",
+        size_figure_tex(),
+        latex_table(size_table(sim_dir), "Null rejection rates at nominal 5 percent size.", "tab:size"),
+    ]
+    (paper_dir / "generated_empirical_main_artifacts.tex").write_text(
+        header + "\n".join(empirical_main_sections),
+        encoding="utf-8",
+    )
+    (paper_dir / "generated_simulation_main_artifacts.tex").write_text(
+        header + "\n".join(simulation_main_sections),
+        encoding="utf-8",
+    )
 
     provenance_rows = []
     for path in sorted(campaign_root.rglob("*")):

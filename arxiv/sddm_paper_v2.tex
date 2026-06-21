@@ -8,9 +8,13 @@
 \usepackage{graphicx}
 \usepackage{natbib}
 \usepackage[margin=1in]{geometry}
+\usepackage[hyphens]{url}
 \usepackage{hyperref}
 \usepackage{setspace}
+\usepackage{lineno}
+\Urlmuskip=0mu plus 1mu\relax
 \onehalfspacing
+\emergencystretch=2em
 
 \newtheorem{assumption}{Assumption}
 \newtheorem{theorem}{Theorem}
@@ -26,43 +30,58 @@
 \newcommand{\Neff}{N_{\mathrm{eff}}}
 \DeclareMathOperator{\sign}{sign}
 
-\title{Dependence-Aware Evaluation of Panel Trading Strategy Evidence}
-\author{Dhananjay S. Chauhan\\\texttt{dschauhan08.me@gmail.com}}
-\date{February 26, 2026}
+\title{Sharpe-ratio variance inflation under cross-sectional and serial dependence in trading panels}
+\author{Dhananjay S. Chauhan\\
+Independent Researcher, India\\
+\texttt{dschauhan08.me@gmail.com}\\
+ORCID: \url{https://orcid.org/0009-0003-1049-2213}}
+\date{}
 
 \begin{document}
+\linenumbers
 \maketitle
 
+\noindent\textbf{Correspondence:} Dhananjay S. Chauhan, Independent
+Researcher, India.\\
+\textbf{Email:} \texttt{dschauhan08.me@gmail.com}\\
+\textbf{ORCID:} \url{https://orcid.org/0009-0003-1049-2213}.
+
 \begin{abstract}
-Trading-strategy evidence is often produced from symbol-date panels, but
-the tradable object is a date-level portfolio return.  Treating selected
-rows as independent can therefore overstate evidence when same-date rows
-share market, factor, liquidity, or volatility shocks and when the
-resulting date returns are serially dependent.  This paper proposes a
-double-robust inference framework for panel trading evidence: date
-aggregation, HAC-delta inference, and dependent bootstrap resampling
-jointly address cross-sectional and serial dependence in the
-date-return series.  The main theoretical object is the Sharpe Unified
-Variance Inflation Factor (Sharpe UVIF), defined as the ratio of the
-long-run delta-method variance of the date-level Sharpe estimator to the
-row-pooled IID delta-method variance.  It is the Sharpe-ratio analogue of
-a design effect.  A companion Effective Information Rate (EIR) reports
-the fraction of nominal row-level information that remains nonredundant
-under an equicorrelation diagnostic.  The empirical analysis is a
-reproducible evaluation of public factor-zoo candidates using Kenneth
-French and AQR data.  The results show that benchmark momentum survives
-the dependence-aware boundary, while weaker panel claims can lose most
-of their nominal row-level information once the audit is applied.
+Trading-strategy evidence is often produced from symbol-date panels,
+although the economically tradable object is a date-level portfolio
+return. Treating selected rows as independent can therefore overstate
+evidence when same-date rows share market, factor, liquidity, or
+volatility shocks and when the resulting date-level returns are serially
+dependent. This paper develops a dependence-aware inference framework
+for trading-panel evidence. The main theoretical object is the Sharpe
+Unified Variance Inflation Factor, defined as the ratio of the long-run
+delta-method variance of the date-level Sharpe estimator to the
+row-pooled IID delta-method variance. The framework combines date
+aggregation, HAC-delta inference, dependent bootstrap resampling,
+researcher-menu correction, same-date placebo tests, factor-alpha
+diagnostics, and turnover-scaled cost checks. Public benchmark and
+stress-test evidence from Kenneth French and AQR data shows that
+canonical momentum survives the dependence-aware boundary, while weaker
+panel claims can lose much of their nominal row-level information after
+same-date redundancy and date-level inference are imposed. Monte Carlo
+experiments show that row-naive inference can substantially overreject
+under dependent nulls, while date-level HAC, block-bootstrap,
+stationary-bootstrap, and Romano-Wolf procedures remain closer to
+nominal size. The results provide a reproducible claim boundary for
+trading-panel evidence and show why statistical significance produced
+by multiplying dependent rows should not be interpreted as evidence of
+a tradable edge.
 \end{abstract}
 
-\noindent\textbf{Keywords:} panel data, Sharpe ratio, bootstrap,
-data snooping, multiple testing, factor alpha, trading strategy evaluation
+\noindent\textbf{Keywords:} Sharpe ratio; financial econometrics; panel data; cross-sectional
+dependence; serial dependence; HAC inference; dependent bootstrap; multiple
+testing; trading strategy evaluation; information redundancy
 
-\noindent\textbf{JEL Classification:} C12, G11, G17
+\noindent\textbf{JEL Codes:} C12; G11; G17
 
 \section{Introduction}
 
-\subsection{Problem: The Wrong Sampling Boundary}
+\subsection{Problem: The wrong sampling boundary}
 
 Prediction-based trading studies commonly begin with a panel
 \(\mathcal P=\{(t,i,s_{t,i},r_{t+1,i})\}\), where \(t\) indexes dates,
@@ -115,7 +134,7 @@ approximation, \(\mathrm{EIR}=1/\{1+(n_t-1)\rho\}\); for example,
 \(\mathrm{EIR}=0.11\) means roughly 89 percent of nominal row-level
 information is redundant.
 
-\subsection{Solution: Double-Robust Inference}
+\subsection{Solution: Dependence-aware inference}
 
 The paper's estimator-level claims are deliberately conservative.  HAC,
 bootstrap, Romano-Wolf, and portfolio-level testing are standard tools.
@@ -127,14 +146,14 @@ for the standard error of a row mean.  Second, it derives a Unified
 Variance Inflation Factor for the Sharpe ratio, replacing a mean-only
 inflation factor with the delta-method variance of the nonlinear
 functional \(f(\mu,m_2)\).  Third, it turns standard econometric tools
-into a pre-specified double-robust decision record: date aggregation is
-robust to cross-sectional clustering, and HAC-delta plus moving-block or
-stationary bootstrap inference is robust to serial dependence in the
+into a pre-specified two-channel decision record: date aggregation
+addresses cross-sectional clustering, and HAC-delta plus moving-block or
+stationary bootstrap inference addresses serial dependence in the
 date-return series.  Fourth, it reports positive-edge claims alongside
 data-snooping, factor-alpha, placebo, stationarity, and cost diagnostics.
 
-The empirical evidence is framed as an evaluation of common public
-factor-zoo candidates, not as a toy positive-control example.  It asks
+The empirical evidence is framed as a public benchmark and stress-test
+campaign, not as a toy positive-control example.  It asks
 which familiar momentum, value, quality, beta, and size/book-to-market
 claims survive once the sampling boundary, dependence, bootstrap
 robustness, researcher menu, placebo, factor-alpha, and cost boundaries
@@ -148,7 +167,7 @@ The same code also runs a Monte Carlo study comparing row-naive testing
 with date-level bootstrap, HAC-delta, block bootstrap, stationary
 bootstrap, and joint resampling decisions.
 
-\section{Related Work}
+\section{Related work}
 
 This paper sits at the intersection of three literatures that are often
 discussed separately.  Clustered-panel econometrics explains why row
@@ -170,14 +189,14 @@ The empirical interpretation is tied to the factor-zoo, false-discovery,
 factor-alpha, anomaly-decay, and trading-cost literatures
 \citep{harvey2016and,harvey2020false,harvey2020census,bailey2014deflated,holm1979simple,fama1993common,carhart1997persistence,fama2010luck,mclean2016does,almgren2001optimal,hasbrouck2009trading,frazzini2015trading}.
 
-\section{Evaluation Protocol}
+\section{Materials and methods}
 \label{sec:method}
 
-The protocol is a double-robust inference framework rather than a single
-test.  Its first robustness channel is cross-sectional: all evidence is
+The protocol is a dependence-aware inference framework rather than a
+single test.  Its first channel is cross-sectional: all evidence is
 translated from selected symbol-date rows into one economically
 tradeable date return, so same-date clusters cannot create sample size by
-row multiplication.  Its second robustness channel is serial: all
+row multiplication.  Its second channel is serial: all
 Sharpe decisions are made on the date-return series using HAC-delta and
 dependent-bootstrap procedures.  A candidate must survive both channels
 before the paper asks the separate researcher-menu, placebo, factor-alpha,
@@ -189,7 +208,7 @@ statistics are the objects used for confirmatory inference.  Sharpe UVIF
 and EIR translate the gap between those two scales into variance and
 information terms, respectively.
 
-\subsection{Signals and Executability}
+\subsection{Signals and executability}
 
 For lookback \(L\) and skip \(q\), the skipped compounded signal is
 \begin{equation}
@@ -239,7 +258,7 @@ coarse.  The empirical tables therefore report selected counts by
 threshold rather than treating the threshold scale as equally granular
 across dates.
 
-\subsection{Date Returns and Effective Sample Size}
+\subsection{Date returns and effective sample size}
 
 For threshold \(\tau\), selected set
 \(\mathcal S_t(L,q,\tau)=\{i:c_{t,i}^{(L,q)}\ge\tau\}\), and optional
@@ -262,7 +281,7 @@ autocorrelation, up to a fixed maximum lag.  This is not a substitute for
 HAC or bootstrap inference; it is a compact diagnostic for the loss of
 information from serial dependence and is not used as a decision rule.
 
-\subsection{Sharpe Inference}
+\subsection{Sharpe inference}
 
 The protocol separates estimation from testing.  It reports two-sided
 95 percent intervals for \(\widehat{\SR}\) and one-sided positive-edge
@@ -341,7 +360,7 @@ bootstrap evidence is materially weaker than the HAC evidence, the
 candidate is treated as robustness-fragile rather than as a clean
 positive-edge finding.
 
-\subsection{Researcher Menus, Placebos, and Factor Alpha}
+\subsection{Researcher menus, placebos, and factor alpha}
 
 For a fixed menu \(\mathcal M\) of lookbacks and thresholds, the primary
 joint adjustment is Romano-Wolf stepdown max-\(t\) resampling over
@@ -405,7 +424,7 @@ The factor-alpha test estimates
 using HAC standard errors.  The null is \(H_0:\alpha\le0\).  Including
 momentum is essential because the public signal is itself momentum-like.
 
-\subsection{Turnover-Scaled Costs}
+\subsection{Turnover-scaled costs}
 
 For the equal-weighted threshold portfolio, define target weights
 \begin{equation}
@@ -441,40 +460,14 @@ models before any tradability claim.  The protocol establishes a
 statistical lower bound for viability; it does not account for
 liquidity-driven alpha decay at larger assets under management.
 The empirical artifacts also report the break-even cost in basis points,
-defined by \(\hat\mu-\widehat{TO}c=0\).  For true traded security panels,
-this screen should be supplemented with a nonlinear market-impact model,
-such as a square-root impact stress in the spirit of
-\citet{almgren2001optimal} and the broader market-impact literature
-\citep{bouchaud2008markets}.  The public sorted-portfolio examples do not
-contain average daily volume or order-size information, so they cannot
-support a capacity claim.
+defined by \(\hat\mu-\widehat{TO}c=0\).  A square-root impact capacity
+extension in the spirit of \citet{almgren2001optimal} and the broader
+market-impact literature \citep{bouchaud2008markets} is provided in the
+technical appendix.  The public sorted-portfolio examples do not contain
+average daily volume or order-size information, so they do not support a
+capacity claim.
 
-\begin{theorem}[Asymptotic capacity frontier under square-root impact]
-\label{thm:capacity-frontier}
-Suppose a traded panel has row-pooled gross mean \(\bar r_{\mathrm{gross}}\),
-row-pooled return standard deviation \(\sigma_{\mathrm{row}}\), average turnover
-\(\widehat{TO}>0\), \(T\) trading dates, square-root impact cost
-\(\lambda \widehat{TO}\sqrt{A/V}\), and a dependence standard-error
-inflation factor \(\mathcal M\ge 1\) relative to row-pooled inference.
-For a one-sided level-\(\alpha\) viability margin, any statistically
-certified capacity \(A^*\) must satisfy
-\begin{equation}
-  A^*
-  \le
-  V\left(
-    \frac{\bar r_{\mathrm{gross}}
-      -z_{\alpha}\mathcal M\sigma_{\mathrm{row}}/\sqrt{T}}
-         {\lambda \widehat{TO}}
-  \right)^2
-  \label{eq:capacity-frontier}
-\end{equation}
-when the numerator is positive; otherwise no positive capacity is
-certified by the margin.
-\end{theorem}
-
-\noindent The proof is given in the technical appendix.
-
-\subsection{Composite Viability Decision}
+\subsection{Composite viability decision}
 
 The protocol reports component diagnostics, but the final claim boundary is
 deliberately stricter than any single statistic.  The gates are a
@@ -522,7 +515,7 @@ holdout, subperiod, and stationarity diagnostics are reported alongside
 these gates to prevent a single favorable statistic from becoming the
 claim.
 
-\section{Theory}
+\subsection{Sampling-boundary theory}
 \label{sec:theory}
 
 \begin{assumption}[Equicorrelated row model]
@@ -619,7 +612,7 @@ bootstrap inference on that series.  The design-effect calculation is therefore 
 as the transparent special case that explains why row pooling fails.
 \end{remark}
 
-\subsection{Unified Variance Inflation for the Sharpe Ratio}
+\subsection{Unified variance inflation for the Sharpe ratio}
 
 The mean-return design effect is useful but incomplete because the
 reported performance metric is usually the Sharpe ratio.  The Sharpe
@@ -719,7 +712,7 @@ linearized nonlinear-performance influence, which is why skewness,
 kurtosis, and volatility clustering enter the variance inflation.
 \end{remark}
 
-\subsection{Higher-Moment UVIF and Non-Normality}
+\subsection{Higher-moment UVIF and non-normality}
 
 The two-moment Sharpe UVIF already depends on fourth moments through the
 variance of \(R_t^2\).  If a venue or application uses an adjusted Sharpe
@@ -731,7 +724,7 @@ at the date-return boundary to the corresponding row-pooled IID variance.
 It is reported as a tail-risk diagnostic, not as an additional rejection
 gate.  The full expression is in the technical appendix.
 
-\subsection{Effective Information Rate}
+\subsection{Effective information rate}
 
 The UVIF can also be read as an information-redundancy statement.  Using
 standard mutual-information notation \citep{cover2006elements}, define
@@ -809,26 +802,26 @@ proof details, and secondary robustness artifacts are reported in the
 technical appendix.  The main manuscript keeps only the claim boundary
 and the evidence needed to evaluate it.
 
-\section{Public Factor-Zoo Evaluation Results}
+\section{Public benchmark and stress-test evidence}
 \label{sec:empirical}
 
-The public experiment is a pre-specified candidate campaign rather than
+The public experiment is a registry-defined candidate campaign rather than
 a single example.  It evaluates the canonical Kenneth French
 winner-minus-loser momentum decile benchmark, a broader Kenneth French
 decile-rank threshold profile, Kenneth French 25 Size/BM portfolios with
 a skipped-momentum signal, and public AQR value, momentum, quality, beta,
 and HML-style factor candidates.  The AQR series are economically meaningful
-factor-zoo benchmarks, but they are pre-aggregated series rather than
+factor-series benchmarks, but they are pre-aggregated series rather than
 row-level constituent panels; when the same-date permutation gate cannot
 be applied, the candidate is not promoted to a passed panel evaluation.
-Failed public data sources are reported instead of silently removed.
+Unavailable public data sources are reported instead of silently removed.
 
 The generated empirical tables in this section are produced from a
 full-campaign root by \path{code/render_manuscript_artifacts.py}.  Table
 \ref{tab:candidate-campaign} reports the candidate-level evaluation outcome.
 Table \ref{tab:momentum-benchmark} verifies that the canonical WML
 candidate matches the direct French winner-minus-loser decile benchmark.
-Table \ref{tab:phantom-audit} gives the artifact-backed phantom-alpha
+Table \ref{tab:phantom-audit} gives the dependence audit
 summary using row \(p\)-values, UVIF, EIR, audit \(p\)-values, and net
 Sharpe status for panel candidates.  Table \ref{tab:horizon-effect}
 reports the targeted \(L=1,5,21\) horizon-effect audit for the dynamic
@@ -853,7 +846,7 @@ claims.  The canonical French WML candidate is expected to match the
 direct Kenneth French winner-minus-loser decile construction and is
 reported as a public benchmark check.  This resolves the apparent
 \(\widehat{\SR}=0.082\) benchmark problem in earlier artifacts: that
-number came from a stale rank-threshold stress candidate, not from the
+number came from an earlier rank-threshold stress candidate, not from the
 canonical WML construction.  In the rendered campaign, the WML panel
 Sharpe matches the direct WML Sharpe at approximately 0.50, and the
 scale difference is exactly one-half because the panel portfolio holds
@@ -880,14 +873,14 @@ For the dynamic Size/BM panel in Table \ref{tab:phantom-audit}, the
 reported EIR is \(0.111\).  Under the equicorrelation diagnostic, this
 means \(1-0.111=0.889\), so approximately 89 percent of the row-level
 information implied by naive row pooling is redundant.
-The phantom-alpha summary is intentionally artifact-backed rather than
+The dependence audit summary is intentionally artifact-backed rather than
 illustrative.  It does not assert that every named factor is a panel
 candidate.  Pre-aggregated AQR factor series are excluded from that
 table because they do not provide row-level signal-return pairs from
 which row \(p\)-values, same-date permutation tests, or panel EIR can be
 computed.
 
-\section{Monte Carlo Design and Simulation Results}
+\section{Monte Carlo evidence}
 \label{sec:simulation}
 
 The Monte Carlo study is designed as a size-and-power audit of the
@@ -938,16 +931,41 @@ coverage table, power table, and power-curve figure.
 
 \input{generated_simulation_main_artifacts.tex}
 
-\section{Data and Code Availability}
+\section{Discussion and limitations}
+
+The results should be read as a claim-boundary exercise rather than a
+strategy discovery exercise.  The framework addresses two common sources
+of false precision in trading-panel evidence: same-date cross-sectional
+row multiplication and serial dependence in the date-level return
+series.  It does not remove the need for economic interpretation,
+out-of-sample validation, liquidity analysis, or venue-specific
+execution modeling.
+
+The formal validity statement assumes a fixed and finite researcher menu,
+stationary date-return series, adequate moments for the Sharpe
+delta-method expansion, and block-bootstrap regularity.  The framework
+does not cover long-memory processes, infinite-variance returns, growing
+researcher menus, structural breaks, or nonstationary date returns
+without additional assumptions.  The empirical stationarity, holdout,
+factor-alpha, placebo, and cost outputs are therefore diagnostics and
+boundary checks, not proofs that every maintained assumption holds in
+every market setting.
+
+\section{Data and code availability}
 
 The reproducibility package contains the LaTeX source, generated public
 aggregate artifacts, public-data loaders, simulation code, unit tests,
-release scripts, and SHA256 provenance.  The release target is a
-GitHub/Zenodo archive with code under Apache-2.0 and manuscript/public
-aggregate artifacts under CC-BY 4.0 unless a target venue requires
-different terms.  The arXiv source package is generated from the same
-rendered manuscript artifacts.  Proprietary predictions, raw trades,
-private tickers, production feature definitions, and unrelated workspace
+release scripts, and SHA256 provenance.  The public repository is:
+{\scriptsize\noindent
+\url{https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence}\par}
+Code is released under Apache-2.0 and manuscript/public aggregate
+artifacts under CC-BY 4.0 unless a target venue requires different terms.
+Raw third-party data are not
+redistributed where source terms do not permit redistribution; the
+repository instead provides documented loaders, source links, access
+metadata, generated aggregate artifacts, and checksums needed to
+reproduce the analysis.  Proprietary predictions, raw trades, private
+tickers, production feature definitions, and unrelated workspace
 artifacts are excluded.  The technical appendix contains the full
 simulation grid, robustness tables, positive-control artifact, registry
 notes, and proof details omitted from the main manuscript for length.
@@ -985,7 +1003,46 @@ result is promoted as alpha.  Future work should extend the framework to
 nonlinear market-impact and capacity models, time-varying
 cross-sectional dependence, and richer blocked-permutation designs.
 
-\singlespacing
+\section*{Author contributions}
+
+Dhananjay S. Chauhan is the sole author of this manuscript and was
+responsible for conceptualization, methodology, software, validation,
+formal analysis, data curation, writing, and revision.
+
+\section*{Acknowledgments}
+
+This research did not receive any specific grant from funding agencies in
+the public, commercial, or not-for-profit sectors.
+
+\section*{Conflict of interest}
+
+The author declares no conflict of interest.
+
+\section*{Ethics statement}
+
+This study uses publicly available aggregate financial data and
+simulation data. It does not involve human participants, personal data,
+clinical data, animal subjects, or cell lines. Ethics approval was
+therefore not required.
+
+\section*{Data availability}
+
+The data used in this study are derived from publicly available financial
+datasets, including Kenneth French data and AQR factor data. Cleaned
+public aggregate artifacts, source metadata, checksums, and reproduction
+instructions are available at:
+{\scriptsize\noindent
+\url{https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence}\par}
+Raw third-party data are not redistributed where source terms do not
+permit redistribution.
+
+\section*{Code availability}
+
+The code used to generate the empirical results, Monte Carlo simulations,
+tables, figures, and manuscript artifacts is available at:
+{\scriptsize\noindent
+\url{https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence}\par}
+
 \bibliographystyle{apalike}
 \begin{thebibliography}{99}
 

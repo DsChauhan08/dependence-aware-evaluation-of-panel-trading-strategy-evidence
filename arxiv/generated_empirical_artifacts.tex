@@ -2,21 +2,21 @@
 \begin{table}[t]
 \centering
 \small
-\caption{Pre-registered public candidate evaluation campaign.}
+\caption{Registry-defined public candidate evaluation campaign.}
 \label{tab:candidate-campaign}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lllllllll}
 \toprule
 Candidate & status & SR & HAC p+ & Boot p+ & RW p & Perm p & Net SR & Pass 5\% \\
 \midrule
-french\_momentum\_deciles\_daily\_rank & ok & 0.447 & 7.54e-05 & 2.00e-04 & 2.00e-04 & 1.000 & 0.447 & no \\
-french\_momentum\_deciles\_daily\_wml & ok & 0.497 & 5.53e-06 & 2.00e-04 & 2.00e-04 & 1.00e-04 & 0.497 & yes \\
-french\_size\_bm\_daily\_dynamic\_momentum & ok & 0.036 & 0.445 & 0.458 & 0.516 & 0.947 & -0.072 & no \\
-stooq\_fixed\_etf\_daily\_dynamic\_momentum & failed &  &  &  &  &  &  & no \\
-aqr\_bab\_equity\_factors\_daily & ok & 0.741 & 3.08e-13 & 2.00e-04 & 2.00e-04 &  & 0.741 & no \\
-aqr\_qmj\_factors\_daily & ok & 0.536 & 2.26e-05 & 2.00e-04 & 2.00e-04 &  & 0.536 & no \\
-aqr\_hml\_devil\_factors\_daily & ok & 0.336 & 0.004 & 0.002 & 0.002 &  & 0.336 & no \\
-aqr\_value\_momentum\_everywhere\_monthly & ok & 2.623 & 1.62e-04 & 2.00e-04 & 2.00e-04 &  & 2.623 & no \\
+french\_momentum\_deciles\_daily\_rank & Available & 0.447 & 7.54e-05 & 2.00e-04 & 2.00e-04 & 1.000 & 0.447 & no \\
+french\_momentum\_deciles\_daily\_wml & Available & 0.497 & 5.53e-06 & 2.00e-04 & 2.00e-04 & 1.00e-04 & 0.497 & yes \\
+french\_size\_bm\_daily\_dynamic\_momentum & Available & 0.036 & 0.445 & 0.458 & 0.516 & 0.947 & -0.072 & no \\
+stooq\_fixed\_etf\_daily\_dynamic\_momentum & Data unavailable &  &  &  &  &  &  & no \\
+aqr\_bab\_equity\_factors\_daily & Available & 0.741 & 3.08e-13 & 2.00e-04 & 2.00e-04 &  & 0.741 & no \\
+aqr\_qmj\_factors\_daily & Available & 0.536 & 2.26e-05 & 2.00e-04 & 2.00e-04 &  & 0.536 & no \\
+aqr\_hml\_devil\_factors\_daily & Available & 0.336 & 0.004 & 0.002 & 0.002 &  & 0.336 & no \\
+aqr\_value\_momentum\_everywhere\_monthly & Available & 2.623 & 1.62e-04 & 2.00e-04 & 2.00e-04 &  & 2.623 & no \\
 \bottomrule
 \end{tabular}%
 }
@@ -52,9 +52,9 @@ aqr\_bab\_equity\_factors\_daily & not\_applicable\_single\_series & 0.000 & 252
 aqr\_hml\_devil\_factors\_daily & not\_applicable\_single\_series & 0.000 & 26590 & 26590 & 1.000 &  &  &  &  &  &  & 0.002 \\
 aqr\_qmj\_factors\_daily & not\_applicable\_single\_series & 0.000 & 17681 & 17681 & 1.000 &  &  &  &  &  &  & 2.00e-04 \\
 aqr\_value\_momentum\_everywhere\_monthly & not\_applicable\_single\_series & 0.000 & 651 & 651 & 1.000 &  &  &  &  &  &  & 2.00e-04 \\
-french\_momentum\_deciles\_daily\_rank & ok & 0.700 & 104524 & 26131 & 4.000 & -0.138 & 0.766 & 3.584 & 3.790 & 1.70e-04 & 7.54e-05 & 2.00e-04 \\
-french\_momentum\_deciles\_daily\_wml & ok & 0.900 & 52262 & 26131 & 2.000 & -0.583 & 0.646 & 3.299 & 4.395 & 4.85e-04 & 5.53e-06 & 2.00e-04 \\
-french\_size\_bm\_daily\_dynamic\_momentum & ok & 0.500 & 45201 & 3477 & 13.000 & 0.667 & 3.000 & 0.664 & 0.222 & 0.253 & 0.412 & 0.516 \\
+french\_momentum\_deciles\_daily\_rank & Available & 0.700 & 104524 & 26131 & 4.000 & -0.138 & 0.766 & 3.584 & 3.790 & 1.70e-04 & 7.54e-05 & 2.00e-04 \\
+french\_momentum\_deciles\_daily\_wml & Available & 0.900 & 52262 & 26131 & 2.000 & -0.583 & 0.646 & 3.299 & 4.395 & 4.85e-04 & 5.53e-06 & 2.00e-04 \\
+french\_size\_bm\_daily\_dynamic\_momentum & Available & 0.500 & 45201 & 3477 & 13.000 & 0.667 & 3.000 & 0.664 & 0.222 & 0.253 & 0.412 & 0.516 \\
 \bottomrule
 \end{tabular}%
 }
@@ -63,19 +63,20 @@ french\_size\_bm\_daily\_dynamic\_momentum & ok & 0.500 & 45201 & 3477 & 13.000 
 \begin{table}[t]
 \centering
 \small
-\caption{Artifact-backed phantom-alpha audit summary for panel candidates.}
+\caption{Dependence audit summary for panel candidates.}
 \label{tab:phantom-audit}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lllllll}
 \toprule
 Candidate & Row p+ & UVIF & EIR & Audit p+ & Net SR & Status \\
 \midrule
-french\_momentum\_deciles\_daily\_rank & 1.70e-04 & 1.000 & 1.000 & 1.000 & 0.447 & phantom \\
-french\_momentum\_deciles\_daily\_wml & 4.85e-04 & 1.000 & 1.000 & 2.00e-04 & 0.497 & robust \\
-french\_size\_bm\_daily\_dynamic\_momentum & 0.253 & 9.002 & 0.111 & 0.947 & -0.072 & cost fail \\
+french\_momentum\_deciles\_daily\_rank & 1.70e-04 & 1.000 & 1.000 & 1.000 & 0.447 & Fails permutation gate \\
+french\_momentum\_deciles\_daily\_wml & 4.85e-04 & 1.000 & 1.000 & 2.00e-04 & 0.497 & Passes composite gate \\
+french\_size\_bm\_daily\_dynamic\_momentum & 0.253 & 9.002 & 0.111 & 0.947 & -0.072 & Fails cost gate \\
 \bottomrule
 \end{tabular}%
 }
+\par\footnotesize\emph{Note:} EIR is a diagnostic approximation and is not used as a rejection rule.
 \end{table}
 
 \begin{table}[t]

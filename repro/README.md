@@ -1,11 +1,15 @@
-# Dependence-Aware Panel Trading Evaluation
+# Sharpe-ratio variance inflation under cross-sectional and serial dependence in trading panels
 
 This directory contains the revised manuscript and reproducibility code for
-`Dependence-Aware Evaluation of Panel Trading Strategy Evidence`.
+`Sharpe-ratio variance inflation under cross-sectional and serial dependence in trading panels`.
 
 The code file names retain some older `sddm_*` names for compatibility, but
 the manuscript no longer presents SDDM as a branded method.  The public-facing
-object is a dependence-aware evaluation of panel trading strategy evidence.
+object is a financial-econometrics evaluation of Sharpe-ratio variance
+inflation in trading panels with cross-sectional and serial dependence.
+
+Public repository:
+https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence
 
 ## Quick Checks
 
@@ -49,7 +53,7 @@ python code/make_release_bundle.py --campaign-root code/output_release_YYYYMMDD 
 ## Main Components
 
 ```text
-paper/sddm_paper_v2.tex       Revised manuscript draft
+paper/sddm_paper_v2.tex       Peer-review manuscript draft
 paper/CLAIM_LEDGER.md         Claim-to-evidence ledger
 paper/submission_checklist_private.md
 code/sddm_bootstrap.py        Date aggregation, bootstrap, HAC-delta inference

@@ -1,7 +1,10 @@
 # Reproducibility Instructions
 
 This package reproduces the public-data and simulation evidence for
-`Dependence-Aware Evaluation of Panel Trading Strategy Evidence`.
+`Sharpe-ratio variance inflation under cross-sectional and serial dependence in trading panels`.
+
+Public repository:
+https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence
 
 ## Environment
 
@@ -34,7 +37,8 @@ python code/render_manuscript_artifacts.py \
   --campaign-root code/output_release_YYYYMMDD --paper-dir paper
 ```
 
-Compile the paper from `paper/` with `pdflatex` twice.
+Compile the peer-review manuscript and technical appendix from `paper/` with
+`pdflatex` twice.
 
 ## Release Boundary
 

@@ -1,10 +1,10 @@
 cff-version: 1.2.0
-title: "Dependence-Aware Decision Audits for Panel Trading Strategy Evaluation"
+title: "Sharpe-ratio variance inflation under cross-sectional and serial dependence in trading panels"
 message: "If you use this audit code or manuscript, please cite the paper and archived release."
 type: software
 authors:
   - family-names: Chauhan
     given-names: D. S.
-repository-code: "https://github.com/REPLACE_WITH_REPOSITORY"
-abstract: "Reproducible code and manuscript artifacts for dependence-aware panel trading strategy audits."
+abstract: "Reproducible code and manuscript artifacts for Sharpe-ratio variance inflation analysis in trading panels with cross-sectional and serial dependence."
 license: Apache-2.0
+repository-code: "https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence"

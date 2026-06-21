@@ -4,10 +4,19 @@ This file is not part of the manuscript.
 
 ## Journal Policy
 
-- Check the target journal's author disclosure policy before submission.
-- Restore any required tool-assistance, code-generation, or writing-assistance
-  disclosure in the cover letter or manuscript metadata if the journal requires
+- Target journal: AIMS Press / Quantitative Finance and Economics.
+- Article type: Original Research Article / Research article.
+- Special issue: regular issue / no special issue unless an exact match appears.
+- Number of authors: 1.
+- Enter the final QFE PDF page count from `pdfinfo`.
+- Upload `sddm_technical_appendix.pdf` as supplementary material because the
+  manuscript cites proofs, robustness tables, capacity details, and the full
+  simulation grid from the appendix.
+- Keep the AI/tool-assistance disclosure out of the manuscript; provide it in a
+  separate submission letter or portal disclosure field if the journal requires
   it.
+- Confirm the manuscript and cover letter contain the real GitHub repository
+  URL, not a placeholder.
 - Confirm author name, affiliation, and email before submission.
 
 ## Mathematical Review

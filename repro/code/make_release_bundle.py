@@ -219,14 +219,37 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
     (journal / "cover_letter_template.md").write_text(
         "# Cover Letter Template\n\n"
         "Dear Editor,\n\n"
-        "Please consider the attached manuscript, Dependence-Aware Decision Audits for Panel Trading Strategy Evaluation.\n\n"
-        "The paper provides a reproducible audit protocol for panel trading strategy evidence and reports all public-data results from released code and artifacts.\n",
+        "I am submitting my manuscript, \"Sharpe-ratio variance inflation under cross-sectional and serial dependence in trading panels,\" for consideration as a Research article in Quantitative Finance and Economics.\n\n"
+        "The paper develops a dependence-aware inference framework for trading-panel evidence. Its main contribution is the Sharpe Unified Variance Inflation Factor, which compares the long-run delta-method variance of a date-level Sharpe estimator with the row-pooled IID variance that would be reported when selected symbol-date rows are treated as independent. The empirical section uses public Kenneth French and AQR data for benchmark validation and stress testing, while the Monte Carlo section shows that row-naive inference can substantially overreject under dependent nulls.\n\n"
+        "The manuscript should be of interest to readers working in quantitative finance, financial econometrics, portfolio-performance evaluation, trading-strategy evidence, and empirical asset-pricing methodology. The manuscript is not under consideration by another journal and has not been formally published in a peer-reviewed venue. I understand that the manuscript will be considered for publication by AIMS Press in open access format.\n\n"
+        "I am the sole author. I received no external funding for this research and declare no conflict of interest. The replication code, public aggregate artifacts, configuration files, simulation scripts, and reproducibility materials are available at https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence.\n\n"
+        "Sincerely,\n\n"
+        "Dhananjay S. Chauhan\n"
+        "Independent Researcher, India\n"
+        "ORCID: https://orcid.org/0009-0003-1049-2213\n"
+        "Email: dschauhan08.me@gmail.com\n",
         encoding="utf-8",
     )
     (journal / "reproducibility_statement.md").write_text(
         "# Reproducibility Statement\n\n"
         "The public manuscript tables are generated from public Kenneth French and AQR data sources and from simulation code included in the reproducibility package. "
         "The release excludes proprietary predictions, raw trade records, private tickers, and production strategy features.\n",
+        encoding="utf-8",
+    )
+    (root / "README.md").write_text(
+        "# Sharpe-ratio variance inflation under cross-sectional and serial dependence in trading panels\n\n"
+        "This repository contains the public manuscript, technical appendix, aggregate public artifacts, and reproducibility code for the paper.\n\n"
+        "Public repository: https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence\n\n"
+        "## Main Files\n\n"
+        "- `journal/sddm_paper_v2.pdf`: peer-review manuscript PDF.\n"
+        "- `journal/source/sddm_technical_appendix.pdf`: technical appendix for supplementary upload.\n"
+        "- `journal/source/`: editable LaTeX source and generated manuscript artifacts.\n"
+        "- `repro/`: public-data loaders, simulations, tests, aggregate artifacts, and reproduction instructions.\n\n"
+        "## Release Archives\n\n"
+        "`arxiv.tar.gz`, `journal.tar.gz`, `ssrn.tar.gz`, and `repro.tar.gz` mirror the corresponding release folders. "
+        "Each release subfolder includes a `MANIFEST.sha256` file for integrity checks.\n\n"
+        "## Redaction Boundary\n\n"
+        "The public release excludes proprietary predictions, raw trade records, private tickers, production feature definitions, and unrelated workspace artifacts.\n",
         encoding="utf-8",
     )
 

@@ -1,23 +1,20 @@
-# Dependence-Aware Evaluation of Panel Trading Strategy Evidence
+# Sharpe-ratio variance inflation under cross-sectional and serial dependence in trading panels
 
-Final research package generated from `sddm-paper-v2` on 2026-06-01.
-The journal-facing main manuscript is 20 pages; the separate technical
-appendix is 11 pages.
+This repository contains the public manuscript, technical appendix, aggregate public artifacts, and reproducibility code for the paper.
 
-## Submission Formats
+Public repository: https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence
 
-- `arxiv/`: self-contained LaTeX source, generated figure assets, compiled main PDF, technical appendix PDF, and manifest.
-- `journal/`: journal-style submission folder with final PDF, source package, cover letter template, reproducibility statement, and private checklist/memo.
+## Main Files
 
-## Reproducibility Assets
+- `journal/sddm_paper_v2.pdf`: peer-review manuscript PDF.
+- `journal/source/sddm_technical_appendix.pdf`: technical appendix for supplementary upload.
+- `journal/source/`: editable LaTeX source and generated manuscript artifacts.
+- `repro/`: public-data loaders, simulations, tests, aggregate artifacts, and reproduction instructions.
 
-- `repro/code/`: public code used for the paper, including bootstrap inference, campaign execution, simulation, rendering, validation, and bundle creation.
-- `repro/tests/`: regression tests for the audit methods.
-- `repro/artifacts/`: aggregate public campaign outputs, simulation outputs, provenance files, and generated empirical diagnostics.
-- `ssrn/`: PDF-only SSRN-oriented package.
+## Release Archives
 
-## Integrity
+`arxiv.tar.gz`, `journal.tar.gz`, `ssrn.tar.gz`, and `repro.tar.gz` mirror the corresponding release folders. Each release subfolder includes a `MANIFEST.sha256` file for integrity checks.
 
-Each submission/reproducibility subfolder has its own `MANIFEST.sha256`.
-The root archives `arxiv.tar.gz`, `journal.tar.gz`, `ssrn.tar.gz`, and
-`repro.tar.gz` mirror the corresponding folders.
+## Redaction Boundary
+
+The public release excludes proprietary predictions, raw trade records, private tickers, production feature definitions, and unrelated workspace artifacts.
