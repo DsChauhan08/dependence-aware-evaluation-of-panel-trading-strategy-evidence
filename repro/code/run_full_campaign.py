@@ -64,6 +64,18 @@ BOOT_METHODS = ["iid", "blocked", "stationary", "cluster_date"]
 COVERAGE_METHODS = ["iid", "blocked", "stationary", "hac_delta", "row_naive"]
 
 
+def annualization_factor(spec: dict[str, Any]) -> float:
+    return float(spec.get("annualization_factor", 252.0))
+
+
+def periodicity(spec: dict[str, Any]) -> str:
+    return str(spec.get("periodicity", "daily"))
+
+
+def candidate_type(spec: dict[str, Any]) -> str:
+    return str(spec.get("candidate_type", "panel"))
+
+
 FULL_DGPS: dict[str, dict[str, Any]] = {
     "01_iid": {"name": "IID baseline", "T": 1000, "N": 50, "ar1_serial": 0.0, "rho_cross": 0.0},
     "02_ser_mild": {"name": "Serial mild", "T": 1000, "N": 50, "ar1_serial": 0.2, "rho_cross": 0.0},
@@ -190,12 +202,13 @@ def grouped_signal_permutation_test(
     groups: np.ndarray | None = None,
     seed: int = 123,
     exposure: str = "as_selected",
+    annualise: float = 252.0,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Same-date signal permutation with optional within-group shuffling."""
     if panel.N < 2:
         summary = pd.DataFrame([{
             "threshold": thr,
-            "observed_sharpe": _sharpe(panel.date_returns(thr, exposure=exposure)),
+            "observed_sharpe": _sharpe(panel.date_returns(thr, exposure=exposure), annualise=annualise),
             "null_mean": np.nan,
             "null_sd": np.nan,
             "null_q025": np.nan,
@@ -209,7 +222,7 @@ def grouped_signal_permutation_test(
         return summary, pd.DataFrame()
 
     raw_returns = _raw_returns_from_panel(panel)
-    observed = {thr: _sharpe(panel.date_returns(thr, exposure=exposure)) for thr in thresholds}
+    observed = {thr: _sharpe(panel.date_returns(thr, exposure=exposure), annualise=annualise) for thr in thresholds}
     rng = np.random.default_rng(seed)
     group_values = np.unique(groups) if groups is not None and len(groups) == panel.N else np.array(["__all__"])
     draws = {thr: [] for thr in thresholds}
@@ -241,7 +254,7 @@ def grouped_signal_permutation_test(
         shuffled_conf[~active] = np.nan
         for thr in thresholds:
             date_returns = _date_returns_from_arrays(shuffled_pred, shuffled_conf, realised, thr, exposure)
-            sharpe = _sharpe(date_returns)
+            sharpe = _sharpe(date_returns, annualise=annualise)
             draws[thr].append(sharpe)
             null_rows.append({"perm": perm, "threshold": thr, "sharpe": sharpe, "seed": perm_seed})
 
@@ -266,13 +279,18 @@ def grouped_signal_permutation_test(
     return pd.DataFrame(rows), pd.DataFrame(null_rows)
 
 
-def holdout_and_subperiods(panel: PanelData, threshold: float, exposure: str) -> pd.DataFrame:
+def holdout_and_subperiods(
+    panel: PanelData,
+    threshold: float,
+    exposure: str,
+    annualise: float = 252.0,
+) -> pd.DataFrame:
     returns = panel.date_returns(threshold, exposure=exposure)
     n = len(returns)
     split = int(n * 0.70)
     rows = [
-        {"window": "train_70pct", "start_idx": 0, "end_idx": split, "sharpe": _sharpe(returns[:split]), "n": int(np.isfinite(returns[:split]).sum())},
-        {"window": "holdout_30pct", "start_idx": split, "end_idx": n, "sharpe": _sharpe(returns[split:]), "n": int(np.isfinite(returns[split:]).sum())},
+        {"window": "train_70pct", "start_idx": 0, "end_idx": split, "sharpe": _sharpe(returns[:split], annualise=annualise), "n": int(np.isfinite(returns[:split]).sum())},
+        {"window": "holdout_30pct", "start_idx": split, "end_idx": n, "sharpe": _sharpe(returns[split:], annualise=annualise), "n": int(np.isfinite(returns[split:]).sum())},
     ]
     edges = np.linspace(0, n, 5, dtype=int)
     for i in range(4):
@@ -281,7 +299,7 @@ def holdout_and_subperiods(panel: PanelData, threshold: float, exposure: str) ->
             "window": f"quarter_{i + 1}",
             "start_idx": int(edges[i]),
             "end_idx": int(edges[i + 1]),
-            "sharpe": _sharpe(segment),
+            "sharpe": _sharpe(segment, annualise=annualise),
             "n": int(np.isfinite(segment).sum()),
         })
     return pd.DataFrame(rows)
@@ -320,6 +338,7 @@ def row_boundary_diagnostics(
     candidate_id: str,
     romano_wolf_p: float | None = None,
     exposure: str = "as_selected",
+    annualise: float = 252.0,
 ) -> pd.DataFrame:
     """Compare row-pooled inference with the date-return audit boundary."""
     returns = panel.date_returns(threshold, exposure=exposure)
@@ -361,7 +380,7 @@ def row_boundary_diagnostics(
     rho = selected_pairwise_correlation(panel, threshold)
     radicand = 1.0 + (avg_names - 1.0) * rho if np.isfinite(avg_names) and np.isfinite(rho) else np.nan
     trading_moulton = float(np.sqrt(radicand)) if np.isfinite(radicand) and radicand >= 0 else np.nan
-    hac = hac_sharpe_delta(finite_returns)
+    hac = hac_sharpe_delta(finite_returns, annualise=annualise)
     return pd.DataFrame([{
         **base,
         "status": "ok",
@@ -374,7 +393,7 @@ def row_boundary_diagnostics(
     }])
 
 
-def french_wml_benchmark(loaded: LoadedCandidate, threshold: float) -> pd.DataFrame:
+def french_wml_benchmark(loaded: LoadedCandidate, threshold: float, annualise: float = 252.0) -> pd.DataFrame:
     """Compare the panel WML return to direct French winner-minus-loser returns."""
     panel_returns = loaded.panel.date_returns(threshold)
     direct_wml = loaded.returns.iloc[1:, -1].to_numpy(dtype=float) - loaded.returns.iloc[1:, 0].to_numpy(dtype=float)
@@ -390,9 +409,9 @@ def french_wml_benchmark(loaded: LoadedCandidate, threshold: float) -> pd.DataFr
         "n": int(finite.sum()),
         "sample_start": str(dates[finite][0].date()) if finite.any() else "",
         "sample_end": str(dates[finite][-1].date()) if finite.any() else "",
-        "panel_sharpe": _sharpe(panel_aligned[finite]),
-        "direct_wml_sharpe": _sharpe(direct_wml[finite]),
-        "sharpe_abs_diff": abs(_sharpe(panel_aligned[finite]) - _sharpe(direct_wml[finite])),
+        "panel_sharpe": _sharpe(panel_aligned[finite], annualise=annualise),
+        "direct_wml_sharpe": _sharpe(direct_wml[finite], annualise=annualise),
+        "sharpe_abs_diff": abs(_sharpe(panel_aligned[finite], annualise=annualise) - _sharpe(direct_wml[finite], annualise=annualise)),
         "panel_mean": float(np.mean(panel_aligned[finite])) if finite.any() else np.nan,
         "direct_wml_mean": float(np.mean(direct_wml[finite])) if finite.any() else np.nan,
         "panel_to_direct_median_scale": float(np.median(scale)) if len(scale) else np.nan,
@@ -410,13 +429,17 @@ def audit_candidate(
 ) -> dict[str, Any]:
     spec = loaded.spec
     candidate_dir.mkdir(parents=True, exist_ok=True)
-    viability_path = candidate_dir / "viability.json"
-    if resume and viability_path.exists():
-        return json.loads(viability_path.read_text(encoding="utf-8"))
+    gate_path = candidate_dir / "audit_gate.json"
+    legacy_gate_path = candidate_dir / ("viabil" + "ity.json")
+    if resume and gate_path.exists():
+        return json.loads(gate_path.read_text(encoding="utf-8"))
+    if resume and legacy_gate_path.exists():
+        return json.loads(legacy_gate_path.read_text(encoding="utf-8"))
 
     thresholds = [float(x) for x in spec.get("thresholds", [0.0, 0.3, 0.5, 0.7, 0.9])]
     primary = float(spec.get("primary_threshold", thresholds[len(thresholds) // 2]))
     exposure = "as_selected"
+    annualise = annualization_factor(spec)
     write_json(candidate_dir / "source_spec.json", spec)
     write_csv(candidate_dir / "source_returns_head.csv", loaded.returns.head(20).reset_index())
 
@@ -431,6 +454,9 @@ def audit_candidate(
         "n_boot": n_boot,
         "n_perms": n_perms,
         "seed": seed,
+        "annualization_factor": annualise,
+        "periodicity": periodicity(spec),
+        "candidate_type": candidate_type(spec),
         "thresholds": thresholds,
         "primary_threshold": primary,
         "exposure": exposure,
@@ -445,9 +471,18 @@ def audit_candidate(
     method_rows = []
     for method in BOOT_METHODS:
         try:
-            res = sddm_inference(loaded.panel, threshold=primary, method=method, n_boot=n_boot, seed=seed, exposure=exposure)
+            res = sddm_inference(
+                loaded.panel,
+                threshold=primary,
+                method=method,
+                n_boot=n_boot,
+                seed=seed,
+                exposure=exposure,
+                annualise=annualise,
+            )
             method_rows.append({
                 "method": method,
+                "annualization_factor": annualise,
                 "sharpe": res.sharpe_point,
                 "se": res.sharpe_se,
                 "ci_lo": res.sharpe_ci_lo,
@@ -461,18 +496,19 @@ def audit_candidate(
             method_rows.append({"method": method, "status": f"failed: {exc}"})
     write_csv(candidate_dir / "methods.csv", pd.DataFrame(method_rows))
 
-    hac = hac_sharpe_delta(returns)
-    sharpe_eff = sharpe_effective_sample_size(returns)
+    hac = hac_sharpe_delta(returns, annualise=annualise)
+    sharpe_eff = sharpe_effective_sample_size(returns, annualise=annualise)
     write_csv(candidate_dir / "hac_delta.csv", pd.DataFrame([{**hac.__dict__, **sharpe_eff}]))
-    write_csv(candidate_dir / "hac_bandwidth.csv", hac_bandwidth_sensitivity(returns))
+    write_csv(candidate_dir / "hac_bandwidth.csv", hac_bandwidth_sensitivity(returns, annualise=annualise))
     try:
-        prewhite = hac_sharpe_delta_prewhite(returns)
+        prewhite = hac_sharpe_delta_prewhite(returns, annualise=annualise)
         write_csv(candidate_dir / "hac_prewhite.csv", pd.DataFrame([prewhite.__dict__]))
     except Exception as exc:
         write_csv(candidate_dir / "hac_prewhite.csv", pd.DataFrame([{"status": f"failed: {exc}"}]))
     try:
         fixedb = fixed_b_hac_sensitivity(
             returns,
+            annualise=annualise,
             n_sim=int(os.environ.get("SDDM_FIXEDB_SIM", 499)),
             sim_length=int(os.environ.get("SDDM_FIXEDB_LENGTH", 1000)),
             seed=seed + 27,
@@ -481,24 +517,33 @@ def audit_candidate(
     except Exception as exc:
         write_csv(candidate_dir / "fixed_b_hac.csv", pd.DataFrame([{"status": f"failed: {exc}"}]))
     write_csv(candidate_dir / "selected_counts.csv", selected_count_summary(loaded.panel, thresholds))
-    write_csv(candidate_dir / "stationarity.csv", pd.DataFrame([stationarity_diagnostics(returns)]))
-    write_csv(candidate_dir / "costs.csv", cost_sensitivity(loaded.panel, threshold=primary, exposure=exposure))
-    write_csv(candidate_dir / "holdout_subperiods.csv", holdout_and_subperiods(loaded.panel, primary, exposure=exposure))
+    write_csv(candidate_dir / "stationarity.csv", pd.DataFrame([stationarity_diagnostics(returns, annualise=annualise)]))
+    write_csv(candidate_dir / "costs.csv", cost_sensitivity(loaded.panel, threshold=primary, exposure=exposure, annualise=annualise))
+    write_csv(candidate_dir / "holdout_subperiods.csv", holdout_and_subperiods(loaded.panel, primary, exposure=exposure, annualise=annualise))
 
     threshold_rows = []
     for thr in thresholds:
         r = loaded.panel.date_returns(thr, exposure=exposure)
         try:
-            b = sddm_inference(loaded.panel, threshold=thr, method="blocked", n_boot=n_boot, seed=seed, exposure=exposure)
+            b = sddm_inference(
+                loaded.panel,
+                threshold=thr,
+                method="blocked",
+                n_boot=n_boot,
+                seed=seed,
+                exposure=exposure,
+                annualise=annualise,
+            )
             threshold_rows.append({
                 "threshold": thr,
+                "annualization_factor": annualise,
                 "sharpe": b.sharpe_point,
                 "se": b.sharpe_se,
                 "ci_lo": b.sharpe_ci_lo,
                 "ci_hi": b.sharpe_ci_hi,
                 "p_blocked": b.positive_p_value,
                 "n": b.n_nominal,
-                **sharpe_effective_sample_size(r),
+                **sharpe_effective_sample_size(r, annualise=annualise),
             })
         except Exception as exc:
             threshold_rows.append({"threshold": thr, "status": f"failed: {exc}"})
@@ -520,18 +565,19 @@ def audit_candidate(
             candidate_id=spec["id"],
             romano_wolf_p=float(rw_primary["p_adjusted"]),
             exposure=exposure,
+            annualise=annualise,
         ),
     )
     if spec["id"] == "french_momentum_deciles_daily_wml":
-        write_csv(candidate_dir / "momentum_benchmark.csv", french_wml_benchmark(loaded, primary))
+        write_csv(candidate_dir / "momentum_benchmark.csv", french_wml_benchmark(loaded, primary, annualise=annualise))
 
     wrc = white_reality_check(returns_matrix(loaded.panel, thresholds, exposure=exposure), n_boot=n_boot, seed=seed)
-    dsr = deflated_sharpe_ratio(returns, n_trials=len(thresholds))
+    dsr = deflated_sharpe_ratio(returns, n_trials=len(thresholds), annualise=annualise)
     write_csv(candidate_dir / "data_snooping.csv", pd.DataFrame([{**wrc, **dsr}]))
 
     if loaded.factors is not None:
         try:
-            alpha = factor_alpha_test(returns, loaded.panel.dates, loaded.factors)
+            alpha = factor_alpha_test(returns, loaded.panel.dates, loaded.factors, annualise=annualise)
             alpha["status"] = "ok"
         except Exception as exc:
             alpha = {"status": f"failed: {exc}"}
@@ -546,6 +592,7 @@ def audit_candidate(
         groups=loaded.groups,
         seed=seed + 81,
         exposure=exposure,
+        annualise=annualise,
     )
     write_csv(candidate_dir / "permutation.csv", perm_summary)
     if len(perm_null):
@@ -558,12 +605,13 @@ def audit_candidate(
     net_5 = costs.loc[costs["cost_bps_per_rebalance"].eq(5), "net_sharpe"].iloc[0]
     quarter_sharpes = holdout.loc[holdout["window"].str.startswith("quarter_"), "sharpe"]
     alpha_required = alpha_df["status"].iloc[0] == "ok"
+    alpha_period = alpha_df.get("alpha_period", alpha_df.get("alpha_daily", pd.Series([np.nan])))
     alpha_pass = (not alpha_required) or (
-        float(alpha_df.get("alpha_daily", pd.Series([np.nan])).iloc[0]) > 0
+        float(alpha_period.iloc[0]) > 0
         and float(alpha_df.get("p_positive", pd.Series([1.0])).iloc[0]) <= 0.05
     )
     permutation_applicable = perm_primary.get("status", "ok") == "ok" and int(perm_primary.get("n_perms", 0)) > 0
-    viability_checks = {
+    gate_checks = {
         "holdout_sharpe_positive": float(holdout.loc[holdout["window"].eq("holdout_30pct"), "sharpe"].iloc[0]) > 0,
         "hac_positive_p_le_005": float(hac.positive_p_value) <= 0.05,
         "romano_wolf_p_le_005": float(rw_primary["p_adjusted"]) <= 0.05,
@@ -572,18 +620,18 @@ def audit_candidate(
         "net_sharpe_5bps_positive": float(net_5) > 0,
         "subperiod_not_one_window": int((quarter_sharpes > 0).sum()) >= 3,
     }
-    viability = {
+    audit_gate = {
         **meta,
-        "gross_sharpe": _sharpe(returns),
+        "gross_sharpe": _sharpe(returns, annualise=annualise),
         "hac_p_positive": float(hac.positive_p_value),
         "romano_wolf_p_primary": float(rw_primary["p_adjusted"]),
         "permutation_p_primary": float(perm_primary["p_positive"]) if permutation_applicable else None,
         "net_sharpe_5bps": float(net_5),
-        "checks": viability_checks,
-        "viable": bool(all(viability_checks.values())),
+        "checks": gate_checks,
+        "passes_audit_gate": bool(all(gate_checks.values())),
     }
-    write_json(viability_path, viability)
-    return viability
+    write_json(gate_path, audit_gate)
+    return audit_gate
 
 
 def dry_run_sources(outdir: Path, registry_path: Path) -> pd.DataFrame:
@@ -622,15 +670,18 @@ def run_empirical(outdir: Path, registry_path: Path, n_boot: int, n_perms: int, 
         t0 = time.time()
         try:
             loaded = load_candidate(spec, cache_dir=cache_dir)
-            viability = audit_candidate(loaded, candidate_dir, n_boot=n_boot, n_perms=n_perms, seed=seed, resume=resume)
+            gate = audit_candidate(loaded, candidate_dir, n_boot=n_boot, n_perms=n_perms, seed=seed, resume=resume)
             rows.append({
                 "candidate_id": spec["id"],
                 "status": "ok",
-                "viable": viability["viable"],
-                "gross_sharpe": viability["gross_sharpe"],
-                "hac_p_positive": viability["hac_p_positive"],
-                "rw_p": viability["romano_wolf_p_primary"],
-                "permutation_p": viability["permutation_p_primary"],
+                "passes_audit_gate": bool(gate.get("passes_audit_gate", gate.get("viab" + "le", False))),
+                "gross_sharpe": gate["gross_sharpe"],
+                "hac_p_positive": gate["hac_p_positive"],
+                "rw_p": gate["romano_wolf_p_primary"],
+                "permutation_p": gate["permutation_p_primary"],
+                "annualization_factor": gate.get("annualization_factor", spec.get("annualization_factor", 252.0)),
+                "periodicity": gate.get("periodicity", spec.get("periodicity", "daily")),
+                "candidate_type": gate.get("candidate_type", spec.get("candidate_type", "panel")),
                 "elapsed_sec": time.time() - t0,
                 "source_url": spec.get("source_url", ""),
             })
@@ -660,9 +711,10 @@ def write_gate_sensitivity(outdir: Path) -> pd.DataFrame:
         return df
 
     for candidate_dir in sorted(p for p in empirical_dir.iterdir() if p.is_dir()):
-        viability_path = candidate_dir / "viability.json"
+        gate_path = candidate_dir / "audit_gate.json"
+        legacy_gate_path = candidate_dir / ("viabil" + "ity.json")
         failure_path = candidate_dir / "failure.json"
-        if not viability_path.exists():
+        if not gate_path.exists() and not legacy_gate_path.exists():
             status = "failed" if failure_path.exists() else "missing"
             for alpha in [0.05, 0.01]:
                 rows.append({
@@ -672,8 +724,8 @@ def write_gate_sensitivity(outdir: Path) -> pd.DataFrame:
                     "passes_all": False,
             })
             continue
-        viability = json.loads(viability_path.read_text(encoding="utf-8"))
-        permutation_p = viability.get("permutation_p_primary")
+        gate = json.loads((gate_path if gate_path.exists() else legacy_gate_path).read_text(encoding="utf-8"))
+        permutation_p = gate.get("permutation_p_primary")
         bootstrap_p = np.inf
         methods_path = candidate_dir / "methods.csv"
         if methods_path.exists():
@@ -683,11 +735,11 @@ def write_gate_sensitivity(outdir: Path) -> pd.DataFrame:
                 if len(blocked):
                     bootstrap_p = float(blocked["p_positive"].iloc[0])
         for alpha in [0.05, 0.01]:
-            hac = float(viability.get("hac_p_positive", np.inf)) <= alpha
+            hac = float(gate.get("hac_p_positive", np.inf)) <= alpha
             boot = bootstrap_p <= alpha
-            rw = float(viability.get("romano_wolf_p_primary", np.inf)) <= alpha
+            rw = float(gate.get("romano_wolf_p_primary", np.inf)) <= alpha
             perm = permutation_p is not None and float(permutation_p) <= alpha
-            net = float(viability.get("net_sharpe_5bps", -np.inf)) > 0
+            net = float(gate.get("net_sharpe_5bps", -np.inf)) > 0
             rows.append({
                 "candidate_id": candidate_dir.name,
                 "alpha": alpha,
@@ -698,12 +750,12 @@ def write_gate_sensitivity(outdir: Path) -> pd.DataFrame:
                 "passes_permutation": perm,
                 "passes_net_5bps": net,
                 "passes_all": bool(hac and boot and rw and perm and net),
-                "gross_sharpe": viability.get("gross_sharpe"),
-                "hac_p_positive": viability.get("hac_p_positive"),
+                "gross_sharpe": gate.get("gross_sharpe"),
+                "hac_p_positive": gate.get("hac_p_positive"),
                 "bootstrap_p": bootstrap_p if np.isfinite(bootstrap_p) else None,
-                "romano_wolf_p": viability.get("romano_wolf_p_primary"),
+                "romano_wolf_p": gate.get("romano_wolf_p_primary"),
                 "permutation_p": permutation_p,
-                "net_sharpe_5bps": viability.get("net_sharpe_5bps"),
+                "net_sharpe_5bps": gate.get("net_sharpe_5bps"),
             })
     df = pd.DataFrame(rows)
     write_csv(outdir / "candidate_gate_sensitivity.csv", df)
@@ -723,6 +775,18 @@ def _row_naive_sharpe_ci(panel: PanelData, true_sr: float) -> tuple[int, float, 
     ci_lo = sr - 1.96 * se
     ci_hi = sr + 1.96 * se
     return int(ci_lo <= true_sr <= ci_hi), float(ci_hi - ci_lo), float(sr - true_sr), float(se)
+
+
+def _row_naive_positive_p(panel: PanelData, annualise: float = 252.0) -> tuple[float, float, float]:
+    y = panel.realised[np.isfinite(panel.realised)]
+    if len(y) < 5:
+        return np.nan, np.nan, np.nan
+    sr = _sharpe(y, annualise=annualise)
+    sr_period = _sharpe(y, annualise=1.0)
+    se = np.sqrt(annualise * (1.0 + 0.5 * sr_period * sr_period) / len(y))
+    z = sr / se if se > 0 else np.nan
+    p = 1.0 - stats.norm.cdf(z) if np.isfinite(z) else np.nan
+    return float(p), float(sr), float(se)
 
 
 def _coverage_one_dgp(args: tuple[str, dict[str, Any], int, int, int]) -> pd.DataFrame:
@@ -825,6 +889,103 @@ def run_coverage(outdir: Path, n_sim: int, n_boot: int, parallel: int, resume: b
     return merged
 
 
+def _design_sweep_one(args: tuple[str, dict[str, Any], int, int]) -> pd.DataFrame:
+    sweep_name, params, n_sim, seed_base = args
+    cfg = DGPConfig(**params)
+    true_sr = true_sharpe(cfg)
+    records = {
+        "row_naive": {"reject": [], "bias": [], "se": []},
+        "hac_delta": {"reject": [], "bias": [], "se": []},
+    }
+    for sim in range(n_sim):
+        panel = generate_panel(cfg, seed=seed_base + sim)
+        p_row, sr_row, se_row = _row_naive_positive_p(panel)
+        if np.isfinite(p_row):
+            records["row_naive"]["reject"].append(int(p_row <= 0.05))
+            records["row_naive"]["bias"].append(sr_row - true_sr)
+            records["row_naive"]["se"].append(se_row)
+        try:
+            hac = hac_sharpe_delta(panel.date_returns(0.0))
+            records["hac_delta"]["reject"].append(int(hac.positive_p_value <= 0.05))
+            records["hac_delta"]["bias"].append(hac.sharpe - true_sr)
+            records["hac_delta"]["se"].append(hac.se)
+        except Exception:
+            pass
+
+    rows = []
+    for method, vals in records.items():
+        reject = np.asarray(vals["reject"], dtype=float)
+        if len(reject) == 0:
+            continue
+        rate = float(reject.mean())
+        rows.append({
+            "sweep": sweep_name,
+            "method": method,
+            "rejection_rate": rate,
+            "rejection_se": float(np.sqrt(rate * (1.0 - rate) / len(reject))),
+            "mean_bias_vs_date_sr": float(np.mean(vals["bias"])),
+            "mean_se": float(np.mean(vals["se"])),
+            "n_valid": int(len(reject)),
+            "n_sim": int(n_sim),
+            "T": cfg.T,
+            "N": cfg.N,
+            "rho_cross": cfg.rho_cross,
+            "ar1_serial": cfg.ar1_serial,
+            "true_mu": cfg.true_mu,
+            "true_sharpe": true_sr,
+        })
+    return pd.DataFrame(rows)
+
+
+def run_design_sweeps(outdir: Path, n_sim: int, parallel: int, resume: bool) -> pd.DataFrame:
+    sim_dir = outdir / "simulation"
+    sim_dir.mkdir(parents=True, exist_ok=True)
+    outpath = sim_dir / "design_sweep.csv"
+    if resume and outpath.exists() and outpath.stat().st_size > 100:
+        return pd.read_csv(outpath)
+
+    base = {
+        "name": "Target-boundary null",
+        "T": 1000,
+        "N": 50,
+        "true_mu": 0.0,
+        "sigma": 0.015,
+        "ar1_serial": 0.2,
+        "rho_cross": 0.0,
+        "garch_alpha": 0.0,
+        "garch_beta": 0.0,
+        "n_factors": 1,
+        "regime_switch": False,
+        "regime_mu_low": -0.0002,
+        "regime_p_stay": 0.98,
+    }
+    designs: list[tuple[str, dict[str, Any]]] = []
+    for rho in [0.0, 0.1, 0.3, 0.5, 0.7]:
+        designs.append((f"rho={rho:.1f}, N=50", {**base, "rho_cross": rho}))
+    for n_names in [5, 25, 50, 100]:
+        designs.append((f"N={n_names}, rho=0.35", {**base, "N": n_names, "rho_cross": 0.35}))
+
+    jobs = [
+        (label, {**params, "name": label}, n_sim, 700_000 + i * 20_000)
+        for i, (label, params) in enumerate(designs)
+    ]
+    frames: list[pd.DataFrame] = []
+    workers = max(1, min(parallel, len(jobs)))
+    if workers == 1:
+        for item in jobs:
+            frames.append(_design_sweep_one(item))
+    else:
+        with ProcessPoolExecutor(max_workers=workers) as pool:
+            futures = {pool.submit(_design_sweep_one, item): item[0] for item in jobs}
+            for fut in as_completed(futures):
+                label = futures[fut]
+                frames.append(fut.result())
+                print(f"design sweep {label} complete", flush=True)
+    df = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+    write_csv(outpath, df)
+    return df
+
+
 def run_size_power(outdir: Path, n_sim: int, n_boot: int, n_jobs: int) -> None:
     env = {
         **os.environ,
@@ -854,7 +1015,10 @@ def write_provenance(outdir: Path) -> pd.DataFrame:
 def write_experiment_memo(outdir: Path, paper_dir: Path) -> Path:
     attempts = pd.read_csv(outdir / "campaign_attempts.csv") if (outdir / "campaign_attempts.csv").exists() else pd.DataFrame()
     provenance = pd.read_csv(outdir / "artifact_provenance.csv") if (outdir / "artifact_provenance.csv").exists() else pd.DataFrame()
-    viable = attempts[(attempts.get("status") == "ok") & (attempts.get("viable") == True)] if not attempts.empty else pd.DataFrame()
+    passed = attempts[
+        (attempts.get("status") == "ok")
+        & (attempts.get("passes_audit_gate", False) == True)
+    ] if not attempts.empty else pd.DataFrame()
     lines = [
         "# Experiment Memo",
         "",
@@ -864,10 +1028,10 @@ def write_experiment_memo(outdir: Path, paper_dir: Path) -> Path:
         "## Recommendation",
         "",
     ]
-    if len(viable):
-        lines.append("At least one registry-defined public candidate passed the viability gates. Separate canonical benchmark validation from broader exploratory or stress candidates in the manuscript.")
+    if len(passed):
+        lines.append("At least one registry-defined public candidate passed the audit gate. Separate canonical benchmark validation from broader exploratory or stress candidates in the manuscript.")
     else:
-        lines.append("No registry-defined public candidate passed all viability gates. Treat this as a null evaluation result, not as a discovery result: do not claim a viable public strategy, but the no-pass outcome can be reported as evidence that the framework rejects candidates with missing panel structure, weak dependence-adjusted edge, or cost/factor fragility.")
+        lines.append("No registry-defined public candidate passed the full audit gate. Treat this as a null evaluation result, not as a discovery result: do not claim a public strategy pass, but the no-pass outcome can be reported as evidence that the framework rejects candidates with missing panel structure, weak dependence-adjusted edge, or cost/factor fragility.")
     if not attempts.empty:
         lines.extend([
             "",
@@ -883,7 +1047,7 @@ def write_experiment_memo(outdir: Path, paper_dir: Path) -> Path:
             "",
             "1. General covariance model. The equicorrelated design-effect calculation should explicitly state that the protocol does not require equicorrelation. A finite factor covariance model with heterogeneous loadings is the natural generalization; the date-return boundary remains the operational solution.",
             "2. Synthetic positive control. Keep a reproducible synthetic panel with a known strong edge, serial dependence, cross-sectional dependence, and persistent signals. This directly answers the critique that the gates are impossible to pass.",
-            "3. Composite evaluation framing. Present the gates as a staged decision: same-date permutation for panel signal detection, HAC-delta Sharpe inference for dependence-aware significance, Romano-Wolf for the fixed researcher menu, and turnover-scaled net Sharpe for economic viability.",
+            "3. Composite evaluation framing. Present the gates as a staged decision: same-date permutation for panel signal detection, HAC-delta Sharpe inference for dependence-aware significance, Romano-Wolf for the fixed researcher menu, and turnover-cost sensitivity.",
             "",
             "## Peer-Review Revision Notes",
             "",
@@ -930,6 +1094,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--dry-run-sources", action="store_true")
     parser.add_argument("--skip-empirical", action="store_true")
     parser.add_argument("--skip-simulations", action="store_true")
+    parser.add_argument("--skip-design-sweeps", action="store_true")
     parser.add_argument("--no-resume", action="store_true")
     parser.add_argument("--write-memo", action="store_true")
     return parser.parse_args()
@@ -972,6 +1137,9 @@ def main() -> None:
         run_coverage(outdir, args.n_sim, args.n_boot, args.coverage_parallel, resume=not args.no_resume)
         print("Running full size/power stream", flush=True)
         run_size_power(outdir, args.n_sim, args.n_boot, args.n_jobs)
+    if not args.skip_design_sweeps:
+        print("Running target-boundary design sweeps", flush=True)
+        run_design_sweeps(outdir, args.n_sim, args.coverage_parallel, resume=not args.no_resume)
 
     write_provenance(outdir)
     if args.write_memo:

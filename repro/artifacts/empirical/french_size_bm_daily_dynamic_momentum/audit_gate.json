@@ -1,9 +1,11 @@
 {
+  "annualization_factor": 252.0,
   "candidate_id": "french_size_bm_daily_dynamic_momentum",
+  "candidate_type": "panel",
   "checks": {
     "factor_alpha_positive_if_available": false,
     "hac_positive_p_le_005": false,
-    "holdout_sharpe_positive": true,
+    "holdout_sharpe_positive": false,
     "net_sharpe_5bps_positive": false,
     "permutation_p_le_005": false,
     "romano_wolf_p_le_005": false,
@@ -11,21 +13,23 @@
   },
   "exposure": "as_selected",
   "family": "kenneth_french",
-  "generated_at_utc": "2026-05-27T10:48:56.486899+00:00",
-  "gross_sharpe": 0.03560779295075276,
-  "hac_p_positive": 0.4454352903670705,
+  "generated_at_utc": "2026-06-25T12:27:27.205609+00:00",
+  "gross_sharpe": 0.05768432672213769,
+  "hac_p_positive": 0.41214181736062827,
   "metadata_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html",
   "n_assets": 25,
   "n_boot": 5000,
   "n_dates": 3477,
   "n_perms": 10000,
-  "net_sharpe_5bps": -0.0718896349535607,
+  "net_sharpe_5bps": -0.0498101197527655,
   "notes": [],
-  "permutation_p_primary": 0.9468053194680532,
+  "passes_audit_gate": false,
+  "periodicity": "daily",
+  "permutation_p_primary": 0.942905709429057,
   "primary_threshold": 0.5,
-  "romano_wolf_p_primary": 0.5158968206358728,
-  "sample_end": "2026-03-30",
-  "sample_start": "2012-05-31",
+  "romano_wolf_p_primary": 0.4803039392121576,
+  "sample_end": "2026-04-29",
+  "sample_start": "2012-06-29",
   "seed": 42,
   "source_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/25_Portfolios_5x5_Daily_CSV.zip",
   "thresholds": [
@@ -34,6 +38,5 @@
     0.5,
     0.7,
     0.9
-  ],
-  "viable": false
+  ]
 }

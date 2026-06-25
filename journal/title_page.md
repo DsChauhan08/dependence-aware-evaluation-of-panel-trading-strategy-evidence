@@ -1,6 +1,6 @@
 # Title Page
 
-Title: Sharpe-ratio variance inflation in entity-time financial panels
+Title: Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels
 
 Author: Dhananjay S. Chauhan
 
@@ -14,6 +14,6 @@ ORCID: https://orcid.org/0009-0003-1049-2213
 
 Public repository: https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence
 
-Keywords: Sharpe ratio; financial econometrics; panel data; cross-sectional dependence; serial dependence; HAC inference; dependent bootstrap; multiple testing; portfolio signal evaluation; information redundancy
+Keywords: Sharpe ratio; financial econometrics; panel data; cross-sectional dependence; serial dependence; HAC inference; dependent bootstrap; multiple testing; portfolio signal evaluation
 
-JEL Codes: C12; G11; G17
+JEL Codes: C12; C15; G11; G12; G17

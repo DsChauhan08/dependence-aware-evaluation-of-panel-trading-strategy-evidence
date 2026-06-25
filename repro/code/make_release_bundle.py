@@ -15,6 +15,7 @@ import os
 import shutil
 import subprocess
 import tarfile
+import zipfile
 from pathlib import Path
 
 
@@ -87,6 +88,7 @@ def copy_manuscript(dst: Path) -> None:
         "sddm_paper_v2.tex",
         "sddm_paper_v2_blinded.tex",
         "sddm_technical_appendix.tex",
+        "sddm_technical_appendix_blinded.tex",
         "generated_empirical_main_artifacts.tex",
         "generated_simulation_main_artifacts.tex",
         "generated_empirical_artifacts.tex",
@@ -101,6 +103,8 @@ def copy_manuscript(dst: Path) -> None:
         guarded_copy(PAPER_DIR / "sddm_paper_v2_blinded.pdf", dst / "sddm_paper_v2_blinded.pdf")
     if (PAPER_DIR / "sddm_technical_appendix.pdf").exists():
         guarded_copy(PAPER_DIR / "sddm_technical_appendix.pdf", dst / "sddm_technical_appendix.pdf")
+    if (PAPER_DIR / "sddm_technical_appendix_blinded.pdf").exists():
+        guarded_copy(PAPER_DIR / "sddm_technical_appendix_blinded.pdf", dst / "sddm_technical_appendix_blinded.pdf")
     fig_src = PAPER_DIR / "generated_figures"
     if fig_src.exists():
         copy_tree_whitelist(fig_src, dst / "generated_figures", {".png", ".pdf"})
@@ -121,7 +125,7 @@ def copy_campaign_aggregates(campaign_root: Path, dst: Path) -> None:
             guarded_copy(path, dst / name)
     sim = campaign_root / "simulation"
     if sim.exists():
-        for name in ["coverage_all_merged.csv", "coverage_pivot.csv", "dgp_configs.csv", "size_test_audit.csv", "power_audit.csv", "power_audit_pivot.csv"]:
+        for name in ["coverage_all_merged.csv", "coverage_pivot.csv", "design_sweep.csv", "dgp_configs.csv", "size_test_audit.csv", "power_audit.csv", "power_audit_pivot.csv"]:
             path = sim / name
             if path.exists():
                 guarded_copy(path, dst / "simulation" / name)
@@ -130,7 +134,7 @@ def copy_campaign_aggregates(campaign_root: Path, dst: Path) -> None:
         for cdir in sorted(p for p in empirical.iterdir() if p.is_dir()):
             for name in [
                 "metadata.json",
-                "viability.json",
+                "audit_gate.json",
                 "failure.json",
                 "methods.csv",
                 "hac_delta.csv",
@@ -170,6 +174,73 @@ def make_archive(folder: Path) -> Path:
     return archive
 
 
+def write_anonymized_review_zip(repro_root: Path, journal_root: Path) -> Path:
+    anon = journal_root / "review_repro_anonymized"
+    reset_dir(anon)
+    (anon / "README.md").write_text(
+        "# Anonymous Replication Package\n\n"
+        "This double-blind review package contains public-data loaders, simulation code, generated aggregate artifacts, and tests needed to reproduce the manuscript tables and figures. "
+        "Author-identifying title-page material, cover letters, personal repository links, and public-archive metadata are excluded.\n\n"
+        "Run `python -m pytest -q tests/test_audit_methods.py` for the method checks. "
+        "The manuscript artifacts were rendered from `public_aggregates/` with `code/render_manuscript_artifacts.py`.\n",
+        encoding="utf-8",
+    )
+    for name in ["requirements-paper.txt"]:
+        guarded_copy(PROJECT_ROOT / name, anon / name)
+
+    anon_code = anon / "code"
+    for name in [
+        "sddm_bootstrap.py",
+        "threshold_analysis.py",
+        "public_data.py",
+        "campaign_sources.py",
+        "run_full_campaign.py",
+        "run_power_size.py",
+        "run_prod_parallel.py",
+        "simulation_study.py",
+        "synthetic_positive_control.py",
+        "render_manuscript_artifacts.py",
+        "walk_forward.py",
+        "campaign_registry.json",
+    ]:
+        guarded_copy(PROJECT_ROOT / "code" / name, anon_code / name)
+    copy_tree_whitelist(PROJECT_ROOT / "tests", anon / "tests", {".py"})
+    public_aggregates = repro_root / "artifacts"
+    for path in sorted(public_aggregates.rglob("*")):
+        if not path.is_file() or path.suffix.lower() not in {".csv", ".json", ".md"}:
+            continue
+        dst = anon / "public_aggregates" / path.relative_to(public_aggregates)
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(path, dst)
+
+    forbidden = [
+        "Dhananjay",
+        "Chauhan",
+        "dschauhan08",
+        "0009-0003-1049-2213",
+        "DsChauhan08",
+        "OpenAI",
+        "Codex",
+    ]
+    for path in sorted(anon.rglob("*")):
+        if not path.is_file() or path.suffix.lower() not in {".py", ".json", ".csv", ".md", ".txt", ".cff"}:
+            continue
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        hits = [term for term in forbidden if term in text]
+        if hits:
+            raise ValueError(f"author-identifying text in anonymous review package: {path}: {hits}")
+
+    zip_path = journal_root / "review_repro_anonymized.zip"
+    if zip_path.exists():
+        zip_path.unlink()
+    with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+        for path in sorted(anon.rglob("*")):
+            if path.is_file():
+                zf.write(path, path.relative_to(journal_root))
+    shutil.rmtree(anon)
+    return zip_path
+
+
 def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
     campaign_root = campaign_root.resolve()
     if "smoke" in str(campaign_root).lower():
@@ -186,14 +257,12 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
         folder.mkdir(parents=True, exist_ok=True)
 
     copy_manuscript(arxiv)
-    copy_manuscript(journal / "source")
     if (PAPER_DIR / "sddm_paper_v2.pdf").exists():
         guarded_copy(PAPER_DIR / "sddm_paper_v2.pdf", ssrn / "sddm_paper_v2.pdf")
-        guarded_copy(PAPER_DIR / "sddm_paper_v2.pdf", journal / "sddm_paper_v2.pdf")
     if (PAPER_DIR / "sddm_paper_v2_blinded.pdf").exists():
         guarded_copy(PAPER_DIR / "sddm_paper_v2_blinded.pdf", journal / "main_manuscript_blinded.pdf")
-    if (PAPER_DIR / "sddm_technical_appendix.pdf").exists():
-        guarded_copy(PAPER_DIR / "sddm_technical_appendix.pdf", journal / "technical_appendix_supplement.pdf")
+    if (PAPER_DIR / "sddm_technical_appendix_blinded.pdf").exists():
+        guarded_copy(PAPER_DIR / "sddm_technical_appendix_blinded.pdf", journal / "technical_appendix_supplement.pdf")
 
     for name in ["README_REPRO.md", "requirements-paper.txt", "LICENSE", "CITATION.cff"]:
         guarded_copy(PROJECT_ROOT / name, repro / name)
@@ -220,6 +289,7 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
         guarded_copy(PROJECT_ROOT / "code" / name, repro / "code" / name)
     copy_tree_whitelist(PROJECT_ROOT / "tests", repro / "tests", {".py"})
     copy_campaign_aggregates(campaign_root, repro / "artifacts")
+    write_anonymized_review_zip(repro, journal)
 
     (ssrn / "README_SSRN.txt").write_text(
         "SSRN package: upload the PDF only after the platform disclosure requirements are resolved.\n",
@@ -228,7 +298,7 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
     (journal / "cover_letter_template.md").write_text(
         "# Cover Letter Template\n\n"
         "Dear Editor,\n\n"
-        "I am submitting my manuscript, \"Sharpe-ratio variance inflation in entity-time financial panels,\" for consideration as an Article in Modern Finance.\n\n"
+        "I am submitting my manuscript, \"Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels,\" for consideration as an Article in Modern Finance.\n\n"
         "The paper is a financial econometrics methodology paper. It studies how Sharpe-ratio inference can be distorted when selected rows in an entity-time financial panel are treated as independent even though the economically meaningful object is a date-level portfolio return. The main contribution is the Sharpe Unified Variance Inflation Factor, which links row-pooled IID Sharpe inference to date-level long-run Sharpe inference, together with a reproducible audit protocol based on date aggregation, HAC-delta inference, dependent bootstrap resampling, researcher-menu correction, placebo tests, factor-alpha checks, and cost sensitivity.\n\n"
         "The empirical sections use public Kenneth French and AQR data as benchmark and stress-test applications, while the Monte Carlo section shows that row-naive inference can substantially overreject under dependent nulls. The manuscript is positioned as a testing framework for evaluating Sharpe-ratio evidence in entity-time financial panels rather than as a new-anomaly or trading-rule paper.\n\n"
         "The manuscript should be of interest to readers working in financial econometrics, empirical asset pricing, portfolio-performance evaluation, factor screening, and reproducible finance methodology. The manuscript is not under consideration by another journal and has not been formally published in a peer-reviewed venue.\n\n"
@@ -243,15 +313,15 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
     )
     (journal / "title_page.md").write_text(
         "# Title Page\n\n"
-        "Title: Sharpe-ratio variance inflation in entity-time financial panels\n\n"
+        "Title: Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels\n\n"
         "Author: Dhananjay S. Chauhan\n\n"
         "Affiliation: Independent Researcher, India\n\n"
         "Corresponding author: Dhananjay S. Chauhan, Independent Researcher, India\n\n"
         "Email: dschauhan08.me@gmail.com\n\n"
         "ORCID: https://orcid.org/0009-0003-1049-2213\n\n"
         "Public repository: https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence\n\n"
-        "Keywords: Sharpe ratio; financial econometrics; panel data; cross-sectional dependence; serial dependence; HAC inference; dependent bootstrap; multiple testing; portfolio signal evaluation; information redundancy\n\n"
-        "JEL Codes: C12; G11; G17\n",
+        "Keywords: Sharpe ratio; financial econometrics; panel data; cross-sectional dependence; serial dependence; HAC inference; dependent bootstrap; multiple testing; portfolio signal evaluation\n\n"
+        "JEL Codes: C12; C15; G11; G12; G17\n",
         encoding="utf-8",
     )
     (journal / "reproducibility_statement.md").write_text(
@@ -261,15 +331,15 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
         encoding="utf-8",
     )
     (root / "README.md").write_text(
-        "# Sharpe-ratio variance inflation in entity-time financial panels\n\n"
+        "# Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels\n\n"
         "This repository contains the public manuscript, technical appendix, aggregate public artifacts, and reproducibility code for the paper.\n\n"
         "Public repository: https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence\n\n"
         "## Main Files\n\n"
         "- `journal/main_manuscript_blinded.pdf`: blinded peer-review manuscript PDF for journals that require separate title pages.\n"
         "- `journal/title_page.md`: author title page.\n"
-        "- `journal/technical_appendix_supplement.pdf`: technical appendix for supplementary upload.\n"
-        "- `journal/sddm_paper_v2.pdf`: author-identifying manuscript PDF for public archive or journals that do not require blinding.\n"
-        "- `journal/source/`: editable LaTeX source and generated manuscript artifacts.\n"
+        "- `journal/technical_appendix_supplement.pdf`: blinded technical appendix for supplementary upload.\n"
+        "- `journal/review_repro_anonymized.zip`: anonymized replication materials for double-blind review.\n"
+        "- `arxiv/`: editable LaTeX source and generated manuscript artifacts.\n"
         "- `repro/`: public-data loaders, simulations, tests, aggregate artifacts, and reproduction instructions.\n\n"
         "## Release Archives\n\n"
         "`arxiv.tar.gz`, `journal.tar.gz`, `ssrn.tar.gz`, and `repro.tar.gz` mirror the corresponding release folders. "

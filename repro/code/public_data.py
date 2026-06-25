@@ -225,6 +225,7 @@ def factor_alpha_test(
     returns: np.ndarray,
     dates: np.ndarray,
     factors: pd.DataFrame,
+    annualise: float = 252.0,
 ) -> dict:
     """HAC alpha test against FF factors available on matching dates."""
     import statsmodels.api as sm
@@ -234,7 +235,7 @@ def factor_alpha_test(
     X = factors.reindex(y.index)[["Mkt-RF", "SMB", "HML", "MOM"]].dropna(how="all")
     joined = pd.concat([y.rename("ret"), X], axis=1).dropna()
     if len(joined) < 30:
-        return {"alpha_daily": np.nan, "alpha_ann": np.nan, "t_alpha": np.nan, "p_positive": 1.0, "n": len(joined)}
+        return {"alpha_period": np.nan, "alpha_ann": np.nan, "t_alpha": np.nan, "p_positive": 1.0, "n": len(joined)}
     Xmat = sm.add_constant(joined[["Mkt-RF", "SMB", "HML", "MOM"]].fillna(0.0))
     model = sm.OLS(joined["ret"], Xmat)
     maxlags = andrew_bartlett_bandwidth(joined["ret"].to_numpy())
@@ -244,9 +245,9 @@ def factor_alpha_test(
     t_alpha = alpha / se if se > 0 else np.inf
     p_positive = float(1.0 - stats.norm.cdf(t_alpha))
     return {
-        "alpha_daily": alpha,
-        "alpha_ann": alpha * 252.0,
-        "alpha_se_daily": se,
+        "alpha_period": alpha,
+        "alpha_ann": alpha * annualise,
+        "alpha_se_period": se,
         "t_alpha": float(t_alpha),
         "p_positive": p_positive,
         "n": int(len(joined)),
@@ -254,7 +255,7 @@ def factor_alpha_test(
     }
 
 
-def stationarity_diagnostics(returns: np.ndarray) -> dict:
+def stationarity_diagnostics(returns: np.ndarray, annualise: float = 252.0) -> dict:
     """ADF/KPSS plus rolling Sharpe instability diagnostics."""
     from statsmodels.tsa.stattools import adfuller, kpss
 
@@ -272,14 +273,19 @@ def stationarity_diagnostics(returns: np.ndarray) -> dict:
     except Exception:
         out["kpss_p"] = np.nan
     window = min(252, max(30, len(r) // 5))
-    roll = pd.Series(r).rolling(window).apply(lambda x: _sharpe(x.to_numpy()), raw=False).dropna()
+    roll = pd.Series(r).rolling(window).apply(lambda x: _sharpe(x.to_numpy(), annualise=annualise), raw=False).dropna()
     out["rolling_window"] = int(window)
     out["rolling_sr_min"] = float(roll.min()) if len(roll) else np.nan
     out["rolling_sr_max"] = float(roll.max()) if len(roll) else np.nan
     return out
 
 
-def cost_sensitivity(panel: PanelData, threshold: float = 0.5, exposure: str = "as_selected") -> pd.DataFrame:
+def cost_sensitivity(
+    panel: PanelData,
+    threshold: float = 0.5,
+    exposure: str = "as_selected",
+    annualise: float = 252.0,
+) -> pd.DataFrame:
     """Turnover-scaled cost stress in bps per full rebalance."""
     returns = panel.date_returns(threshold, exposure=exposure)
     valid = returns[np.isfinite(returns)]
@@ -298,9 +304,9 @@ def cost_sensitivity(panel: PanelData, threshold: float = 0.5, exposure: str = "
             "daily_turnover": turnover,
             "turnover_rescale": turnover_parts["turnover_rescale"],
             "turnover_entry_exit_flip": turnover_parts["turnover_entry_exit_flip"],
-            "gross_sharpe": _sharpe(valid),
-            "net_sharpe": _sharpe(net),
-            "annual_cost_drag": daily_cost * 252.0,
+            "gross_sharpe": _sharpe(valid, annualise=annualise),
+            "net_sharpe": _sharpe(net, annualise=annualise),
+            "annual_cost_drag": daily_cost * annualise,
             "break_even_cost_bps": break_even,
         })
     return pd.DataFrame(rows)
@@ -426,12 +432,12 @@ def ff_25_structural_groups(n_cols: int, design: str) -> np.ndarray:
     raise ValueError(f"unknown structural permutation design: {design}")
 
 
-def hac_bandwidth_sensitivity(returns: np.ndarray) -> pd.DataFrame:
+def hac_bandwidth_sensitivity(returns: np.ndarray, annualise: float = 252.0) -> pd.DataFrame:
     """Sharpe HAC sensitivity across fixed Bartlett bandwidths plus default."""
     rows = []
     for label, lag in [("auto", None), ("0", 0), ("1", 1), ("5", 5), ("10", 10), ("21", 21), ("63", 63), ("126", 126)]:
         try:
-            res = hac_sharpe_delta(returns, max_lag=lag)
+            res = hac_sharpe_delta(returns, max_lag=lag, annualise=annualise)
             rows.append({
                 "lag_label": label,
                 "requested_lag": np.nan if lag is None else lag,

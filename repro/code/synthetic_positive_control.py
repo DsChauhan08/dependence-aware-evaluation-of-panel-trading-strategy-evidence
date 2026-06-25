@@ -1,7 +1,7 @@
 """
 Synthetic positive-control audit.
 
-The public candidate campaign can validly end with no viable public strategy.
+The public candidate campaign can validly end with no public audit-gate pass.
 This script supplies a reproducible counterexample to the stronger criticism
 that the audit gates are impossible to pass.  It builds a panel with a known
 directional edge, cross-sectional dependence, serially persistent common

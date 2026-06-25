@@ -1,4 +1,6 @@
 {
+  "annualization_factor": 252,
+  "candidate_type": "panel",
   "description": "Daily 25 Size-B/M portfolios with skipped compounded momentum signal.",
   "factor_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily_CSV.zip",
   "family": "kenneth_french",
@@ -7,6 +9,7 @@
   "lookback": 21,
   "metadata_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html",
   "momentum_factor_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Momentum_Factor_daily_CSV.zip",
+  "periodicity": "daily",
   "portfolio_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/25_Portfolios_5x5_Daily_CSV.zip",
   "primary_threshold": 0.5,
   "sample_tail": 3500,

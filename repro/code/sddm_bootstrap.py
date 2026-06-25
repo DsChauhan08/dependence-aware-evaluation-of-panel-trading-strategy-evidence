@@ -324,7 +324,10 @@ def _bootstrap_chunk_size(n: int, n_boot: int, target_cells: int = 5_000_000) ->
 
 
 def _iid_bootstrap(
-    returns: NDArray[np.float64], n_boot: int, rng: np.random.Generator
+    returns: NDArray[np.float64],
+    n_boot: int,
+    rng: np.random.Generator,
+    annualise: Annualisation = 252.0,
 ) -> NDArray[np.float64]:
     valid = returns[np.isfinite(returns)]
     n = len(valid)
@@ -334,7 +337,7 @@ def _iid_bootstrap(
     while pos < n_boot:
         size = min(chunk, n_boot - pos)
         idx = rng.integers(0, n, size=(size, n))
-        sharpes[pos : pos + size] = _sharpe_matrix(valid[idx])
+        sharpes[pos : pos + size] = _sharpe_matrix(valid[idx], annualise=annualise)
         pos += size
     return sharpes
 
@@ -344,6 +347,7 @@ def _blocked_bootstrap(
     n_boot: int,
     block_size: int,
     rng: np.random.Generator,
+    annualise: Annualisation = 252.0,
 ) -> NDArray[np.float64]:
     valid = returns[np.isfinite(returns)]
     n = len(valid)
@@ -357,7 +361,7 @@ def _blocked_bootstrap(
         size = min(chunk, n_boot - pos)
         starts = rng.integers(0, n - block_size + 1, size=(size, n_blocks))
         idx = (starts[:, :, None] + offsets[None, None, :]).reshape(size, n_blocks * block_size)[:, :n]
-        sharpes[pos : pos + size] = _sharpe_matrix(valid[idx])
+        sharpes[pos : pos + size] = _sharpe_matrix(valid[idx], annualise=annualise)
         pos += size
     return sharpes
 
@@ -367,6 +371,7 @@ def _stationary_bootstrap(
     n_boot: int,
     mean_block: float,
     rng: np.random.Generator,
+    annualise: Annualisation = 252.0,
 ) -> NDArray[np.float64]:
     valid = returns[np.isfinite(returns)]
     n = len(valid)
@@ -385,7 +390,7 @@ def _stationary_bootstrap(
         for i in range(1, n):
             idx[:, i] = np.where(switches[:, i], starts[:, i], idx[:, i - 1] + 1)
         idx %= n
-        sharpes[pos : pos + size] = _sharpe_matrix(valid[idx])
+        sharpes[pos : pos + size] = _sharpe_matrix(valid[idx], annualise=annualise)
         pos += size
     return sharpes
 
@@ -398,6 +403,7 @@ def _cluster_bootstrap(
     rng: np.random.Generator | None = None,
     weighting: Weighting = "equal",
     exposure: Exposure = "as_selected",
+    annualise: Annualisation = 252.0,
 ) -> NDArray[np.float64]:
     if rng is None:
         rng = np.random.default_rng()
@@ -409,7 +415,7 @@ def _cluster_bootstrap(
         sharpes = np.empty(n_boot)
         for b in range(n_boot):
             idx = rng.choice(valid_idx, size=n_valid, replace=True)
-            sharpes[b] = _sharpe(base_returns[idx])
+            sharpes[b] = _sharpe(base_returns[idx], annualise=annualise)
         return sharpes
 
     sharpes = np.empty(n_boot)
@@ -422,7 +428,10 @@ def _cluster_bootstrap(
             realised=panel.realised[:, ticker_idx],
             confidence=panel.confidence[:, ticker_idx],
         )
-        sharpes[b] = _sharpe(sub_panel.date_returns(threshold, weighting=weighting, exposure=exposure))
+        sharpes[b] = _sharpe(
+            sub_panel.date_returns(threshold, weighting=weighting, exposure=exposure),
+            annualise=annualise,
+        )
     return sharpes
 
 
@@ -769,6 +778,7 @@ def sddm_inference(
     seed: int = 42,
     weighting: Weighting = "equal",
     exposure: Exposure = "as_selected",
+    annualise: Annualisation = 252.0,
 ) -> BootstrapResult:
     """
     Run date-level bootstrap inference on a prediction panel.
@@ -786,7 +796,7 @@ def sddm_inference(
     if n < 10:
         raise ValueError(f"Only {n} valid dates after filtering; insufficient for inference.")
 
-    sharpe_hat = _sharpe(valid)
+    sharpe_hat = _sharpe(valid, annualise=annualise)
     mean_ret = float(np.mean(valid))
     n_eff = effective_sample_size(valid)
 
@@ -794,15 +804,15 @@ def sddm_inference(
         block_size = optimal_block_length(valid, objective="distribution")
 
     if method == "iid":
-        boot_sharpes = _iid_bootstrap(valid, n_boot, rng)
+        boot_sharpes = _iid_bootstrap(valid, n_boot, rng, annualise=annualise)
     elif method == "blocked":
-        boot_sharpes = _blocked_bootstrap(valid, n_boot, block_size, rng)
+        boot_sharpes = _blocked_bootstrap(valid, n_boot, block_size, rng, annualise=annualise)
     elif method == "stationary":
-        boot_sharpes = _stationary_bootstrap(valid, n_boot, float(block_size), rng)
+        boot_sharpes = _stationary_bootstrap(valid, n_boot, float(block_size), rng, annualise=annualise)
     elif method == "cluster_date":
-        boot_sharpes = _cluster_bootstrap(panel, threshold, n_boot, "date", rng, weighting, exposure)
+        boot_sharpes = _cluster_bootstrap(panel, threshold, n_boot, "date", rng, weighting, exposure, annualise)
     elif method == "cluster_ticker":
-        boot_sharpes = _cluster_bootstrap(panel, threshold, n_boot, "ticker", rng, weighting, exposure)
+        boot_sharpes = _cluster_bootstrap(panel, threshold, n_boot, "ticker", rng, weighting, exposure, annualise)
     else:
         raise ValueError(f"Unknown method: {method}")
 

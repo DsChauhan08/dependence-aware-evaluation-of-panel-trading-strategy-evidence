@@ -1,6 +1,6 @@
-threshold,exposure,cost_bps_per_rebalance,daily_turnover,turnover_rescale,turnover_entry_exit_flip,gross_sharpe,net_sharpe,annual_cost_drag
-0.0,as_selected,0,0.0,0.0,0.0,0.5362574272879999,0.5362574272879999,0.0
-0.0,as_selected,1,0.0,0.0,0.0,0.5362574272879999,0.5362574272879999,0.0
-0.0,as_selected,5,0.0,0.0,0.0,0.5362574272879999,0.5362574272879999,0.0
-0.0,as_selected,10,0.0,0.0,0.0,0.5362574272879999,0.5362574272879999,0.0
-0.0,as_selected,25,0.0,0.0,0.0,0.5362574272879999,0.5362574272879999,0.0
+threshold,exposure,cost_bps_per_rebalance,daily_turnover,turnover_rescale,turnover_entry_exit_flip,gross_sharpe,net_sharpe,annual_cost_drag,break_even_cost_bps
+0.0,as_selected,0,0.0,0.0,0.0,0.5362574272879999,0.5362574272879999,0.0,
+0.0,as_selected,1,0.0,0.0,0.0,0.5362574272879999,0.5362574272879999,0.0,
+0.0,as_selected,5,0.0,0.0,0.0,0.5362574272879999,0.5362574272879999,0.0,
+0.0,as_selected,10,0.0,0.0,0.0,0.5362574272879999,0.5362574272879999,0.0,
+0.0,as_selected,25,0.0,0.0,0.0,0.5362574272879999,0.5362574272879999,0.0,

@@ -37,7 +37,7 @@
   \blindedfalse
 \fi
 
-\title{Sharpe-ratio variance inflation in entity-time financial panels}
+\title{Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels}
 \ifblinded
 \author{}
 \else
@@ -64,25 +64,29 @@ Researcher, India.\\
 Entity-time financial panels are often evaluated by treating selected
 rows as independent observations, even when the economically meaningful
 object is a date-level portfolio return. This paper studies the
-resulting sampling-boundary problem for Sharpe-ratio inference. It
+resulting sampling-boundary distortion for Sharpe-ratio evidence. It
 defines a Sharpe Unified Variance Inflation Factor that compares
 long-run date-level delta-method variance with row-pooled IID variance,
 and pairs the diagnostic with an audit protocol using date aggregation,
 HAC-delta inference, dependent bootstrap resampling, researcher-menu
 correction, placebo tests, factor-alpha checks, and turnover-scaled cost
-sensitivity. Public Kenneth French and AQR benchmarks illustrate the
-protocol in momentum and factor-screen settings. In dependent null
-designs, row-naive rejection reaches about 35 percent at a nominal 5
-percent level, while date-level HAC and bootstrap procedures remain
-closer to nominal size. The contribution is a reproducible financial
-econometrics testing framework for panel-based performance evidence.
+sensitivity. The novelty is not a new trading anomaly; it is an
+accounting framework for the row-to-date target change that standard
+clustering, Sharpe time-series inference, and menu correction address
+only in separate pieces. Public Kenneth French and AQR benchmarks
+illustrate the protocol in momentum and factor-screen settings. In
+dependent null designs, row-naive rejection reaches about 35 percent at
+a nominal 5 percent level, while date-level HAC and bootstrap procedures
+remain closer to nominal size. The contribution is a reproducible
+financial-econometrics testing framework for panel-based performance
+evidence.
 \end{abstract}
 
 \noindent\textbf{Keywords:} Sharpe ratio; financial econometrics; panel data; cross-sectional
 dependence; serial dependence; HAC inference; dependent bootstrap; multiple
-testing; portfolio signal evaluation; information redundancy
+testing; portfolio signal evaluation
 
-\noindent\textbf{JEL Codes:} C12; G11; G17
+\noindent\textbf{JEL Codes:} C12; C15; G11; G12; G17
 
 \section{Introduction}
 
@@ -229,7 +233,7 @@ This paper is adjacent to that literature but distinct: its object is
 the sampling unit and return boundary before a row-level Sharpe claim is
 interpreted as portfolio-performance evidence.
 
-\section{Materials and methods}
+\section{Sampling-boundary framework}
 \label{sec:method}
 
 The protocol is a dependence-aware inference framework rather than a
@@ -336,6 +340,9 @@ For HAC inference, reindex the finite realized date-return observations
 as \(R_u\), \(u=1,\ldots,T_R\), where \(R_u\) is the strategy excess
 return for the decision date after subtracting the applicable risk-free
 rate when the source is not already a long-short excess-return series.
+Let \(A_f\) denote the source-specific annualization factor: \(A_f=252\)
+for daily sources and \(A_f=12\) for monthly sources in the public
+registry.
 Let \(g_u=(R_u,R_u^2)'\),
 \(\hat\mu=T_R^{-1}\sum_u R_u\),
 \(\hat m_2=T_R^{-1}\sum_u R_u^2\), and
@@ -343,7 +350,7 @@ Let \(g_u=(R_u,R_u^2)'\),
 variance, not the \(T-1\) bias correction, because it is the plug-in
 moment entering the smooth functional
 \[
-  f(\mu,m_2)=\sqrt{252}\frac{\mu}{(m_2-\mu^2)^{1/2}}.
+  f(\mu,m_2)=\sqrt{A_f}\frac{\mu}{(m_2-\mu^2)^{1/2}}.
 \]
 Following \citet{ledoit2008robust}, the Sharpe ratio is treated as a
 smooth functional \(f(\theta)\) of the moment vector
@@ -354,12 +361,12 @@ provided the long-run covariance matrix \(\Omega\) is consistently
 estimated by a kernel-based HAC estimator.
 Evaluated at \((\hat\mu,\hat m_2)\),
 \[
-  \widehat{\SR}=\sqrt{252}\frac{\hat\mu}{\sqrt{\hat v}},
+  \widehat{\SR}=\sqrt{A_f}\frac{\hat\mu}{\sqrt{\hat v}},
   \qquad
   \nabla f(\hat\mu,\hat m_2) =
   \left(
-  \sqrt{252}\frac{\hat m_2}{\hat v^{3/2}},
-  -\frac{1}{2}\sqrt{252}\frac{\hat\mu}{\hat v^{3/2}}
+  \sqrt{A_f}\frac{\hat m_2}{\hat v^{3/2}},
+  -\frac{1}{2}\sqrt{A_f}\frac{\hat\mu}{\hat v^{3/2}}
   \right)' .
 \]
 With \(\widehat{\Omega}\) the Bartlett-kernel HAC estimate of the
@@ -399,6 +406,8 @@ bootstrap \(p\)-values and intervals adjacent to HAC estimates; when the
 bootstrap evidence is materially weaker than the HAC evidence, the
 candidate is treated as robustness-fragile rather than as a clean
 positive-edge finding.
+
+\section{Audit protocol and implementation}
 
 \subsection{Researcher menus, placebos, and factor alpha}
 
@@ -486,7 +495,7 @@ For cost \(c\) per full rebalance in decimal units, the cost-adjusted
 Sharpe ratio is
 \begin{equation}
   \widehat{\SR}_{net}(c)
-  = \frac{\hat\mu-\widehat{TO}\,c}{\hat\sigma}\sqrt{252}.
+  = \frac{\hat\mu-\widehat{TO}\,c}{\hat\sigma}\sqrt{A_f}.
   \label{eq:net-sr}
 \end{equation}
 This is a first-order cost stress.  It assumes linear cost per unit of
@@ -497,7 +506,7 @@ lower bound when liquidity demand is material.  They are not a full execution mo
 high-frequency, capacity-constrained, or illiquid strategies.  Such
 applications require spread, impact, latency, borrow, and capacity
 models before any tradability claim.  The protocol establishes a
-statistical lower bound for viability; it does not account for
+statistical lower bound for an audit-gate pass; it does not account for
 liquidity-driven alpha decay at larger assets under management.
 The empirical artifacts also report the break-even cost in basis points,
 defined by \(\hat\mu-\widehat{TO}c=0\).  A square-root impact capacity
@@ -507,15 +516,15 @@ technical appendix.  The public sorted-portfolio examples do not contain
 average daily volume or order-size information, so they do not support a
 capacity claim.
 
-\subsection{Composite viability decision}
+\subsection{Composite audit-gate decision}
 
 The protocol reports component diagnostics, but the final claim boundary is
 deliberately stricter than any single statistic.  The gates are a
 lexicographic filter: a candidate must first clear the date-level
 statistical boundary, then the dependent-bootstrap robustness boundary,
 then the researcher-menu and placebo integrity boundaries, and finally
-the economic cost boundary.  A candidate is called viable only if it
-clears a registry-defined composite gate:
+the economic cost boundary.  A candidate is reported as passing the
+audit only if it clears a registry-defined composite gate:
 \[
   p_{\mathrm{boot}}\le \alpha,\qquad
   p_{\mathrm{perm}}\le \alpha,\qquad
@@ -555,7 +564,9 @@ holdout, subperiod, and stationarity diagnostics are reported alongside
 these gates to prevent a single favorable statistic from becoming the
 claim.
 
-\subsection{Sampling-boundary theory}
+\section{Sharpe UVIF theory}
+
+\subsection{Mean-return special case}
 \label{sec:theory}
 
 \begin{assumption}[Equicorrelated row model]
@@ -688,13 +699,14 @@ traded, allocated to, or interpreted as portfolio evidence.
 Let \(R_t\) be the date-level portfolio excess return and
 \(G_t=(R_t,R_t^2)'\).  Define
 \(\theta_R=(\mu_R,m_{2,R})'=\E[G_t]\),
-\(v_R=m_{2,R}-\mu_R^2>0\), and
+\(v_R=m_{2,R}-\mu_R^2>0\).  For source-specific annualization
+factor \(A_f\), define
 \[
   d_R=\nabla f(\theta_R)
   =
   \left(
-  \sqrt{252}\frac{m_{2,R}}{v_R^{3/2}},
-  -\frac{1}{2}\sqrt{252}\frac{\mu_R}{v_R^{3/2}}
+  \sqrt{A_f}\frac{m_{2,R}}{v_R^{3/2}},
+  -\frac{1}{2}\sqrt{A_f}\frac{\mu_R}{v_R^{3/2}}
   \right)' .
 \]
 Let \(\Gamma_k^R=\Cov(G_t,G_{t-k})\) and
@@ -731,7 +743,7 @@ and the scalar long-run variance entering the numerator is
 \begin{equation}
   d_R'\Omega_R d_R
   =
-  \frac{252}{v_R^3}
+  \frac{A_f}{v_R^3}
   \left[
     m_{2,R}^2\Omega_{11}
     -\frac{\mu_R m_{2,R}}{2}(\Omega_{12}+\Omega_{21})
@@ -743,6 +755,21 @@ where \(\Omega_{ab}\) denotes the \((a,b)\) element of \(\Omega_R\).
 \end{proposition}
 
 \noindent The proof is given in the technical appendix.
+
+\subsection{What Proposition 2 does and does not identify}
+
+Proposition 2 is a first-order variance decomposition for a fixed
+aggregation rule and a constant selected-count approximation.  It
+identifies how a row-pooled IID Sharpe uncertainty report changes when
+the claim is moved to the date-return boundary and when the date series
+has long-run serial covariance in \((R_t,R_t^2)\).  It does not identify
+a causal trading edge, does not prove that row and date Sharpe
+functionals are equal outside the stated exchangeability conditions, and
+does not replace the confirmatory date-level HAC, bootstrap,
+researcher-menu, placebo, factor-alpha, and cost diagnostics.  The
+empirical role of Sharpe UVIF is therefore diagnostic: it explains the
+sampling-boundary distortion that the audit protocol then evaluates
+with date-level inferential procedures.
 
 \begin{remark}[Connection to Moulton-like design effects]
 If the linearized row Sharpe influence
@@ -845,6 +872,14 @@ used as evidence for a public trading strategy; it shows that the
 procedure can accept known positive evidence when the data-generating
 process contains a genuine date-level edge.
 
+The positive-control DGP uses \(T=5000\) dates and \(N=100\) entities,
+annual alpha \(0.12\) (daily alpha \(0.12/252\)), idiosyncratic
+volatility \(0.01\), common-factor loading \(0.50\), AR(1) common-factor
+coefficient \(0.10\), signal-stay probability \(0.98\), and seed 777.
+The generated artifact records the bootstrap and permutation counts used
+for the run.  The design is intentionally simple: it is a known-edge
+calibration check for the audit gate, not a model of any public anomaly.
+
 \input{generated_positive_control_artifacts.tex}
 
 \paragraph{Appendix material.}
@@ -876,7 +911,7 @@ audit gate.  Table \ref{tab:single-series-benchmarks} reports
 pre-aggregated factor benchmarks subject to time-series inference only.
 Table \ref{tab:momentum-benchmark} verifies that the canonical WML
 candidate matches the direct French winner-minus-loser decile benchmark.
-Table \ref{tab:phantom-audit} gives the dependence audit
+Table \ref{tab:dependence-audit} gives the dependence audit
 summary using row \(p\)-values, UVIF, ERIR, audit \(p\)-values, and net
 Sharpe status for panel candidates.  Table \ref{tab:horizon-effect}
 reports the targeted \(L=1,5,21\) horizon-effect audit for the dynamic
@@ -884,6 +919,11 @@ Size/BM momentum panel.  The technical appendix reports the full
 secondary table set: sampling-boundary diagnostics, same-date
 permutation details, HAC bandwidth/prewhitening/fixed-\(b\) robustness,
 gate sensitivity, holdout splits, and cost sweeps.
+The production metadata include the SHA256 hash of
+\path{code/campaign_registry.json}; this hash is the reproducibility
+record for the frozen public sources, candidate types, source
+frequencies, annualization factors, thresholds, lookbacks, skips, and
+eligibility rules used in the rendered campaign.
 
 The factor-alpha, data-snooping, stationarity, holdout, and cost tables
 are secondary diagnostics, not replacements for the primary date-return
@@ -925,7 +965,7 @@ The empirical Sharpe UVIF relative to row-naive inference is about
 one in this sample.  Thus the dominant inflation channel in this public
 stress panel is cross-sectional row multiplication; a longer lookback
 does not mechanically make serial dependence the dominant force.
-For the dynamic Size/BM panel in Table \ref{tab:phantom-audit}, the
+For the dynamic Size/BM panel in Table \ref{tab:dependence-audit}, the
 reported ERIR is \(0.111\).  Under the equicorrelation diagnostic, this
 means \(1-0.111=0.889\), so approximately 89 percent of the row-level
 information implied by naive row pooling is redundant.
@@ -992,8 +1032,13 @@ Romano-Wolf columns make decisions from the date-return series.  When
 row-naive rejection is high in null or near-null designs but the
 dependence-aware methods remain near nominal size, the apparent extra
 power is a false precision gain from treating same-date rows as
-independent evidence.  The technical appendix reports the full DGP grid,
-coverage table, power table, and power-curve figure.
+independent evidence.  Table \ref{tab:target-boundary} reports row-naive
+interval behavior against the date-level Sharpe target, making the target
+mismatch explicit.  Table \ref{tab:design-sweeps} then sweeps same-date
+correlation and selected-count pressure under a zero-edge null.  These
+sweeps are diagnostic stress tests for the sampling boundary; they do
+not introduce a new empirical claim.  The technical appendix reports the
+full DGP grid, coverage table, power table, and power-curve figure.
 
 \input{generated_simulation_main_artifacts.tex}
 

@@ -49,6 +49,7 @@ REQUIRED = [
     "power_audit_pivot.csv",
     "coverage_all_merged.csv",
     "coverage_pivot.csv",
+    "design_sweep.csv",
     "dgp_configs.csv",
     "public_run_metadata.csv",
 ]
@@ -79,7 +80,7 @@ def fmt(x, digits: int = 3) -> str:
 
 STATUS_LABELS = {
     "ok": "Available",
-    "failed": "Source access failed",
+    "failed": "Source not loaded",
     "phantom": "Fails permutation gate",
     "robust": "Passes composite gate",
     " ".join(("cost", "fail")): "Fails cost gate",
@@ -188,6 +189,7 @@ def campaign_required(campaign_root: Path) -> list[Path]:
         campaign_root / "candidate_gate_sensitivity.csv",
         campaign_root / "simulation" / "coverage_all_merged.csv",
         campaign_root / "simulation" / "coverage_pivot.csv",
+        campaign_root / "simulation" / "design_sweep.csv",
         campaign_root / "simulation" / "dgp_configs.csv",
         campaign_root / "simulation" / "size_test_audit.csv",
         campaign_root / "simulation" / "power_audit.csv",
@@ -223,6 +225,20 @@ def candidate_campaign_table(campaign_root: Path) -> pd.DataFrame:
             "Perm p": r.get("permutation_p", np.nan),
             "Net SR": gate.get("net_sharpe_5bps", np.nan),
             "Pass 5%": bool(gate.get("passes_all", False)),
+        })
+    return pd.DataFrame(rows)
+
+
+def annualization_metadata_table(campaign_root: Path) -> pd.DataFrame:
+    rows = []
+    for cdir in campaign_candidates(campaign_root):
+        meta = read_json(cdir / "metadata.json")
+        rows.append({
+            "Source": candidate_name(cdir.name),
+            "type": meta.get("candidate_type", ""),
+            "period": meta.get("periodicity", ""),
+            "$A_f$": meta.get("annualization_factor", ""),
+            "dates": meta.get("n_dates", ""),
         })
     return pd.DataFrame(rows)
 
@@ -799,6 +815,43 @@ def coverage_table(outdir: Path) -> pd.DataFrame:
     return pivot
 
 
+def target_boundary_table(outdir: Path) -> pd.DataFrame:
+    df = read(outdir, "coverage_all_merged.csv")
+    row = df[df["Method"].eq("row_naive")].copy()
+    cols = ["DGP", "Name", "Coverage", "Mean_Bias", "Mean_CI_Width", "Mean_SE", "n_valid"]
+    for col in cols:
+        if col not in row:
+            row[col] = np.nan
+    return row[cols].rename(columns={
+        "Coverage": "row coverage",
+        "Mean_Bias": "bias vs date SR",
+        "Mean_CI_Width": "CI width",
+        "Mean_SE": "mean SE",
+        "n_valid": "n",
+    })
+
+
+def design_sweep_table(outdir: Path) -> pd.DataFrame:
+    path = outdir / "design_sweep.csv"
+    if not path.exists():
+        return pd.DataFrame()
+    df = pd.read_csv(path)
+    rows = []
+    for _, r in df.iterrows():
+        rows.append({
+            "design": r.get("sweep", ""),
+            "method": r.get("method", ""),
+            "rej.": r.get("rejection_rate", np.nan),
+            "SE": r.get("rejection_se", np.nan),
+            "bias": r.get("mean_bias_vs_date_sr", np.nan),
+            "mean interval SE": r.get("mean_se", np.nan),
+            "N": r.get("N", np.nan),
+            "rho": r.get("rho_cross", np.nan),
+            "n": r.get("n_valid", np.nan),
+        })
+    return pd.DataFrame(rows)
+
+
 def size_table(outdir: Path) -> pd.DataFrame:
     df = read(outdir, "size_test_audit.csv")
     pivot = df.pivot_table(values="rejection_rate", index="dgp", columns="method", aggfunc="first").reset_index()
@@ -999,6 +1052,8 @@ def render(outdir: Path, paper_dir: Path) -> None:
         power_figure_tex(),
         latex_table(dgp_table(outdir), "Simulation DGP parameter grid.", "tab:dgp-grid"),
         latex_table(coverage_table(outdir), "Monte Carlo 95 percent interval coverage for the date-level Sharpe target.", "tab:coverage"),
+        latex_table(target_boundary_table(outdir), "Row-naive interval behavior against the date-level Sharpe target.", "tab:target-boundary"),
+        latex_table(design_sweep_table(outdir), "Target-boundary design sweeps over same-date correlation and selected-count pressure.", "tab:design-sweeps"),
         latex_table(size_table(outdir), "Null rejection rates at nominal 5 percent size.", "tab:size"),
         latex_table(power_table(outdir), "Rejection rates across true annualized Sharpe values.", "tab:power"),
     ]
@@ -1040,7 +1095,10 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
     plot_null_size(campaign_root / "simulation", figdir)
 
     empirical_sections = [
-        latex_table(candidate_campaign_table(campaign_root), "Loaded registry-defined public candidate evaluation campaign.", "tab:candidate-campaign"),
+        "This supplement reports loaded sources in separated groups.  The\n"
+        "full-campaign loader provenance is retained in the generated metadata;\n"
+        "it is not a comparable pass/fail audit table.\n",
+        latex_table(annualization_metadata_table(campaign_root), "Source frequency and annualization metadata.", "tab:annualization-metadata"),
         latex_table(panel_candidate_table(campaign_root), "Panel candidates subject to the full audit gate.", "tab:panel-candidates"),
         latex_table(single_series_factor_table(campaign_root), "Single-series factor benchmarks subject to time-series inference only.", "tab:single-series-benchmarks"),
         latex_table(campaign_momentum_benchmark_table(campaign_root), "Canonical French momentum benchmark validation.", "tab:momentum-benchmark"),
@@ -1048,7 +1106,7 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         latex_table(
             campaign_phantom_audit_table(campaign_root),
             "Dependence audit summary for panel candidates.",
-            "tab:phantom-audit",
+            "tab:dependence-audit",
             note="ERIR is a design-effect retention diagnostic and is not used as a rejection rule.",
         ),
         latex_table(campaign_horizon_effect_table(campaign_root), "Horizon-effect audit for the dynamic Size/BM momentum panel.", "tab:horizon-effect"),
@@ -1066,7 +1124,14 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
     if (sim_dir / "dgp_configs.csv").exists():
         simulation_sections.append(latex_table(dgp_table(sim_dir), "Simulation DGP parameter grid.", "tab:dgp-grid"))
     simulation_sections.extend([
-        latex_table(coverage_table(sim_dir), "Monte Carlo 95 percent interval coverage for the date-level Sharpe target.", "tab:coverage"),
+        latex_table(
+            coverage_table(sim_dir),
+            "Coverage of the date-level Sharpe target by alternative interval procedures.",
+            "tab:coverage",
+            note="Row-naive intervals are evaluated against the economically relevant date-level Sharpe target, not against their own row-distribution Sharpe target. Low row-naive coverage therefore records target mismatch and false precision at the portfolio boundary.",
+        ),
+        latex_table(target_boundary_table(sim_dir), "Row-naive interval behavior against the date-level Sharpe target.", "tab:target-boundary"),
+        latex_table(design_sweep_table(sim_dir), "Target-boundary design sweeps over same-date correlation and selected-count pressure.", "tab:design-sweeps"),
         latex_table(size_table(sim_dir), "Null rejection rates at nominal 5 percent size.", "tab:size"),
         latex_table(power_table(sim_dir), "Rejection rates across true annualized Sharpe values.", "tab:power"),
     ])
@@ -1101,7 +1166,7 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         latex_table(
             campaign_phantom_audit_table(campaign_root),
             "Dependence audit summary for panel candidates.",
-            "tab:phantom-audit",
+            "tab:dependence-audit",
             note="ERIR is a design-effect retention diagnostic and is not used as a rejection rule.",
         ),
         "The horizon table shows that changing the lookback reduces turnover in\n"
@@ -1117,6 +1182,8 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         "stationary, and Romano-Wolf procedures stay much closer to size.\n",
         size_figure_tex(),
         latex_table(size_table(sim_dir), "Null rejection rates at nominal 5 percent size.", "tab:size"),
+        latex_table(target_boundary_table(sim_dir), "Row-naive interval behavior against the date-level Sharpe target.", "tab:target-boundary"),
+        latex_table(design_sweep_table(sim_dir), "Target-boundary design sweeps over same-date correlation and selected-count pressure.", "tab:design-sweeps"),
     ]
     (paper_dir / "generated_empirical_main_artifacts.tex").write_text(
         header + "\n".join(empirical_main_sections),

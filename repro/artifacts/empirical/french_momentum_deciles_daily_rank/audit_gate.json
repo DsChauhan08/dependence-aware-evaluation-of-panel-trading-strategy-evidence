@@ -1,5 +1,7 @@
 {
+  "annualization_factor": 252.0,
   "candidate_id": "french_momentum_deciles_daily_rank",
+  "candidate_type": "panel",
   "checks": {
     "factor_alpha_positive_if_available": true,
     "hac_positive_p_le_005": true,
@@ -11,7 +13,7 @@
   },
   "exposure": "as_selected",
   "family": "kenneth_french",
-  "generated_at_utc": "2026-06-01T04:16:07.506861+00:00",
+  "generated_at_utc": "2026-06-25T12:10:15.395416+00:00",
   "gross_sharpe": 0.4473173859194792,
   "hac_p_positive": 7.544350209776063e-05,
   "metadata_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.French/Data_Library/det_10_port_form_pr_12_2_daily.html",
@@ -21,6 +23,8 @@
   "n_perms": 10000,
   "net_sharpe_5bps": 0.4472913466970792,
   "notes": [],
+  "passes_audit_gate": false,
+  "periodicity": "daily",
   "permutation_p_primary": 1.0,
   "primary_threshold": 0.7,
   "romano_wolf_p_primary": 0.0001999600079984003,
@@ -34,6 +38,5 @@
     0.5,
     0.7,
     0.9
-  ],
-  "viable": false
+  ]
 }

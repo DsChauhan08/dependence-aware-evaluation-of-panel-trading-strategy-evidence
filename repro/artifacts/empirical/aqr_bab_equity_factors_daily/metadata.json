@@ -1,8 +1,10 @@
 {
+  "annualization_factor": 252.0,
   "candidate_id": "aqr_bab_equity_factors_daily",
+  "candidate_type": "single_series_factor",
   "exposure": "as_selected",
   "family": "aqr",
-  "generated_at_utc": "2026-05-27T10:54:21.665177+00:00",
+  "generated_at_utc": "2026-06-25T12:30:27.852571+00:00",
   "metadata_url": "https://www.aqr.com/Insights/Datasets",
   "n_assets": 1,
   "n_boot": 5000,
@@ -11,6 +13,7 @@
   "notes": [
     "factor_series_source: cross-sectional signal permutation is not applicable"
   ],
+  "periodicity": "daily",
   "primary_threshold": 0.0,
   "sample_end": "2026-03-31",
   "sample_start": "1930-12-01",

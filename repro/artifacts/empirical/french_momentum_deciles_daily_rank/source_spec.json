@@ -1,4 +1,6 @@
 {
+  "annualization_factor": 252,
+  "candidate_type": "panel",
   "description": "Daily 10 portfolios formed on prior 12-2 returns; static signed decile-rank threshold-profile stress candidate.",
   "factor_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_Factors_daily_CSV.zip",
   "family": "kenneth_french",
@@ -18,6 +20,7 @@
   "loader": "french_ranked_portfolios",
   "metadata_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.French/Data_Library/det_10_port_form_pr_12_2_daily.html",
   "momentum_factor_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Momentum_Factor_daily_CSV.zip",
+  "periodicity": "daily",
   "portfolio_url": "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/10_Portfolios_Prior_12_2_Daily_CSV.zip",
   "primary_threshold": 0.7,
   "sample_tail": 0,

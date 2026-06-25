@@ -1,7 +1,7 @@
 # Reproducibility Instructions
 
 This package reproduces the public-data and simulation evidence for
-`Sharpe-ratio variance inflation in entity-time financial panels`.
+`Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels`.
 
 Public repository:
 https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence

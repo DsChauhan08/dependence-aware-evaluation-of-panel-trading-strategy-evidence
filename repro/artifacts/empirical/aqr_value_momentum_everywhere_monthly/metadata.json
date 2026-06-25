@@ -1,8 +1,10 @@
 {
+  "annualization_factor": 12.0,
   "candidate_id": "aqr_value_momentum_everywhere_monthly",
+  "candidate_type": "single_series_factor",
   "exposure": "as_selected",
   "family": "aqr",
-  "generated_at_utc": "2026-05-27T11:13:42.081773+00:00",
+  "generated_at_utc": "2026-06-25T12:35:37.885881+00:00",
   "metadata_url": "https://www.aqr.com/Insights/Datasets",
   "n_assets": 1,
   "n_boot": 5000,
@@ -11,6 +13,7 @@
   "notes": [
     "factor_series_source: cross-sectional signal permutation is not applicable"
   ],
+  "periodicity": "monthly",
   "primary_threshold": 0.0,
   "sample_end": "2026-03-31",
   "sample_start": "1972-01-31",

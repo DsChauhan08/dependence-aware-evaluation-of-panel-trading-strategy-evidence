@@ -1,4 +1,4 @@
-# Sharpe-ratio variance inflation in entity-time financial panels
+# Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels
 
 This repository contains the public manuscript, technical appendix, aggregate public artifacts, and reproducibility code for the paper.
 
@@ -8,9 +8,9 @@ Public repository: https://github.com/DsChauhan08/dependence-aware-evaluation-of
 
 - `journal/main_manuscript_blinded.pdf`: blinded peer-review manuscript PDF for journals that require separate title pages.
 - `journal/title_page.md`: author title page.
-- `journal/technical_appendix_supplement.pdf`: technical appendix for supplementary upload.
-- `journal/sddm_paper_v2.pdf`: author-identifying manuscript PDF for public archive or journals that do not require blinding.
-- `journal/source/`: editable LaTeX source and generated manuscript artifacts.
+- `journal/technical_appendix_supplement.pdf`: blinded technical appendix for supplementary upload.
+- `journal/review_repro_anonymized.zip`: anonymized replication materials for double-blind review.
+- `arxiv/`: editable LaTeX source and generated manuscript artifacts.
 - `repro/`: public-data loaders, simulations, tests, aggregate artifacts, and reproduction instructions.
 
 ## Release Archives

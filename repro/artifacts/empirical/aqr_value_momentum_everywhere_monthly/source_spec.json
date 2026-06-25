@@ -1,9 +1,12 @@
 {
+  "annualization_factor": 12,
+  "candidate_type": "single_series_factor",
   "description": "AQR Value and Momentum Everywhere monthly factor series. Recorded as lower-frequency supporting evidence.",
   "family": "aqr",
   "id": "aqr_value_momentum_everywhere_monthly",
   "loader": "aqr_factor_excel",
   "metadata_url": "https://www.aqr.com/Insights/Datasets",
+  "periodicity": "monthly",
   "preferred_columns": [
     "MOM",
     "VAL",

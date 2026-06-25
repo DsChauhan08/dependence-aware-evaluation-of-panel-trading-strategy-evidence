@@ -82,12 +82,13 @@ def check_candidate(candidate_dir: Path) -> None:
         "costs.csv",
         "holdout_subperiods.csv",
         "row_boundary.csv",
-        "viability.json",
+        "audit_gate.json",
     ]
     for name in required:
         assert_true((candidate_dir / name).exists(), f"missing {name} in {candidate_dir}")
-    for name in ["methods.csv", "hac_delta.csv", "threshold_menu.csv", "romano_wolf.csv", "costs.csv", "holdout_subperiods.csv"]:
+    for name in ["methods.csv", "hac_delta.csv", "threshold_menu.csv", "romano_wolf.csv", "holdout_subperiods.csv"]:
         check_finite_required_csv(candidate_dir / name, allow_nan_columns={"block_size"})
+    check_finite_required_csv(candidate_dir / "costs.csv", allow_nan_columns={"break_even_cost_bps"})
 
     hac = pd.read_csv(candidate_dir / "hac_delta.csv")
     for col in ["n_eff_sr", "se_iid_delta", "se_hac_delta", "se_inflation", "hac_bandwidth"]:

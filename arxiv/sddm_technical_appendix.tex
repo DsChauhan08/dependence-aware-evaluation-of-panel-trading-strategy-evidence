@@ -22,9 +22,20 @@
 \newcommand{\UVIF}{\mathrm{UVIF}}
 \DeclareMathOperator{\sign}{sign}
 
-\title{Technical Appendix: Sharpe-ratio variance inflation in entity-time financial panels}
+\newif\ifblinded
+\ifdefined\BLINDED
+  \blindedtrue
+\else
+  \blindedfalse
+\fi
+
+\title{Technical Appendix: Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels}
+\ifblinded
+\author{}
+\else
 \author{Dhananjay S. Chauhan}
-\date{June 1, 2026}
+\fi
+\date{}
 
 \begin{document}
 \maketitle
@@ -74,10 +85,12 @@ Let \(R_t\) be the date-level portfolio excess return and
 \(G_t=(R_t,R_t^2)'\).  The annualized Sharpe ratio is the smooth
 functional
 \[
-  f(\mu,m_2)=\sqrt{252}\frac{\mu}{(m_2-\mu^2)^{1/2}},
+  f(\mu,m_2)=\sqrt{A_f}\frac{\mu}{(m_2-\mu^2)^{1/2}},
   \qquad
   d_R=\nabla f(\mu_R,m_{2,R}).
 \]
+The annualization factor \(A_f\) is source-specific: the public registry
+uses \(252\) for daily sources and \(12\) for monthly sources.
 On sets where \(v_R=m_{2,R}-\mu_R^2>0\), the first-order expansion is
 \[
   \widehat{\SR}_R-\SR_R
@@ -114,7 +127,7 @@ the serial long-run factor.  Componentwise,
 \[
   d_R'\Omega_Rd_R
   =
-  \frac{252}{v_R^3}
+  \frac{A_f}{v_R^3}
   \left[
     m_{2,R}^2\Omega_{11}
     -\frac{\mu_Rm_{2,R}}{2}(\Omega_{12}+\Omega_{21})
@@ -139,7 +152,7 @@ row-pooled return standard deviation \(\sigma_{\mathrm{row}}\), average turnover
 \(\widehat{TO}>0\), \(T\) trading dates, square-root impact cost
 \(\lambda \widehat{TO}\sqrt{A/V}\), and a dependence standard-error
 inflation factor \(\mathcal M\ge 1\) relative to row-pooled inference.
-For a one-sided level-\(\alpha\) viability margin, any statistically
+For a one-sided level-\(\alpha\) audit-gate margin, any statistically
 certified capacity \(A^*\) must satisfy
 \begin{equation}
   A^*
@@ -205,6 +218,11 @@ date-level HAC-delta and dependent-bootstrap procedures.
 
 \section{Synthetic Positive Control}
 
+This section gives the appendix version of the known-edge calibration
+check.  The synthetic panel is not empirical evidence for a public
+strategy; it verifies that the composite audit gate can accept a
+declared positive signal when the data-generating process contains one.
+
 \input{generated_positive_control_artifacts.tex}
 
 \section{Full Empirical Artifacts}
@@ -213,10 +231,19 @@ The inferential tables in this appendix report only public sources that
 loaded and produced reproducible artifacts.  Failed source-access
 attempts remain in the generated provenance files and campaign metadata,
 but are not treated as empirical evidence.
+Panel candidates and pre-aggregated factor benchmarks are reported in
+separate groups because only the former provide row-level signals for
+same-date permutation and sampling-boundary diagnostics.
 
 \input{generated_empirical_artifacts.tex}
 
 \section{Full Monte Carlo Artifacts}
+
+The simulation tables target the date-level Sharpe claim.  Row-naive
+coverage is therefore reported against that date-level target, not
+against a separate row-distribution target.  The design-sweep table is a
+stress diagnostic over same-date correlation and selected-count pressure
+under a zero-edge null.
 
 \input{generated_simulation_artifacts.tex}
 

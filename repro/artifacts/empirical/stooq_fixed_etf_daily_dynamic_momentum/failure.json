@@ -1,7 +1,7 @@
 {
   "candidate_id": "stooq_fixed_etf_daily_dynamic_momentum",
-  "error": "fewer than three Stooq series loaded: spy.us: Stooq CSV endpoint now requires STOOQ_APIKEY/captcha-gated API key; qqq.us: Stooq CSV endpoint now requires STOOQ_APIKEY/captcha-gated API key; iwm.us: Stooq CSV endpoint now requires STOOQ_APIKEY/captcha-gated API key; efa.us: Stooq CSV endpoint now requires STOOQ_APIKEY/captcha-gated API key; eem.us: Stooq CSV endpoint now requires STOOQ_APIKEY/captcha-gated API key; tlt.us: Stooq CSV endpoint now requires STOOQ_APIKEY/captcha-gated API key; ief.us: Stooq CSV endpoint now requires STOOQ_APIKEY/captcha-gated API key; gld.us: Stooq CSV endpoint now requires STOOQ_APIKEY/captcha-gated API key; dbc.us: Stooq CSV endpoint now requires STOOQ_APIKEY/captcha-gated API key; vnq.us: Stooq CSV endpoint now requires STOOQ_APIKEY/captcha-gated API key; hyg.us: Stooq CSV endpoint now requires STOOQ_APIKEY/captcha-gated API key",
-  "generated_at_utc": "2026-05-27T12:08:41.476244+00:00",
+  "error": "fewer than three Stooq series loaded: spy.us: missing Date/Close columns for spy.us; qqq.us: missing Date/Close columns for qqq.us; iwm.us: missing Date/Close columns for iwm.us; efa.us: missing Date/Close columns for efa.us; eem.us: missing Date/Close columns for eem.us; tlt.us: missing Date/Close columns for tlt.us; ief.us: missing Date/Close columns for ief.us; gld.us: missing Date/Close columns for gld.us; dbc.us: missing Date/Close columns for dbc.us; vnq.us: missing Date/Close columns for vnq.us; hyg.us: missing Date/Close columns for hyg.us",
+  "generated_at_utc": "2026-06-25T12:30:22.388934+00:00",
   "source_url": "https://stooq.com/db/h/",
   "status": "failed"
 }

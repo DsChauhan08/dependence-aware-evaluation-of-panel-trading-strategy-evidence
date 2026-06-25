@@ -1,5 +1,7 @@
 {
-  "candidate_id": "aqr_hml_devil_factors_daily",
+  "annualization_factor": 252.0,
+  "candidate_id": "aqr_bab_equity_factors_daily",
+  "candidate_type": "single_series_factor",
   "checks": {
     "factor_alpha_positive_if_available": true,
     "hac_positive_p_le_005": true,
@@ -11,27 +13,28 @@
   },
   "exposure": "as_selected",
   "family": "aqr",
-  "generated_at_utc": "2026-05-27T11:07:13.666961+00:00",
-  "gross_sharpe": 0.33607007108129094,
-  "hac_p_positive": 0.0037940638584494923,
+  "generated_at_utc": "2026-06-25T12:30:27.852571+00:00",
+  "gross_sharpe": 0.7414308192709355,
+  "hac_p_positive": 3.078648447285559e-13,
   "metadata_url": "https://www.aqr.com/Insights/Datasets",
   "n_assets": 1,
   "n_boot": 5000,
-  "n_dates": 26590,
+  "n_dates": 25281,
   "n_perms": 10000,
-  "net_sharpe_5bps": 0.3360700710812909,
+  "net_sharpe_5bps": 0.7414308192709355,
   "notes": [
     "factor_series_source: cross-sectional signal permutation is not applicable"
   ],
+  "passes_audit_gate": false,
+  "periodicity": "daily",
   "permutation_p_primary": null,
   "primary_threshold": 0.0,
-  "romano_wolf_p_primary": 0.0015996800639872025,
+  "romano_wolf_p_primary": 0.0001999600079984003,
   "sample_end": "2026-03-31",
-  "sample_start": "1926-07-01",
+  "sample_start": "1930-12-01",
   "seed": 42,
-  "source_url": "https://www.aqr.com/-/media/AQR/Documents/Insights/Data-Sets/The-Devil-in-HMLs-Details-Factors-Daily.xlsx",
+  "source_url": "https://www.aqr.com/-/media/AQR/Documents/Insights/Data-Sets/Betting-Against-Beta-Equity-Factors-Daily.xlsx",
   "thresholds": [
     0.0
-  ],
-  "viable": false
+  ]
 }

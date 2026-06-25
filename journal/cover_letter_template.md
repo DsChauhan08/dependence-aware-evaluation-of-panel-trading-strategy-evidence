@@ -2,7 +2,7 @@
 
 Dear Editor,
 
-I am submitting my manuscript, "Sharpe-ratio variance inflation in entity-time financial panels," for consideration as an Article in Modern Finance.
+I am submitting my manuscript, "Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels," for consideration as an Article in Modern Finance.
 
 The paper is a financial econometrics methodology paper. It studies how Sharpe-ratio inference can be distorted when selected rows in an entity-time financial panel are treated as independent even though the economically meaningful object is a date-level portfolio return. The main contribution is the Sharpe Unified Variance Inflation Factor, which links row-pooled IID Sharpe inference to date-level long-run Sharpe inference, together with a reproducible audit protocol based on date aggregation, HAC-delta inference, dependent bootstrap resampling, researcher-menu correction, placebo tests, factor-alpha checks, and cost sensitivity.
 

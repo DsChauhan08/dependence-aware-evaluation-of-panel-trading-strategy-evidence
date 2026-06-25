@@ -17,6 +17,7 @@ from sddm_bootstrap import (
     hac_sharpe_delta,
     percentile_rank_confidence,
     safe_sign,
+    sddm_inference,
     _sharpe,
     sharpe_effective_sample_size,
     skipped_compounded_signal,
@@ -178,6 +179,36 @@ def test_hac_delta_matches_iid_lo_order():
     lo_se = np.sqrt(252.0 * (1.0 + 0.5 * sr_daily * sr_daily) / len(r))
     assert hac.se > 0
     assert abs(hac.se - lo_se) / lo_se < 0.20
+
+
+def test_sharpe_annualization_factor_scales_monthly_vs_daily():
+    r = np.array([0.01, -0.002, 0.006, 0.004, -0.001, 0.008])
+    daily = _sharpe(r, annualise=252.0)
+    monthly = _sharpe(r, annualise=12.0)
+    assert np.isclose(monthly, daily * np.sqrt(12.0 / 252.0))
+
+
+def test_sddm_inference_threads_annualization_factor():
+    panel = PanelData(
+        dates=np.arange(12).astype("datetime64[D]"),
+        tickers=np.array(["A"]),
+        predictions=np.ones((12, 1)),
+        realised=np.array([[0.01], [-0.002], [0.006], [0.004], [-0.001], [0.008], [0.003], [0.005], [-0.004], [0.007], [0.002], [0.006]]),
+        confidence=np.ones((12, 1)),
+    )
+    daily = sddm_inference(panel, method="iid", n_boot=49, seed=4, annualise=252.0)
+    monthly = sddm_inference(panel, method="iid", n_boot=49, seed=4, annualise=12.0)
+    assert np.isclose(monthly.sharpe_point, daily.sharpe_point * np.sqrt(12.0 / 252.0))
+    assert monthly.sharpe_se < daily.sharpe_se
+
+
+def test_registry_declares_monthly_aqr_annualization_and_daily_defaults():
+    registry = load_registry()
+    by_id = {c["id"]: c for c in registry["candidates"]}
+    assert by_id["aqr_value_momentum_everywhere_monthly"]["periodicity"] == "monthly"
+    assert by_id["aqr_value_momentum_everywhere_monthly"]["annualization_factor"] == 12
+    assert by_id["french_momentum_deciles_daily_wml"]["periodicity"] == "daily"
+    assert by_id["french_momentum_deciles_daily_wml"]["annualization_factor"] == 252
 
 
 def test_hac_bandwidth_sensitivity_reports_fixed_and_auto_lags():

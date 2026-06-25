@@ -1,10 +1,10 @@
 cff-version: 1.2.0
-title: "Sharpe-ratio variance inflation in entity-time financial panels"
+title: "Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels"
 message: "If you use this audit code or manuscript, please cite the paper and archived release."
 type: software
 authors:
   - family-names: Chauhan
     given-names: D. S.
-abstract: "Reproducible code and manuscript artifacts for Sharpe-ratio variance inflation analysis in entity-time financial panels with cross-sectional and serial dependence."
+abstract: "Reproducible code and manuscript artifacts for sampling-boundary distortion analysis in Sharpe-ratio evidence from financial panels with cross-sectional and serial dependence."
 license: Apache-2.0
 repository-code: "https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence"

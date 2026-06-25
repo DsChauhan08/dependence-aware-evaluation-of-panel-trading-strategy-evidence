@@ -1,2 +1,2 @@
-alpha_daily,alpha_ann,alpha_se_daily,t_alpha,p_positive,n,hac_lag,status
+alpha_period,alpha_ann,alpha_se_period,t_alpha,p_positive,n,hac_lag,status
 0.00023169692304374676,0.05838762460702418,4.571215461292288e-05,5.068606479079544,2.0036939007983534e-07,26131,13,ok
