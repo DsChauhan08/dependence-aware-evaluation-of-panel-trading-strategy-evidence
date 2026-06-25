@@ -85,6 +85,7 @@ def copy_tree_whitelist(src_root: Path, dst_root: Path, suffixes: set[str]) -> N
 def copy_manuscript(dst: Path) -> None:
     for name in [
         "sddm_paper_v2.tex",
+        "sddm_paper_v2_blinded.tex",
         "sddm_technical_appendix.tex",
         "generated_empirical_main_artifacts.tex",
         "generated_simulation_main_artifacts.tex",
@@ -96,6 +97,8 @@ def copy_manuscript(dst: Path) -> None:
         guarded_copy(PAPER_DIR / name, dst / name)
     if (PAPER_DIR / "sddm_paper_v2.pdf").exists():
         guarded_copy(PAPER_DIR / "sddm_paper_v2.pdf", dst / "sddm_paper_v2.pdf")
+    if (PAPER_DIR / "sddm_paper_v2_blinded.pdf").exists():
+        guarded_copy(PAPER_DIR / "sddm_paper_v2_blinded.pdf", dst / "sddm_paper_v2_blinded.pdf")
     if (PAPER_DIR / "sddm_technical_appendix.pdf").exists():
         guarded_copy(PAPER_DIR / "sddm_technical_appendix.pdf", dst / "sddm_technical_appendix.pdf")
     fig_src = PAPER_DIR / "generated_figures"
@@ -187,11 +190,17 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
     if (PAPER_DIR / "sddm_paper_v2.pdf").exists():
         guarded_copy(PAPER_DIR / "sddm_paper_v2.pdf", ssrn / "sddm_paper_v2.pdf")
         guarded_copy(PAPER_DIR / "sddm_paper_v2.pdf", journal / "sddm_paper_v2.pdf")
-    guarded_copy(PAPER_DIR / "reviewer_experiment_memo.md", journal / "reviewer_experiment_memo.md")
-    guarded_copy(PAPER_DIR / "submission_checklist_private.md", journal / "submission_checklist_private.md")
+    if (PAPER_DIR / "sddm_paper_v2_blinded.pdf").exists():
+        guarded_copy(PAPER_DIR / "sddm_paper_v2_blinded.pdf", journal / "main_manuscript_blinded.pdf")
+    if (PAPER_DIR / "sddm_technical_appendix.pdf").exists():
+        guarded_copy(PAPER_DIR / "sddm_technical_appendix.pdf", journal / "technical_appendix_supplement.pdf")
 
-    for name in ["README.md", "README_REPRO.md", "requirements-paper.txt", "LICENSE", "CITATION.cff"]:
+    for name in ["README_REPRO.md", "requirements-paper.txt", "LICENSE", "CITATION.cff"]:
         guarded_copy(PROJECT_ROOT / name, repro / name)
+    (repro / "README.md").write_text(
+        (PROJECT_ROOT / "README_REPRO.md").read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
     for name in [
         "sddm_bootstrap.py",
         "threshold_analysis.py",
@@ -219,15 +228,30 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
     (journal / "cover_letter_template.md").write_text(
         "# Cover Letter Template\n\n"
         "Dear Editor,\n\n"
-        "I am submitting my manuscript, \"Sharpe-ratio variance inflation under cross-sectional and serial dependence in trading panels,\" for consideration as a Research article in Quantitative Finance and Economics.\n\n"
-        "The paper develops a dependence-aware inference framework for trading-panel evidence. Its main contribution is the Sharpe Unified Variance Inflation Factor, which compares the long-run delta-method variance of a date-level Sharpe estimator with the row-pooled IID variance that would be reported when selected symbol-date rows are treated as independent. The empirical section uses public Kenneth French and AQR data for benchmark validation and stress testing, while the Monte Carlo section shows that row-naive inference can substantially overreject under dependent nulls.\n\n"
-        "The manuscript should be of interest to readers working in quantitative finance, financial econometrics, portfolio-performance evaluation, trading-strategy evidence, and empirical asset-pricing methodology. The manuscript is not under consideration by another journal and has not been formally published in a peer-reviewed venue. I understand that the manuscript will be considered for publication by AIMS Press in open access format.\n\n"
+        "I am submitting my manuscript, \"Sharpe-ratio variance inflation in entity-time financial panels,\" for consideration as an Article in Modern Finance.\n\n"
+        "The paper is a financial econometrics methodology paper. It studies how Sharpe-ratio inference can be distorted when selected rows in an entity-time financial panel are treated as independent even though the economically meaningful object is a date-level portfolio return. The main contribution is the Sharpe Unified Variance Inflation Factor, which links row-pooled IID Sharpe inference to date-level long-run Sharpe inference, together with a reproducible audit protocol based on date aggregation, HAC-delta inference, dependent bootstrap resampling, researcher-menu correction, placebo tests, factor-alpha checks, and cost sensitivity.\n\n"
+        "The empirical sections use public Kenneth French and AQR data as benchmark and stress-test applications, while the Monte Carlo section shows that row-naive inference can substantially overreject under dependent nulls. The manuscript is positioned as a testing framework for evaluating Sharpe-ratio evidence in entity-time financial panels rather than as a new-anomaly or trading-rule paper.\n\n"
+        "The manuscript should be of interest to readers working in financial econometrics, empirical asset pricing, portfolio-performance evaluation, factor screening, and reproducible finance methodology. The manuscript is not under consideration by another journal and has not been formally published in a peer-reviewed venue.\n\n"
         "I am the sole author. I received no external funding for this research and declare no conflict of interest. The replication code, public aggregate artifacts, configuration files, simulation scripts, and reproducibility materials are available at https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence.\n\n"
+        "Modern Finance requires at least three suggested reviewers in the cover letter. These reviewer names, affiliations, and e-mail addresses must be supplied by the author before upload.\n\n"
         "Sincerely,\n\n"
         "Dhananjay S. Chauhan\n"
         "Independent Researcher, India\n"
         "ORCID: https://orcid.org/0009-0003-1049-2213\n"
         "Email: dschauhan08.me@gmail.com\n",
+        encoding="utf-8",
+    )
+    (journal / "title_page.md").write_text(
+        "# Title Page\n\n"
+        "Title: Sharpe-ratio variance inflation in entity-time financial panels\n\n"
+        "Author: Dhananjay S. Chauhan\n\n"
+        "Affiliation: Independent Researcher, India\n\n"
+        "Corresponding author: Dhananjay S. Chauhan, Independent Researcher, India\n\n"
+        "Email: dschauhan08.me@gmail.com\n\n"
+        "ORCID: https://orcid.org/0009-0003-1049-2213\n\n"
+        "Public repository: https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence\n\n"
+        "Keywords: Sharpe ratio; financial econometrics; panel data; cross-sectional dependence; serial dependence; HAC inference; dependent bootstrap; multiple testing; portfolio signal evaluation; information redundancy\n\n"
+        "JEL Codes: C12; G11; G17\n",
         encoding="utf-8",
     )
     (journal / "reproducibility_statement.md").write_text(
@@ -237,12 +261,14 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
         encoding="utf-8",
     )
     (root / "README.md").write_text(
-        "# Sharpe-ratio variance inflation under cross-sectional and serial dependence in trading panels\n\n"
+        "# Sharpe-ratio variance inflation in entity-time financial panels\n\n"
         "This repository contains the public manuscript, technical appendix, aggregate public artifacts, and reproducibility code for the paper.\n\n"
         "Public repository: https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence\n\n"
         "## Main Files\n\n"
-        "- `journal/sddm_paper_v2.pdf`: peer-review manuscript PDF.\n"
-        "- `journal/source/sddm_technical_appendix.pdf`: technical appendix for supplementary upload.\n"
+        "- `journal/main_manuscript_blinded.pdf`: blinded peer-review manuscript PDF for journals that require separate title pages.\n"
+        "- `journal/title_page.md`: author title page.\n"
+        "- `journal/technical_appendix_supplement.pdf`: technical appendix for supplementary upload.\n"
+        "- `journal/sddm_paper_v2.pdf`: author-identifying manuscript PDF for public archive or journals that do not require blinding.\n"
         "- `journal/source/`: editable LaTeX source and generated manuscript artifacts.\n"
         "- `repro/`: public-data loaders, simulations, tests, aggregate artifacts, and reproduction instructions.\n\n"
         "## Release Archives\n\n"

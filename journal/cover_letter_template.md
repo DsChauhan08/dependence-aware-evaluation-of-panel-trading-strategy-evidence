@@ -2,13 +2,17 @@
 
 Dear Editor,
 
-I am submitting my manuscript, "Sharpe-ratio variance inflation under cross-sectional and serial dependence in trading panels," for consideration as a Research article in Quantitative Finance and Economics.
+I am submitting my manuscript, "Sharpe-ratio variance inflation in entity-time financial panels," for consideration as an Article in Modern Finance.
 
-The paper develops a dependence-aware inference framework for trading-panel evidence. Its main contribution is the Sharpe Unified Variance Inflation Factor, which compares the long-run delta-method variance of a date-level Sharpe estimator with the row-pooled IID variance that would be reported when selected symbol-date rows are treated as independent. The empirical section uses public Kenneth French and AQR data for benchmark validation and stress testing, while the Monte Carlo section shows that row-naive inference can substantially overreject under dependent nulls.
+The paper is a financial econometrics methodology paper. It studies how Sharpe-ratio inference can be distorted when selected rows in an entity-time financial panel are treated as independent even though the economically meaningful object is a date-level portfolio return. The main contribution is the Sharpe Unified Variance Inflation Factor, which links row-pooled IID Sharpe inference to date-level long-run Sharpe inference, together with a reproducible audit protocol based on date aggregation, HAC-delta inference, dependent bootstrap resampling, researcher-menu correction, placebo tests, factor-alpha checks, and cost sensitivity.
 
-The manuscript should be of interest to readers working in quantitative finance, financial econometrics, portfolio-performance evaluation, trading-strategy evidence, and empirical asset-pricing methodology. The manuscript is not under consideration by another journal and has not been formally published in a peer-reviewed venue. I understand that the manuscript will be considered for publication by AIMS Press in open access format.
+The empirical sections use public Kenneth French and AQR data as benchmark and stress-test applications, while the Monte Carlo section shows that row-naive inference can substantially overreject under dependent nulls. The manuscript is positioned as a testing framework for evaluating Sharpe-ratio evidence in entity-time financial panels rather than as a new-anomaly or trading-rule paper.
+
+The manuscript should be of interest to readers working in financial econometrics, empirical asset pricing, portfolio-performance evaluation, factor screening, and reproducible finance methodology. The manuscript is not under consideration by another journal and has not been formally published in a peer-reviewed venue.
 
 I am the sole author. I received no external funding for this research and declare no conflict of interest. The replication code, public aggregate artifacts, configuration files, simulation scripts, and reproducibility materials are available at https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence.
+
+Modern Finance requires at least three suggested reviewers in the cover letter. These reviewer names, affiliations, and e-mail addresses must be supplied by the author before upload.
 
 Sincerely,
 

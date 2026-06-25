@@ -1,76 +1,58 @@
-# Sharpe-ratio variance inflation under cross-sectional and serial dependence in trading panels
+# Reproducibility Instructions
 
-This directory contains the revised manuscript and reproducibility code for
-`Sharpe-ratio variance inflation under cross-sectional and serial dependence in trading panels`.
-
-The code file names retain some older `sddm_*` names for compatibility, but
-the manuscript no longer presents SDDM as a branded method.  The public-facing
-object is a financial-econometrics evaluation of Sharpe-ratio variance
-inflation in trading panels with cross-sectional and serial dependence.
+This package reproduces the public-data and simulation evidence for
+`Sharpe-ratio variance inflation in entity-time financial panels`.
 
 Public repository:
 https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence
 
-## Quick Checks
+## Environment
+
+Use Python 3.11 or newer.
 
 ```bash
-cd /home/regulus/Trade
-python -m py_compile sddm-paper-v2/code/sddm_bootstrap.py \
-  sddm-paper-v2/code/threshold_analysis.py \
-  sddm-paper-v2/code/public_data.py \
-  sddm-paper-v2/code/run_full_campaign.py \
-  sddm-paper-v2/code/run_power_size.py \
-  sddm-paper-v2/code/synthetic_positive_control.py \
-  sddm-paper-v2/code/render_manuscript_artifacts.py \
-  sddm-paper-v2/code/make_release_bundle.py
-python -m pytest -q sddm-paper-v2/tests/test_audit_methods.py
+python -m venv .venv
+. .venv/bin/activate
+python -m pip install -r requirements-paper.txt
 ```
 
-## Smoke Runs
+## Checks
 
 ```bash
-cd /home/regulus/Trade/sddm-paper-v2/code
-SDDM_N_BOOT=99 SDDM_N_PERMS=99 python public_data.py
-SDDM_N_SIM=5 SDDM_N_BOOT=99 SDDM_N_JOBS=2 python run_power_size.py
+python -m py_compile code/sddm_bootstrap.py code/threshold_analysis.py \
+  code/public_data.py code/run_full_campaign.py code/render_manuscript_artifacts.py
+python -m pytest -q tests
 ```
 
-Production runs should use the full campaign runner and should regenerate all
-manuscript tables from CSV artifacts rather than hand-typed numbers.  Do not
-render submission tables from an output path containing `smoke`.
+## Full Release Campaign
+
+The release campaign is intentionally expensive.
 
 ```bash
-cd /home/regulus/Trade/sddm-paper-v2/code
-python run_full_campaign.py \
+python code/run_full_campaign.py \
   --output-root output_release_YYYYMMDD \
   --n-sim 1000 --n-boot 5000 --n-perms 10000 \
   --n-jobs 12 --coverage-parallel 4 --no-resume --write-memo
-cd /home/regulus/Trade/sddm-paper-v2
-python code/render_manuscript_artifacts.py --campaign-root code/output_release_YYYYMMDD --paper-dir paper
-python code/synthetic_positive_control.py --output-dir code/output_synthetic_positive_control --paper-dir paper
-python code/make_release_bundle.py --campaign-root code/output_release_YYYYMMDD --version vYYYYMMDD
 ```
 
-## Main Components
+If this `repro/` directory is being used inside the full release tree,
+regenerate manuscript tables into the journal source folder with:
 
-```text
-paper/sddm_paper_v2.tex       Peer-review manuscript draft
-paper/CLAIM_LEDGER.md         Claim-to-evidence ledger
-paper/submission_checklist_private.md
-code/sddm_bootstrap.py        Date aggregation, bootstrap, HAC-delta inference
-code/threshold_analysis.py    Holm/BH/BY/Storey/Romano-Wolf/WRC/DSR tools
-code/public_data.py           Kenneth French momentum and placebo panels
-code/run_full_campaign.py     Full public candidate and simulation campaign
-code/run_power_size.py        Size and power curves across audit methods
-code/synthetic_positive_control.py  Reproducible strong-edge positive control
-code/render_manuscript_artifacts.py  Manuscript table/figure renderer
-code/make_release_bundle.py   arXiv/SSRN/journal/repro release packager
-tests/test_audit_methods.py   Unit tests for mathematical/statistical primitives
+```bash
+python code/render_manuscript_artifacts.py \
+  --campaign-root output_release_YYYYMMDD --paper-dir ../journal/source
 ```
+
+Compile the peer-review manuscript and technical appendix from
+`../journal/source/` with `pdflatex` twice when the source folder is present.
 
 ## Release Boundary
 
-The main paper is designed to be reproducible from public Kenneth French data.
-Proprietary results may appear only as appendix diagnostics when the displayed
-aggregate tables can be reproduced from released redacted artifacts.  The
-release must not contain model IP, raw predictions, raw trade dates, tickers,
-feature definitions, or anything that reveals a production strategy.
+The public release includes code, public-data fetchers, aggregate artifacts,
+simulation outputs, and provenance hashes.  It excludes proprietary
+predictions, raw trades, private tickers, production feature definitions, and
+unrelated workspace artifacts.
+
+Code is released under Apache-2.0.  Manuscript text and generated public
+aggregate artifacts are intended for release under CC-BY 4.0 unless a target
+venue requires different terms.

@@ -79,13 +79,42 @@ def fmt(x, digits: int = 3) -> str:
 
 STATUS_LABELS = {
     "ok": "Available",
-    "failed": "Data unavailable",
+    "failed": "Source access failed",
     "phantom": "Fails permutation gate",
     "robust": "Passes composite gate",
     " ".join(("cost", "fail")): "Fails cost gate",
     "not robust": "Fails composite gate",
     "not available": "Not available",
 }
+
+DISPLAY_NAMES = {
+    "french_momentum_deciles_daily_rank": "French momentum deciles, rank-threshold panel",
+    "french_momentum_deciles_daily_wml": "French WML decile benchmark",
+    "french_size_bm_daily_dynamic_momentum": "French 25 Size/BM, skipped-momentum panel",
+    "stooq_fixed_etf_daily_dynamic_momentum": "Stooq fixed ETF dynamic-momentum panel",
+    "aqr_bab_equity_factors_daily": "AQR Betting Against Beta, equity factors",
+    "aqr_qmj_factors_daily": "AQR Quality Minus Junk",
+    "aqr_hml_devil_factors_daily": "AQR HML Devil",
+    "aqr_value_momentum_everywhere_monthly": "AQR Value and Momentum Everywhere",
+}
+
+PANEL_CANDIDATES = {
+    "french_momentum_deciles_daily_rank",
+    "french_momentum_deciles_daily_wml",
+    "french_size_bm_daily_dynamic_momentum",
+}
+
+SINGLE_SERIES_BENCHMARKS = {
+    "aqr_bab_equity_factors_daily",
+    "aqr_qmj_factors_daily",
+    "aqr_hml_devil_factors_daily",
+    "aqr_value_momentum_everywhere_monthly",
+}
+
+
+def candidate_name(candidate_id: object) -> str:
+    cid = str(candidate_id)
+    return DISPLAY_NAMES.get(cid, cid)
 
 
 def journal_status(value: object) -> str:
@@ -179,11 +208,13 @@ def candidate_campaign_table(campaign_root: Path) -> pd.DataFrame:
     gates = pd.read_csv(gates_path) if gates_path.exists() else pd.DataFrame()
     rows = []
     for _, r in attempts.iterrows():
+        if r.get("status") != "ok":
+            continue
         cid = r["candidate_id"]
         alpha05 = gates[(gates.get("candidate_id") == cid) & (gates.get("alpha") == 0.05)] if not gates.empty else pd.DataFrame()
         gate = alpha05.iloc[0].to_dict() if len(alpha05) else {}
         rows.append({
-            "Candidate": cid,
+            "Candidate": candidate_name(cid),
             "status": journal_status(r.get("status", "")),
             "SR": r.get("gross_sharpe", np.nan),
             "HAC p+": r.get("hac_p_positive", np.nan),
@@ -192,6 +223,52 @@ def candidate_campaign_table(campaign_root: Path) -> pd.DataFrame:
             "Perm p": r.get("permutation_p", np.nan),
             "Net SR": gate.get("net_sharpe_5bps", np.nan),
             "Pass 5%": bool(gate.get("passes_all", False)),
+        })
+    return pd.DataFrame(rows)
+
+
+def panel_candidate_table(campaign_root: Path) -> pd.DataFrame:
+    attempts = pd.read_csv(campaign_root / "campaign_attempts.csv")
+    gates_path = campaign_root / "candidate_gate_sensitivity.csv"
+    gates = pd.read_csv(gates_path) if gates_path.exists() else pd.DataFrame()
+    rows = []
+    for _, r in attempts.iterrows():
+        cid = r["candidate_id"]
+        if cid not in PANEL_CANDIDATES or r.get("status") != "ok":
+            continue
+        alpha05 = gates[(gates.get("candidate_id") == cid) & (gates.get("alpha") == 0.05)] if not gates.empty else pd.DataFrame()
+        gate = alpha05.iloc[0].to_dict() if len(alpha05) else {}
+        rows.append({
+            "Panel candidate": candidate_name(cid),
+            "SR": r.get("gross_sharpe", np.nan),
+            "HAC p+": r.get("hac_p_positive", np.nan),
+            "Boot p+": gate.get("bootstrap_p", np.nan),
+            "RW p": r.get("rw_p", np.nan),
+            "Perm p": r.get("permutation_p", np.nan),
+            "Net SR": gate.get("net_sharpe_5bps", np.nan),
+            "Pass 5%": bool(gate.get("passes_all", False)),
+        })
+    return pd.DataFrame(rows)
+
+
+def single_series_factor_table(campaign_root: Path) -> pd.DataFrame:
+    attempts = pd.read_csv(campaign_root / "campaign_attempts.csv")
+    gates_path = campaign_root / "candidate_gate_sensitivity.csv"
+    gates = pd.read_csv(gates_path) if gates_path.exists() else pd.DataFrame()
+    rows = []
+    for _, r in attempts.iterrows():
+        cid = r["candidate_id"]
+        if cid not in SINGLE_SERIES_BENCHMARKS or r.get("status") != "ok":
+            continue
+        alpha05 = gates[(gates.get("candidate_id") == cid) & (gates.get("alpha") == 0.05)] if not gates.empty else pd.DataFrame()
+        gate = alpha05.iloc[0].to_dict() if len(alpha05) else {}
+        rows.append({
+            "Single-series benchmark": candidate_name(cid),
+            "SR": r.get("gross_sharpe", np.nan),
+            "HAC p+": r.get("hac_p_positive", np.nan),
+            "Boot p+": gate.get("bootstrap_p", np.nan),
+            "RW p": r.get("rw_p", np.nan),
+            "Scope": "time-series only",
         })
     return pd.DataFrame(rows)
 
@@ -208,7 +285,7 @@ def campaign_inference_table(campaign_root: Path) -> pd.DataFrame:
             if len(blocked):
                 r = blocked.iloc[0]
                 rows.append({
-                    "Candidate": cdir.name,
+                    "Candidate": candidate_name(cdir.name),
                     "thr": primary,
                     "Method": "block",
                     "SR": r.get("sharpe", np.nan),
@@ -222,7 +299,7 @@ def campaign_inference_table(campaign_root: Path) -> pd.DataFrame:
         if hac_path.exists():
             r = pd.read_csv(hac_path).iloc[0]
             rows.append({
-                "Candidate": cdir.name,
+                "Candidate": candidate_name(cdir.name),
                 "thr": primary,
                 "Method": "HAC",
                 "SR": r.get("sharpe", np.nan),
@@ -237,7 +314,7 @@ def campaign_inference_table(campaign_root: Path) -> pd.DataFrame:
             r = pd.read_csv(pre_path).iloc[0]
             if "status" not in r or pd.isna(r.get("status")):
                 rows.append({
-                    "Candidate": cdir.name,
+                    "Candidate": candidate_name(cdir.name),
                     "thr": primary,
                     "Method": "prewhite",
                     "SR": r.get("sharpe", np.nan),
@@ -261,7 +338,7 @@ def campaign_permutation_table(campaign_root: Path) -> pd.DataFrame:
             if r.get("status", "ok") != "ok":
                 continue
             rows.append({
-                "Candidate": cdir.name,
+                "Candidate": candidate_name(cdir.name),
                 "thr": r.get("threshold", np.nan),
                 "obs SR": r.get("observed_sharpe", np.nan),
                 "null mean": r.get("null_mean", np.nan),
@@ -283,7 +360,7 @@ def campaign_row_boundary_table(campaign_root: Path) -> pd.DataFrame:
             continue
         r = df.iloc[0]
         rows.append({
-            "Candidate": cdir.name,
+            "Candidate": candidate_name(cdir.name),
             "status": journal_status(r.get("status", "")),
             "thr": r.get("threshold", np.nan),
             "rows": r.get("n_rows", np.nan),
@@ -361,10 +438,10 @@ def campaign_phantom_audit_table(campaign_root: Path) -> pd.DataFrame:
         else:
             status = "Fails composite gate"
         rows.append({
-            "Candidate": cid,
+            "Candidate": candidate_name(cid),
             "Row p+": row_p,
             "UVIF": uvif,
-            "EIR": eir,
+            "ERIR": eir,
             "Audit p+": audit_p,
             "Net SR": net_sr,
             "Status": status,
@@ -383,7 +460,7 @@ def campaign_momentum_benchmark_table(campaign_root: Path) -> pd.DataFrame:
             continue
         r = df.iloc[0]
         rows.append({
-            "Candidate": cdir.name,
+            "Candidate": candidate_name(cdir.name),
             "thr": r.get("threshold", np.nan),
             "n": r.get("n", np.nan),
             "start": r.get("sample_start", ""),
@@ -404,7 +481,7 @@ def campaign_robustness_table(campaign_root: Path) -> pd.DataFrame:
             for _, r in df.iterrows():
                 if str(r.get("lag_label")) in {"auto", "21", "63"}:
                     rows.append({
-                        "Candidate": cdir.name,
+                        "Candidate": candidate_name(cdir.name),
                         "Diagnostic": f"HAC K={r.get('lag_label')}",
                         "SR": r.get("sharpe", np.nan),
                         "SE": r.get("se", np.nan),
@@ -416,7 +493,7 @@ def campaign_robustness_table(campaign_root: Path) -> pd.DataFrame:
             if len(df) and ("status" not in df.columns or pd.isna(df.iloc[0].get("status"))):
                 r = df.iloc[0]
                 rows.append({
-                    "Candidate": cdir.name,
+                    "Candidate": candidate_name(cdir.name),
                     "Diagnostic": "prewhite",
                     "SR": r.get("sharpe", np.nan),
                     "SE": r.get("se", np.nan),
@@ -429,7 +506,7 @@ def campaign_robustness_table(campaign_root: Path) -> pd.DataFrame:
                 for _, r in df.iterrows():
                     if float(r.get("b", 0.0)) in {0.10}:
                         rows.append({
-                            "Candidate": cdir.name,
+                            "Candidate": candidate_name(cdir.name),
                             "Diagnostic": f"fixed-b {r.get('b')}",
                             "SR": r.get("sharpe", np.nan),
                             "SE": r.get("se", np.nan),
@@ -464,7 +541,7 @@ def campaign_holdout_table(campaign_root: Path) -> pd.DataFrame:
             if len(match):
                 r = match.iloc[0]
                 rows.append({
-                    "Candidate": cdir.name,
+                    "Candidate": candidate_name(cdir.name),
                     "window": window,
                     "SR": r.get("sharpe", np.nan),
                     "n": r.get("n", np.nan),
@@ -474,13 +551,13 @@ def campaign_holdout_table(campaign_root: Path) -> pd.DataFrame:
             qmin = quarters.loc[quarters["sharpe"].idxmin()]
             qmax = quarters.loc[quarters["sharpe"].idxmax()]
             rows.append({
-                "Candidate": cdir.name,
+                "Candidate": candidate_name(cdir.name),
                 "window": "quarter_min",
                 "SR": qmin.get("sharpe", np.nan),
                 "n": qmin.get("n", np.nan),
             })
             rows.append({
-                "Candidate": cdir.name,
+                "Candidate": candidate_name(cdir.name),
                 "window": "quarter_max",
                 "SR": qmax.get("sharpe", np.nan),
                 "n": qmax.get("n", np.nan),
@@ -497,7 +574,7 @@ def campaign_cost_table(campaign_root: Path) -> pd.DataFrame:
         df = pd.read_csv(path)
         for _, r in df.iterrows():
             rows.append({
-                "Candidate": cdir.name,
+                "Candidate": candidate_name(cdir.name),
                 "cost bps": r.get("cost_bps_per_rebalance", np.nan),
                 "turnover": r.get("daily_turnover", np.nan),
                 "gross SR": r.get("gross_sharpe", np.nan),
@@ -759,7 +836,7 @@ def plot_campaign_threshold(campaign_root: Path, figdir: Path) -> None:
         df = pd.read_csv(path)
         if {"threshold", "sharpe"}.issubset(df.columns) and df["threshold"].nunique() > 1:
             df = df.sort_values("threshold")
-            plt.plot(df["threshold"], df["sharpe"], marker="o", label=cdir.name[:28])
+            plt.plot(df["threshold"], df["sharpe"], marker="o", label=candidate_name(cdir.name)[:28])
             drew = True
     if not drew:
         plt.plot([0.0, 1.0], [0.0, 0.0], color="black", linewidth=0.8)
@@ -921,9 +998,9 @@ def render(outdir: Path, paper_dir: Path) -> None:
     simulation_sections = [
         power_figure_tex(),
         latex_table(dgp_table(outdir), "Simulation DGP parameter grid.", "tab:dgp-grid"),
-        latex_table(coverage_table(outdir), "Monte Carlo 95 percent interval coverage.", "tab:coverage"),
+        latex_table(coverage_table(outdir), "Monte Carlo 95 percent interval coverage for the date-level Sharpe target.", "tab:coverage"),
         latex_table(size_table(outdir), "Null rejection rates at nominal 5 percent size.", "tab:size"),
-        latex_table(power_table(outdir), "Power by true annualized Sharpe.", "tab:power"),
+        latex_table(power_table(outdir), "Rejection rates across true annualized Sharpe values.", "tab:power"),
     ]
     sections = empirical_sections + simulation_sections
     header = f"% Generated by render_manuscript_artifacts.py from {outdir}\n"
@@ -963,14 +1040,16 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
     plot_null_size(campaign_root / "simulation", figdir)
 
     empirical_sections = [
-        latex_table(candidate_campaign_table(campaign_root), "Registry-defined public candidate evaluation campaign.", "tab:candidate-campaign"),
+        latex_table(candidate_campaign_table(campaign_root), "Loaded registry-defined public candidate evaluation campaign.", "tab:candidate-campaign"),
+        latex_table(panel_candidate_table(campaign_root), "Panel candidates subject to the full audit gate.", "tab:panel-candidates"),
+        latex_table(single_series_factor_table(campaign_root), "Single-series factor benchmarks subject to time-series inference only.", "tab:single-series-benchmarks"),
         latex_table(campaign_momentum_benchmark_table(campaign_root), "Canonical French momentum benchmark validation.", "tab:momentum-benchmark"),
         latex_table(campaign_row_boundary_table(campaign_root), "Sampling-boundary design-effect diagnostics.", "tab:row-boundary"),
         latex_table(
             campaign_phantom_audit_table(campaign_root),
             "Dependence audit summary for panel candidates.",
             "tab:phantom-audit",
-            note="EIR is a diagnostic approximation and is not used as a rejection rule.",
+            note="ERIR is a design-effect retention diagnostic and is not used as a rejection rule.",
         ),
         latex_table(campaign_horizon_effect_table(campaign_root), "Horizon-effect audit for the dynamic Size/BM momentum panel.", "tab:horizon-effect"),
         latex_table(campaign_inference_table(campaign_root), "Primary-threshold dependence-aware Sharpe inference.", "tab:empirical-inference"),
@@ -987,9 +1066,9 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
     if (sim_dir / "dgp_configs.csv").exists():
         simulation_sections.append(latex_table(dgp_table(sim_dir), "Simulation DGP parameter grid.", "tab:dgp-grid"))
     simulation_sections.extend([
-        latex_table(coverage_table(sim_dir), "Monte Carlo 95 percent interval coverage.", "tab:coverage"),
+        latex_table(coverage_table(sim_dir), "Monte Carlo 95 percent interval coverage for the date-level Sharpe target.", "tab:coverage"),
         latex_table(size_table(sim_dir), "Null rejection rates at nominal 5 percent size.", "tab:size"),
-        latex_table(power_table(sim_dir), "Power by true annualized Sharpe.", "tab:power"),
+        latex_table(power_table(sim_dir), "Rejection rates across true annualized Sharpe values.", "tab:power"),
     ])
 
     sections = empirical_sections + simulation_sections
@@ -1006,22 +1085,24 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
 
     empirical_main_sections = [
         "% Main-manuscript subset generated from generated_empirical_artifacts.tex.\n",
-        "The composite campaign table shows that only the canonical French WML\n"
-        "panel clears all 5 percent gates; other positive factor-series evidence\n"
-        "is not treated as a passed panel claim when the row-level placebo is not\n"
-        "applicable.\n",
-        latex_table(candidate_campaign_table(campaign_root), "Registry-defined public candidate evaluation campaign.", "tab:candidate-campaign"),
+        "The panel-candidate table reports only sources with row-level\n"
+        "signal-return structure and therefore eligibility for the full panel\n"
+        "audit gate.  The single-series benchmark table reports pre-aggregated\n"
+        "factor returns separately; those rows are time-series benchmarks, not\n"
+        "failed panel-audit candidates.\n",
+        latex_table(panel_candidate_table(campaign_root), "Panel candidates subject to the full audit gate.", "tab:panel-candidates"),
+        latex_table(single_series_factor_table(campaign_root), "Single-series factor benchmarks subject to time-series inference only.", "tab:single-series-benchmarks"),
         "The benchmark validation table shows that the panel implementation\n"
         "matches the direct French winner-minus-loser construction.\n",
         latex_table(campaign_momentum_benchmark_table(campaign_root), "Canonical French momentum benchmark validation.", "tab:momentum-benchmark"),
         "The dependence audit table summarizes the boundary directly: row-level\n"
-        "evidence can disappear once same-date redundancy, EIR, placebo evidence,\n"
+        "evidence can disappear once same-date redundancy, ERIR, placebo evidence,\n"
         "and turnover-scaled net Sharpe are evaluated together.\n",
         latex_table(
             campaign_phantom_audit_table(campaign_root),
             "Dependence audit summary for panel candidates.",
             "tab:phantom-audit",
-            note="EIR is a diagnostic approximation and is not used as a rejection rule.",
+            note="ERIR is a design-effect retention diagnostic and is not used as a rejection rule.",
         ),
         "The horizon table shows that changing the lookback reduces turnover in\n"
         "the Size/BM stress panel but does not convert it into a robust net-Sharpe\n"

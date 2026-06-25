@@ -3,7 +3,7 @@ Full public research and experiment campaign.
 
 This runner does not render or edit the manuscript.  It writes resumable
 research artifacts under a fresh output directory and produces a Markdown
-reviewer memo only after validation succeeds.
+experiment memo only after validation succeeds.
 """
 
 from __future__ import annotations
@@ -851,12 +851,12 @@ def write_provenance(outdir: Path) -> pd.DataFrame:
     return df
 
 
-def write_reviewer_memo(outdir: Path, paper_dir: Path) -> Path:
+def write_experiment_memo(outdir: Path, paper_dir: Path) -> Path:
     attempts = pd.read_csv(outdir / "campaign_attempts.csv") if (outdir / "campaign_attempts.csv").exists() else pd.DataFrame()
     provenance = pd.read_csv(outdir / "artifact_provenance.csv") if (outdir / "artifact_provenance.csv").exists() else pd.DataFrame()
     viable = attempts[(attempts.get("status") == "ok") & (attempts.get("viable") == True)] if not attempts.empty else pd.DataFrame()
     lines = [
-        "# Reviewer Experiment Memo",
+        "# Experiment Memo",
         "",
         f"Generated UTC: {now_utc()}",
         f"Output root: `{outdir}`",
@@ -865,13 +865,13 @@ def write_reviewer_memo(outdir: Path, paper_dir: Path) -> Path:
         "",
     ]
     if len(viable):
-        lines.append("At least one pre-registered public candidate passed the viability gates. Separate canonical benchmark validation from broader exploratory or stress candidates in the manuscript.")
+        lines.append("At least one registry-defined public candidate passed the viability gates. Separate canonical benchmark validation from broader exploratory or stress candidates in the manuscript.")
     else:
-        lines.append("No pre-registered public candidate passed all viability gates. Treat this as a null evaluation result, not as a discovery result: do not claim a viable public strategy, but the no-pass outcome can be reported as evidence that the framework rejects candidates with missing panel structure, weak dependence-adjusted edge, or cost/factor fragility.")
+        lines.append("No registry-defined public candidate passed all viability gates. Treat this as a null evaluation result, not as a discovery result: do not claim a viable public strategy, but the no-pass outcome can be reported as evidence that the framework rejects candidates with missing panel structure, weak dependence-adjusted edge, or cost/factor fragility.")
     if not attempts.empty:
         lines.extend([
             "",
-            "## Strict-Reviewer Interpretation",
+            "## Strict Review Interpretation",
             "",
             "The AQR factor-series candidates are economically meaningful factor returns, but they are pre-aggregated single-series sources. Their `permutation_p` entries are missing because the same-date signal permutation gate is structurally not applicable without row-level constituent signals. They can be discussed as supporting evidence for factor significance, not as candidates that pass a panel-level evaluation.",
             "",
@@ -887,13 +887,13 @@ def write_reviewer_memo(outdir: Path, paper_dir: Path) -> Path:
             "",
             "## Peer-Review Revision Notes",
             "",
-            "The peer-review revision items are clarifications rather than changes to the empirical record: state the Bartlett HAC construction for the joint `(r_t, r_t^2)` process; separate exploratory iteration from a frozen confirmatory researcher menu; state the limits of linear turnover costs for high-frequency, illiquid, and capacity-constrained strategies; read row-naive and dependence-aware outputs side by side; and explain how the date-boundary principle can transfer to other entity-time finance panels.",
+            "The revision items are clarifications rather than changes to the empirical record: state the Bartlett HAC construction for the joint `(r_t, r_t^2)` process; separate exploratory iteration from a frozen confirmatory researcher menu; state the limits of linear turnover costs for high-frequency, illiquid, and capacity-constrained strategies; read row-naive and dependence-aware outputs side by side; and explain how the date-boundary principle can transfer to other entity-time finance panels.",
             "",
             "## Strong-Reject Stress Notes",
             "",
-            "A hostile review should be handled by reducing overclaiming rather than changing the empirical record: present the protocol as a reproducible evaluation framework, not as a new estimator; identify the equicorrelated calculation with design-effect/Moulton logic; describe the composite gate as a conservative pre-specified policy rule; caveat same-date permutation by exchangeability/blocking; report HAC bandwidth and compare important conclusions to block-bootstrap results; and keep `N_eff` as a diagnostic only.",
+            "A skeptical review should be handled by reducing overclaiming rather than changing the empirical record: present the protocol as a reproducible evaluation framework, not as a new estimator; identify the equicorrelated calculation with design-effect/Moulton logic; describe the composite gate as a conservative registry-defined policy rule; caveat same-date permutation by exchangeability/blocking; report HAC bandwidth and compare important conclusions to block-bootstrap results; and keep `N_eff` as a diagnostic only.",
             "",
-            "Implemented follow-through: `public_grouped_permutation.csv` repeats the same-date placebo while preserving Size or B/M blocks in the French 25 Size-B/M panel; `public_momentum_hac_bandwidth.csv` and `public_placebo_hac_bandwidth.csv` report HAC-delta sensitivity across automatic and fixed Bartlett bandwidths; and the current pre-registered public-candidate campaign has zero viable candidates at the conventional alpha=0.05 and also zero at alpha=0.01.",
+            "Implemented follow-through: `public_grouped_permutation.csv` repeats the same-date placebo while preserving Size or B/M blocks in the French 25 Size/BM panel; `public_momentum_hac_bandwidth.csv` and `public_placebo_hac_bandwidth.csv` report HAC-delta sensitivity across automatic and fixed Bartlett bandwidths; and the registry-defined public-candidate campaign reports final gate status in the generated manuscript artifacts.",
         ])
     lines.extend(["", "## Candidate Attempts", ""])
     if attempts.empty:
@@ -911,7 +911,7 @@ def write_reviewer_memo(outdir: Path, paper_dir: Path) -> Path:
     else:
         lines.append(provenance.to_markdown(index=False))
     paper_dir.mkdir(parents=True, exist_ok=True)
-    path = paper_dir / "reviewer_experiment_memo.md"
+    path = paper_dir / "experiment_memo.md"
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return path
 
@@ -977,7 +977,7 @@ def main() -> None:
     if args.write_memo:
         # The validator is a separate hard gate.  This flag is intended for
         # validated reruns or for no-go memos after all candidates are attempted.
-        path = write_reviewer_memo(outdir, Path(__file__).resolve().parents[1] / "paper")
+        path = write_experiment_memo(outdir, Path(__file__).resolve().parents[1] / "paper")
         print(f"Wrote {path}", flush=True)
 
 

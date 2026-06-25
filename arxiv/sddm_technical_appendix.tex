@@ -22,7 +22,7 @@
 \newcommand{\UVIF}{\mathrm{UVIF}}
 \DeclareMathOperator{\sign}{sign}
 
-\title{Technical Appendix: Sharpe-ratio variance inflation under cross-sectional and serial dependence in trading panels}
+\title{Technical Appendix: Sharpe-ratio variance inflation in entity-time financial panels}
 \author{Dhananjay S. Chauhan}
 \date{June 1, 2026}
 
@@ -178,7 +178,7 @@ date boundary has already embedded the cross-sectional UVIF component,
 so the cross-sectional part of \(\mathcal M\) must not be multiplied in
 again.
 
-\section{Higher-Moment UVIF and EIR Details}
+\section{Higher-Moment UVIF and ERIR Details}
 
 For \(\theta^{(4)}=(\mu,m_2,m_3,m_4)'\), define skewness and kurtosis
 from the central moments implied by \(\theta^{(4)}\).  Any adjusted
@@ -189,29 +189,30 @@ higher-moment UVIF is the corresponding ratio of date-level long-run
 variance to row-pooled IID variance.  It is a diagnostic extension, not
 an additional empirical rejection gate.
 
-The EIR diagnostic is
+The Effective Row Information Retention (ERIR) diagnostic is a
+design-effect retention calculation, not a hypothesis test or a formal
+information claim.  Under the same equicorrelated approximation
+used for the mean-return design effect,
 \[
-  \mathrm{EIR}_t
-  =
-  \frac{I(S_t;R_t)}
-       {n_t\,\bar I_t},
+  DE_{\mu,xs}=1+(\bar n-1)\rho,
   \qquad
-  \bar I_t=n_t^{-1}\sum_{i=1}^{n_t}I(s_{t,i};r_{t+1,i}).
+  \mathrm{ERIR}=\{1+(\bar n-1)\rho\}^{-1}.
 \]
-Under the same equicorrelated Gaussian approximation used for the
-mean-return design effect,
-\[
-  \mathrm{EIR}_t(\rho)\approx \frac{1}{1+(n_t-1)\rho}.
-\]
-Thus an EIR of \(0.111\) means that roughly \(1-0.111=0.889\), or 89
-percent, of nominal row-level information is redundant under the
-diagnostic approximation.
+Thus an ERIR of \(0.111\) means that roughly \(1-0.111=0.889\), or 89
+percent, of nominal row-level information is redundant under this
+diagnostic approximation.  Confirmatory inference remains based on
+date-level HAC-delta and dependent-bootstrap procedures.
 
 \section{Synthetic Positive Control}
 
 \input{generated_positive_control_artifacts.tex}
 
 \section{Full Empirical Artifacts}
+
+The inferential tables in this appendix report only public sources that
+loaded and produced reproducible artifacts.  Failed source-access
+attempts remain in the generated provenance files and campaign metadata,
+but are not treated as empirical evidence.
 
 \input{generated_empirical_artifacts.tex}
 

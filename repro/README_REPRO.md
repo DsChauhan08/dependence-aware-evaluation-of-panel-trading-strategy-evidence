@@ -1,7 +1,7 @@
 # Reproducibility Instructions
 
 This package reproduces the public-data and simulation evidence for
-`Sharpe-ratio variance inflation under cross-sectional and serial dependence in trading panels`.
+`Sharpe-ratio variance inflation in entity-time financial panels`.
 
 Public repository:
 https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence
@@ -30,15 +30,21 @@ The release campaign is intentionally expensive.
 
 ```bash
 python code/run_full_campaign.py \
-  --output-root code/output_release_YYYYMMDD \
+  --output-root output_release_YYYYMMDD \
   --n-sim 1000 --n-boot 5000 --n-perms 10000 \
   --n-jobs 12 --coverage-parallel 4 --no-resume --write-memo
-python code/render_manuscript_artifacts.py \
-  --campaign-root code/output_release_YYYYMMDD --paper-dir paper
 ```
 
-Compile the peer-review manuscript and technical appendix from `paper/` with
-`pdflatex` twice.
+If this `repro/` directory is being used inside the full release tree,
+regenerate manuscript tables into the journal source folder with:
+
+```bash
+python code/render_manuscript_artifacts.py \
+  --campaign-root output_release_YYYYMMDD --paper-dir ../journal/source
+```
+
+Compile the peer-review manuscript and technical appendix from
+`../journal/source/` with `pdflatex` twice when the source folder is present.
 
 ## Release Boundary
 
