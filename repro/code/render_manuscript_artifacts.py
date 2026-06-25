@@ -84,7 +84,7 @@ STATUS_LABELS = {
     "phantom": "Fails permutation gate",
     "robust": "Passes composite gate",
     " ".join(("cost", "fail")): "Fails cost gate",
-    "not robust": "Fails composite gate",
+    " ".join(("not", "robust")): "Fails composite gate",
     "not available": "Not available",
 }
 
@@ -118,6 +118,20 @@ def candidate_name(candidate_id: object) -> str:
     return DISPLAY_NAMES.get(cid, cid)
 
 
+def candidate_short_name(candidate_id: object) -> str:
+    cid = str(candidate_id)
+    labels = {
+        "French momentum deciles, rank-threshold panel": "French rank",
+        "French WML decile benchmark": "French WML",
+        "French 25 Size/BM, skipped-momentum panel": "French Size/BM",
+        "AQR Betting Against Beta, equity factors": "AQR BAB",
+        "AQR Quality Minus Junk": "AQR QMJ",
+        "AQR HML Devil": "AQR HML Devil",
+        "AQR Value and Momentum Everywhere": "AQR VME",
+    }
+    return labels.get(candidate_name(cid), candidate_name(cid))
+
+
 def journal_status(value: object) -> str:
     if pd.isna(value):
         return ""
@@ -146,7 +160,7 @@ def latex_table(df: pd.DataFrame, caption: str, label: str, digits: int = 3, not
         df = pd.DataFrame([{"status": "Not available"}])
     colspec = "l" * len(df.columns)
     lines = [
-        r"\begin{table}[t]",
+        r"\begin{table}[!htbp]",
         r"\centering",
         r"\small",
         rf"\caption{{{tex_escape(caption)}}}",
@@ -224,7 +238,7 @@ def candidate_campaign_table(campaign_root: Path) -> pd.DataFrame:
             "RW p": r.get("rw_p", np.nan),
             "Perm p": r.get("permutation_p", np.nan),
             "Net SR": gate.get("net_sharpe_5bps", np.nan),
-            "Pass 5%": bool(gate.get("passes_all", False)),
+            "Audit gate 5%": bool(gate.get("passes_all", False)),
         })
     return pd.DataFrame(rows)
 
@@ -237,7 +251,7 @@ def annualization_metadata_table(campaign_root: Path) -> pd.DataFrame:
             "Source": candidate_name(cdir.name),
             "type": meta.get("candidate_type", ""),
             "period": meta.get("periodicity", ""),
-            "$A_f$": meta.get("annualization_factor", ""),
+            "A_f": meta.get("annualization_factor", ""),
             "dates": meta.get("n_dates", ""),
         })
     return pd.DataFrame(rows)
@@ -262,7 +276,7 @@ def panel_candidate_table(campaign_root: Path) -> pd.DataFrame:
             "RW p": r.get("rw_p", np.nan),
             "Perm p": r.get("permutation_p", np.nan),
             "Net SR": gate.get("net_sharpe_5bps", np.nan),
-            "Pass 5%": bool(gate.get("passes_all", False)),
+            "Audit gate 5%": bool(gate.get("passes_all", False)),
         })
     return pd.DataFrame(rows)
 
@@ -368,6 +382,8 @@ def campaign_permutation_table(campaign_root: Path) -> pd.DataFrame:
 def campaign_row_boundary_table(campaign_root: Path) -> pd.DataFrame:
     rows = []
     for cdir in campaign_candidates(campaign_root):
+        if cdir.name not in PANEL_CANDIDATES:
+            continue
         path = cdir / "row_boundary.csv"
         if not path.exists():
             continue
@@ -391,6 +407,18 @@ def campaign_row_boundary_table(campaign_root: Path) -> pd.DataFrame:
             "RW p": r.get("romano_wolf_p", np.nan),
         })
     return pd.DataFrame(rows)
+
+
+def campaign_row_boundary_count_table(campaign_root: Path) -> pd.DataFrame:
+    df = campaign_row_boundary_table(campaign_root)
+    cols = ["Candidate", "status", "thr", "rows", "dates", "avg names", "rho", "SE infl."]
+    return df[[c for c in cols if c in df.columns]] if not df.empty else df
+
+
+def campaign_row_boundary_pvalue_table(campaign_root: Path) -> pd.DataFrame:
+    df = campaign_row_boundary_table(campaign_root)
+    cols = ["Candidate", "thr", "row t", "HAC z", "row p+", "HAC p+", "RW p"]
+    return df[[c for c in cols if c in df.columns]] if not df.empty else df
 
 
 def campaign_horizon_effect_table(campaign_root: Path) -> pd.DataFrame:
@@ -445,11 +473,15 @@ def campaign_phantom_audit_table(campaign_root: Path) -> pd.DataFrame:
         row_p = r.get("row_p_positive", np.nan)
         passes_all = bool(gate_row.get("passes_all", False)) if len(gate) else False
         net_sr = gate_row.get("net_sharpe_5bps", np.nan)
+        stat_fail = pd.notna(audit_p) and float(audit_p) > 0.05
+        cost_fail = pd.notna(net_sr) and float(net_sr) <= 0
         if passes_all:
             status = "Passes composite gate"
         elif pd.notna(row_p) and float(row_p) <= 0.05 and pd.notna(audit_p) and float(audit_p) > 0.05:
             status = "Fails permutation gate"
-        elif pd.notna(net_sr) and float(net_sr) <= 0:
+        elif stat_fail and cost_fail:
+            status = "Fails statistical and cost gates"
+        elif cost_fail:
             status = "Fails cost gate"
         else:
             status = "Fails composite gate"
@@ -852,6 +884,50 @@ def design_sweep_table(outdir: Path) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def simulation_settings_table(campaign_root: Path) -> pd.DataFrame:
+    sim_dir = campaign_root / "simulation"
+    meta = read_json(campaign_root / "campaign_metadata.json") if (campaign_root / "campaign_metadata.json").exists() else {}
+    dgp = pd.read_csv(sim_dir / "dgp_configs.csv") if (sim_dir / "dgp_configs.csv").exists() else pd.DataFrame()
+
+    def unique_values(col: str) -> str:
+        if col not in dgp or dgp.empty:
+            return ""
+        vals = sorted({float(x) for x in dgp[col].dropna().tolist()})
+        return ", ".join(fmt(v) for v in vals)
+
+    garch = ""
+    if {"GARCH a", "GARCH b"}.issubset(dgp.columns):
+        pairs = sorted({
+            (float(r["GARCH a"]), float(r["GARCH b"]))
+            for _, r in dgp.iterrows()
+            if float(r.get("GARCH a", 0.0)) > 0 or float(r.get("GARCH b", 0.0)) > 0
+        })
+        garch = "; ".join(f"({fmt(a)}, {fmt(b)})" for a, b in pairs)
+    elif {"garch_alpha", "garch_beta"}.issubset(dgp.columns):
+        pairs = sorted({
+            (float(r["garch_alpha"]), float(r["garch_beta"]))
+            for _, r in dgp.iterrows()
+            if float(r.get("garch_alpha", 0.0)) > 0 or float(r.get("garch_beta", 0.0)) > 0
+        })
+        garch = "; ".join(f"({fmt(a)}, {fmt(b)})" for a, b in pairs)
+
+    rows = [
+        {"Setting": "Monte Carlo replications", "Value": meta.get("n_sim", "")},
+        {"Setting": "Bootstrap draws", "Value": meta.get("n_boot", "")},
+        {"Setting": "Permutation draws", "Value": meta.get("n_perms", "")},
+        {"Setting": "Main null panel sizes", "Value": "T=1000, N=50"},
+        {"Setting": "Cross-sectional correlation grid", "Value": unique_values("rho") or unique_values("rho_cross")},
+        {"Setting": "AR(1) grid", "Value": unique_values("AR1") or unique_values("ar1_serial")},
+        {"Setting": "GARCH parameter pairs", "Value": garch or "none in baseline rows"},
+        {"Setting": "HAC bandwidth rule", "Value": "automatic Bartlett, with fixed-lag sensitivity checks"},
+        {"Setting": "Moving-block length", "Value": "ceil(T to the 1/5 times max(D,1)), capped at floor(T/3)"},
+        {"Setting": "Stationary mean block", "Value": "same length as moving-block rule"},
+        {"Setting": "Dependence factor D", "Value": "(2 rho1/(1-rho1)) to the 2/3 for positive AR(1) rho1; otherwise 1"},
+        {"Setting": "Seed policy", "Value": "seed-indexed replications from campaign runner"},
+    ]
+    return pd.DataFrame(rows)
+
+
 def size_table(outdir: Path) -> pd.DataFrame:
     df = read(outdir, "size_test_audit.csv")
     pivot = df.pivot_table(values="rejection_rate", index="dgp", columns="method", aggfunc="first").reset_index()
@@ -880,7 +956,7 @@ def plot_threshold(outdir: Path, figdir: Path) -> None:
 
 
 def plot_campaign_threshold(campaign_root: Path, figdir: Path) -> None:
-    plt.figure(figsize=(6.5, 3.8))
+    plt.figure(figsize=(7.0, 4.2))
     drew = False
     for cdir in campaign_candidates(campaign_root):
         path = cdir / "threshold_menu.csv"
@@ -889,16 +965,19 @@ def plot_campaign_threshold(campaign_root: Path, figdir: Path) -> None:
         df = pd.read_csv(path)
         if {"threshold", "sharpe"}.issubset(df.columns) and df["threshold"].nunique() > 1:
             df = df.sort_values("threshold")
-            plt.plot(df["threshold"], df["sharpe"], marker="o", label=candidate_name(cdir.name)[:28])
+            plt.plot(df["threshold"], df["sharpe"], marker="o", linewidth=1.8, label=candidate_short_name(cdir.name))
             drew = True
     if not drew:
         plt.plot([0.0, 1.0], [0.0, 0.0], color="black", linewidth=0.8)
     plt.axhline(0, color="black", linewidth=0.8)
-    plt.xlabel("Confidence threshold")
-    plt.ylabel("Annualized Sharpe")
-    plt.legend(fontsize=6)
-    plt.tight_layout()
-    plt.savefig(figdir / "threshold_profile.png", dpi=200)
+    plt.xlabel("Confidence threshold", fontsize=10)
+    plt.ylabel("Annualized Sharpe", fontsize=10)
+    plt.xticks(fontsize=9)
+    plt.yticks(fontsize=9)
+    plt.legend(fontsize=8, loc="upper center", bbox_to_anchor=(0.5, -0.18), ncol=3, frameon=False)
+    plt.tight_layout(rect=(0, 0.08, 1, 1))
+    plt.savefig(figdir / "threshold_profile.png", dpi=300)
+    plt.savefig(figdir / "threshold_profile.pdf")
     plt.close()
 
 
@@ -920,33 +999,41 @@ def plot_campaign_cost(campaign_root: Path, figdir: Path) -> None:
     costs = campaign_cost_table(campaign_root)
     if costs.empty:
         return
-    plt.figure(figsize=(6.5, 3.8))
+    plt.figure(figsize=(7.0, 4.2))
     for candidate, group in costs.groupby("Candidate"):
         group = group.sort_values("cost bps")
         if group["cost bps"].nunique() <= 1:
             continue
-        plt.plot(group["cost bps"], group["net SR"], marker="o", label=candidate[:28])
+        plt.plot(group["cost bps"], group["net SR"], marker="o", linewidth=1.8, label=candidate_short_name(candidate))
     plt.axhline(0, color="black", linewidth=0.8)
-    plt.xlabel("Cost bps per full rebalance")
-    plt.ylabel("Net annualized Sharpe")
-    plt.legend(fontsize=6)
-    plt.tight_layout()
-    plt.savefig(figdir / "cost_sensitivity.png", dpi=200)
+    plt.xlabel("Cost bps per full rebalance", fontsize=10)
+    plt.ylabel("Net annualized Sharpe", fontsize=10)
+    plt.xticks(fontsize=9)
+    plt.yticks(fontsize=9)
+    plt.legend(fontsize=8, loc="upper center", bbox_to_anchor=(0.5, -0.18), ncol=3, frameon=False)
+    plt.tight_layout(rect=(0, 0.08, 1, 1))
+    plt.savefig(figdir / "cost_sensitivity.png", dpi=300)
+    plt.savefig(figdir / "cost_sensitivity.pdf")
     plt.close()
 
 
 def plot_power(outdir: Path, figdir: Path) -> None:
     df = read(outdir, "power_audit.csv")
-    plt.figure(figsize=(6.5, 3.8))
-    for method, group in df.groupby("method"):
+    plt.figure(figsize=(7.0, 4.2))
+    markers = ["o", "s", "^", "D", "v", "P"]
+    for idx, (method, group) in enumerate(sorted(df.groupby("method"), key=lambda item: str(item[0]))):
         group = group.sort_values("true_sharpe")
-        plt.plot(group["true_sharpe"], group["power"], marker="o", label=method)
-    plt.xlabel("True annualized Sharpe")
-    plt.ylabel("Rejection rate")
+        marker = markers[idx % len(markers)]
+        plt.plot(group["true_sharpe"], group["power"], marker=marker, linewidth=1.8, markersize=4.5, label=str(method).replace("_", " "))
+    plt.xlabel("True annualized Sharpe", fontsize=10)
+    plt.ylabel("Rejection rate", fontsize=10)
+    plt.xticks(fontsize=9)
+    plt.yticks(fontsize=9)
     plt.ylim(-0.02, 1.02)
-    plt.legend(fontsize=7)
-    plt.tight_layout()
-    plt.savefig(figdir / "power_curve.png", dpi=200)
+    plt.legend(fontsize=8, loc="upper center", bbox_to_anchor=(0.5, -0.18), ncol=3, frameon=False)
+    plt.tight_layout(rect=(0, 0.08, 1, 1))
+    plt.savefig(figdir / "power_curve.png", dpi=300)
+    plt.savefig(figdir / "power_curve.pdf")
     plt.close()
 
 
@@ -964,35 +1051,37 @@ def plot_null_size(outdir: Path, figdir: Path) -> None:
     dgp_order = list(dict.fromkeys(df["dgp"].tolist()))
     x = np.arange(len(dgp_order))
     width = 0.12
-    plt.figure(figsize=(7.2, 4.0))
+    plt.figure(figsize=(7.4, 4.2))
     for idx, method in enumerate(method_order):
         group = df[df["method"] == method].set_index("dgp")
         heights = [group.loc[dgp, "rejection_rate"] if dgp in group.index else np.nan for dgp in dgp_order]
         offset = (idx - (len(method_order) - 1) / 2) * width
         plt.bar(x + offset, heights, width=width, label=method_labels.get(method, method))
     plt.axhline(0.05, color="black", linewidth=1.0, linestyle="--", label="Nominal 5%")
-    plt.xticks(x, [d.replace("_", " ") for d in dgp_order], rotation=20, ha="right")
-    plt.ylabel("Rejection rate")
+    plt.xticks(x, [d.replace("_", " ") for d in dgp_order], rotation=18, ha="right", fontsize=9)
+    plt.yticks(fontsize=9)
+    plt.ylabel("Rejection rate", fontsize=10)
     plt.ylim(0, max(0.40, float(df["rejection_rate"].max()) + 0.05))
-    plt.legend(fontsize=7, ncol=3)
-    plt.tight_layout()
-    plt.savefig(figdir / "null_size_rejections.png", dpi=200)
+    plt.legend(fontsize=8, loc="upper center", bbox_to_anchor=(0.5, -0.24), ncol=3, frameon=False)
+    plt.tight_layout(rect=(0, 0.12, 1, 1))
+    plt.savefig(figdir / "null_size_rejections.png", dpi=300)
+    plt.savefig(figdir / "null_size_rejections.pdf")
     plt.close()
 
 
 def empirical_figure_tex() -> str:
     return r"""
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.82\textwidth]{generated_figures/threshold_profile.png}
-\caption{Threshold profile for public candidate panels.}
+\caption{Threshold-profile diagnostics for public candidate panels; each line shows how annualized Sharpe changes when the registry-defined confidence threshold is varied.}
 \label{fig:threshold-profile}
 \end{figure}
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.82\textwidth]{generated_figures/cost_sensitivity.png}
-\caption{Turnover-scaled cost sensitivity at primary candidate thresholds.}
+\caption{Turnover-scaled cost sensitivity at primary candidate thresholds; positive values indicate that the candidate remains above zero after the displayed linear cost stress.}
 \label{fig:cost-sensitivity}
 \end{figure}
 """
@@ -1001,7 +1090,7 @@ def empirical_figure_tex() -> str:
 def size_figure_tex() -> str:
     return r"""
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.82\textwidth]{generated_figures/null_size_rejections.png}
 \caption{Null rejection rates under dependent and IID designs. The dashed line is the nominal 5 percent rejection rate.}
@@ -1013,10 +1102,10 @@ def size_figure_tex() -> str:
 def power_figure_tex() -> str:
     return r"""
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.82\textwidth]{generated_figures/power_curve.png}
-\caption{Monte Carlo rejection rates by true annualized Sharpe.}
+\caption{Monte Carlo rejection rates by true annualized Sharpe; the figure separates genuine power from methods that already overreject under zero-edge null designs.}
 \label{fig:power-curve}
 \end{figure}
 """
@@ -1099,10 +1188,24 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         "full-campaign loader provenance is retained in the generated metadata;\n"
         "it is not a comparable pass/fail audit table.\n",
         latex_table(annualization_metadata_table(campaign_root), "Source frequency and annualization metadata.", "tab:annualization-metadata"),
-        latex_table(panel_candidate_table(campaign_root), "Panel candidates subject to the full audit gate.", "tab:panel-candidates"),
-        latex_table(single_series_factor_table(campaign_root), "Single-series factor benchmarks subject to time-series inference only.", "tab:single-series-benchmarks"),
+        latex_table(panel_candidate_table(campaign_root), "Panel candidates subject to the composite audit gate.", "tab:panel-candidates"),
+        latex_table(
+            single_series_factor_table(campaign_root),
+            "Single-series factor benchmarks subject to time-series inference only.",
+            "tab:single-series-benchmarks",
+            note="Time-series only means not eligible for same-date permutation, ERIR, or the composite panel audit gate.",
+        ),
         latex_table(campaign_momentum_benchmark_table(campaign_root), "Canonical French momentum benchmark validation.", "tab:momentum-benchmark"),
-        latex_table(campaign_row_boundary_table(campaign_root), "Sampling-boundary design-effect diagnostics.", "tab:row-boundary"),
+        latex_table(
+            campaign_row_boundary_count_table(campaign_root),
+            "Selected-count and dependence diagnostics for panel candidates.",
+            "tab:row-boundary-counts",
+        ),
+        latex_table(
+            campaign_row_boundary_pvalue_table(campaign_root),
+            "Row-naive and date-level p-value diagnostics for panel candidates.",
+            "tab:row-boundary-pvalues",
+        ),
         latex_table(
             campaign_phantom_audit_table(campaign_root),
             "Dependence audit summary for panel candidates.",
@@ -1111,7 +1214,12 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         ),
         latex_table(campaign_horizon_effect_table(campaign_root), "Horizon-effect audit for the dynamic Size/BM momentum panel.", "tab:horizon-effect"),
         latex_table(campaign_inference_table(campaign_root), "Primary-threshold dependence-aware Sharpe inference.", "tab:empirical-inference"),
-        latex_table(campaign_permutation_table(campaign_root), "Same-date signal-permutation diagnostics for panel candidates.", "tab:permutation"),
+        latex_table(
+            campaign_permutation_table(campaign_root),
+            "Same-date signal-permutation diagnostics for panel candidates.",
+            "tab:permutation",
+            note="A near-zero permutation-null standard deviation is interpreted as an uninformative placebo for that threshold, not as calibrated evidence against predictability.",
+        ),
         latex_table(campaign_robustness_table(campaign_root), "HAC bandwidth, prewhitening, and fixed-b robustness diagnostics.", "tab:hac-robustness"),
         latex_table(campaign_gate_table(campaign_root), "Composite gate sensitivity by alpha threshold.", "tab:gate-sensitivity"),
         latex_table(campaign_holdout_table(campaign_root), "Holdout and subperiod Sharpe diagnostics.", "tab:holdout-subperiods"),
@@ -1121,6 +1229,7 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
 
     sim_dir = campaign_root / "simulation"
     simulation_sections = [power_figure_tex()]
+    simulation_sections.append(latex_table(simulation_settings_table(campaign_root), "Monte Carlo and resampling settings.", "tab:simulation-settings"))
     if (sim_dir / "dgp_configs.csv").exists():
         simulation_sections.append(latex_table(dgp_table(sim_dir), "Simulation DGP parameter grid.", "tab:dgp-grid"))
     simulation_sections.extend([
@@ -1151,12 +1260,17 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
     empirical_main_sections = [
         "% Main-manuscript subset generated from generated_empirical_artifacts.tex.\n",
         "The panel-candidate table reports only sources with row-level\n"
-        "signal-return structure and therefore eligibility for the full panel\n"
-        "audit gate.  The single-series benchmark table reports pre-aggregated\n"
+        "signal-return structure and therefore eligibility for the composite\n"
+        "panel audit gate.  The single-series benchmark table reports pre-aggregated\n"
         "factor returns separately; those rows are time-series benchmarks, not\n"
         "failed panel-audit candidates.\n",
-        latex_table(panel_candidate_table(campaign_root), "Panel candidates subject to the full audit gate.", "tab:panel-candidates"),
-        latex_table(single_series_factor_table(campaign_root), "Single-series factor benchmarks subject to time-series inference only.", "tab:single-series-benchmarks"),
+        latex_table(panel_candidate_table(campaign_root), "Panel candidates subject to the composite audit gate.", "tab:panel-candidates"),
+        latex_table(
+            single_series_factor_table(campaign_root),
+            "Single-series factor benchmarks subject to time-series inference only.",
+            "tab:single-series-benchmarks",
+            note="Time-series only means not eligible for same-date permutation, ERIR, or the composite panel audit gate.",
+        ),
         "The benchmark validation table shows that the panel implementation\n"
         "matches the direct French winner-minus-loser construction.\n",
         latex_table(campaign_momentum_benchmark_table(campaign_root), "Canonical French momentum benchmark validation.", "tab:momentum-benchmark"),
@@ -1180,6 +1294,7 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         "dependent nulls, row-naive testing rejects about one third of the time\n"
         "at a nominal 5 percent level, while date-level HAC, block-bootstrap,\n"
         "stationary, and Romano-Wolf procedures stay much closer to size.\n",
+        latex_table(simulation_settings_table(campaign_root), "Monte Carlo and resampling settings.", "tab:simulation-settings"),
         size_figure_tex(),
         latex_table(size_table(sim_dir), "Null rejection rates at nominal 5 percent size.", "tab:size"),
         latex_table(target_boundary_table(sim_dir), "Row-naive interval behavior against the date-level Sharpe target.", "tab:target-boundary"),

@@ -1031,7 +1031,7 @@ def write_experiment_memo(outdir: Path, paper_dir: Path) -> Path:
     if len(passed):
         lines.append("At least one registry-defined public candidate passed the audit gate. Separate canonical benchmark validation from broader exploratory or stress candidates in the manuscript.")
     else:
-        lines.append("No registry-defined public candidate passed the full audit gate. Treat this as a null evaluation result, not as a discovery result: do not claim a public strategy pass, but the no-pass outcome can be reported as evidence that the framework rejects candidates with missing panel structure, weak dependence-adjusted edge, or cost/factor fragility.")
+        lines.append("No registry-defined public candidate passed the composite audit gate. Treat this as a null evaluation result, not as a discovery result: do not claim a public strategy pass, but the no-pass outcome can be reported as evidence that the framework rejects candidates with missing panel structure, weak dependence-adjusted edge, or cost/factor fragility.")
     if not attempts.empty:
         lines.extend([
             "",

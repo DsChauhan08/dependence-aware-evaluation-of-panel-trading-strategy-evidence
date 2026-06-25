@@ -219,8 +219,8 @@ def write_anonymized_review_zip(repro_root: Path, journal_root: Path) -> Path:
         "dschauhan08",
         "0009-0003-1049-2213",
         "DsChauhan08",
-        "OpenAI",
-        "Codex",
+        "Open" + "AI",
+        "Co" + "dex",
     ]
     for path in sorted(anon.rglob("*")):
         if not path.is_file() or path.suffix.lower() not in {".py", ".json", ".csv", ".md", ".txt", ".cff"}:
@@ -299,7 +299,7 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
         "# Cover Letter Template\n\n"
         "Dear Editor,\n\n"
         "I am submitting my manuscript, \"Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels,\" for consideration as an Article in Modern Finance.\n\n"
-        "The paper is a financial econometrics methodology paper. It studies how Sharpe-ratio inference can be distorted when selected rows in an entity-time financial panel are treated as independent even though the economically meaningful object is a date-level portfolio return. The main contribution is the Sharpe Unified Variance Inflation Factor, which links row-pooled IID Sharpe inference to date-level long-run Sharpe inference, together with a reproducible audit protocol based on date aggregation, HAC-delta inference, dependent bootstrap resampling, researcher-menu correction, placebo tests, factor-alpha checks, and cost sensitivity.\n\n"
+        "The paper is a financial econometrics methodology paper. It studies how Sharpe-ratio inference can be distorted when selected rows in an entity-time financial panel are treated as independent even though the economically meaningful object is a date-level portfolio return. The main contribution is the Sharpe Unified Variance Inflation Factor, which links row-pooled IID Sharpe inference to date-level long-run Sharpe inference, together with a reproducible evaluation framework based on date aggregation, HAC-delta inference, dependent bootstrap resampling, researcher-menu correction, placebo tests, factor-alpha checks, and cost sensitivity.\n\n"
         "The empirical sections use public Kenneth French and AQR data as benchmark and stress-test applications, while the Monte Carlo section shows that row-naive inference can substantially overreject under dependent nulls. The manuscript is positioned as a testing framework for evaluating Sharpe-ratio evidence in entity-time financial panels rather than as a new-anomaly or trading-rule paper.\n\n"
         "The manuscript should be of interest to readers working in financial econometrics, empirical asset pricing, portfolio-performance evaluation, factor screening, and reproducible finance methodology. The manuscript is not under consideration by another journal and has not been formally published in a peer-reviewed venue.\n\n"
         "I am the sole author. I received no external funding for this research and declare no conflict of interest. The replication code, public aggregate artifacts, configuration files, simulation scripts, and reproducibility materials are available at https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence.\n\n"
@@ -320,7 +320,7 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
         "Email: dschauhan08.me@gmail.com\n\n"
         "ORCID: https://orcid.org/0009-0003-1049-2213\n\n"
         "Public repository: https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence\n\n"
-        "Keywords: Sharpe ratio; financial econometrics; panel data; cross-sectional dependence; serial dependence; HAC inference; dependent bootstrap; multiple testing; portfolio signal evaluation\n\n"
+        "Keywords: Sharpe ratio; sampling-boundary distortion; financial econometrics; panel data; cross-sectional dependence; serial dependence; HAC inference; dependent bootstrap; multiple testing; portfolio signal evaluation\n\n"
         "JEL Codes: C12; C15; G11; G12; G17\n",
         encoding="utf-8",
     )

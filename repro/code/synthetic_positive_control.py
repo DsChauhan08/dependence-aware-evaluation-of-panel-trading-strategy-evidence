@@ -134,7 +134,7 @@ def same_date_permutation(panel: PanelData, thresholds: list[float], n_perms: in
 def render_latex(summary: pd.DataFrame, path: Path) -> None:
     row = summary.iloc[0]
     lines = [
-        r"\begin{table}[t]",
+        r"\begin{table}[H]",
         r"\centering",
         r"\small",
         r"\caption{Synthetic positive-control evaluation.}",

@@ -6,6 +6,7 @@
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{graphicx}
+\usepackage{float}
 \usepackage[margin=1in]{geometry}
 \usepackage{hyperref}
 \usepackage{setspace}
@@ -42,11 +43,9 @@
 
 \section{Purpose}
 
-This appendix contains proof details and secondary empirical artifacts
-that are omitted from the journal-facing main manuscript for length.
-The main manuscript is the claim boundary; this appendix is the audit
-trail for derivations, positive controls, robustness tables, and
-generated public-data artifacts.
+This appendix provides derivations, robustness checks, synthetic
+validation, and generated public-data artifacts omitted from the main
+manuscript for length.
 
 \section{Mean-Return Design-Effect Proof}
 
@@ -77,7 +76,8 @@ Thus
   \sqrt{1+(\bar n-1)\rho}.
 \]
 This is the Moulton-like design effect used as the mean-return special
-case in the main text.
+case in the main text.  It is a closed-form special case, not the full
+Sharpe-ratio distortion result.
 
 \section{Sharpe UVIF Derivation}
 
@@ -137,35 +137,37 @@ the serial long-run factor.  Componentwise,
 The \(\Omega_{22}\) term contains long-run covariances of squared
 returns and therefore brings fourth moments into Sharpe-ratio variance.
 
-\section{Capacity stress extension}
+\section{Optional Square-Root Impact Sensitivity Extension}
 
 The public sorted-portfolio examples in the main manuscript do not
 contain average daily volume or order-size information, so they do not
 support a capacity claim.  For traded-security panels where those inputs
 are available, a square-root impact diagnostic can be added as an
-extension to the statistical claim boundary.
+optional extension to the statistical claim boundary.
 
-\begin{proposition}[Asymptotic capacity frontier under square-root impact]
+\begin{proposition}[Square-root impact sensitivity bound]
 \label{prop:capacity-frontier}
 Suppose a traded panel has row-pooled gross mean \(\bar r_{\mathrm{gross}}\),
-row-pooled return standard deviation \(\sigma_{\mathrm{row}}\), average turnover
-\(\widehat{TO}>0\), \(T\) trading dates, square-root impact cost
-\(\lambda \widehat{TO}\sqrt{A/V}\), and a dependence standard-error
-inflation factor \(\mathcal M\ge 1\) relative to row-pooled inference.
-For a one-sided level-\(\alpha\) audit-gate margin, any statistically
-certified capacity \(A^*\) must satisfy
+row-pooled return standard deviation \(\sigma_{\mathrm{row}}\),
+strictly positive average turnover \(\widehat{\mathrm{TO}}\), \(T\)
+trading dates, square-root impact cost
+\(\lambda \widehat{\mathrm{TO}}\sqrt{A/V}\), and a dependence
+standard-error inflation factor \(\mathcal M\ge 1\) relative to
+row-pooled inference.
+For a one-sided level-\(\alpha\) sensitivity margin, any statistically
+screened asset scale \(A^*\) must satisfy
 \begin{equation}
   A^*
   \le
   V\left(
     \frac{\bar r_{\mathrm{gross}}
       -z_{\alpha}\mathcal M\sigma_{\mathrm{row}}/\sqrt{T}}
-         {\lambda \widehat{TO}}
+         {\lambda \widehat{\mathrm{TO}}}
   \right)^2
   \label{eq:capacity-frontier}
 \end{equation}
-when the numerator is positive; otherwise no positive capacity is
-certified by the margin.
+when the numerator is positive; otherwise no positive scale is screened
+by the margin.
 \end{proposition}
 
 For a square-root impact diagnostic, the dependence-adjusted one-sided
@@ -176,15 +178,15 @@ lower confidence margin for gross mean return is
 \]
 where \(\sigma_{\mathrm{row}}\) is the standard deviation of row-pooled
 returns before date aggregation or UVIF adjustment.  Square-root impact
-subtracts \(\lambda\widehat{TO}\sqrt{A/V}\).  Requiring the net lower
+subtracts \(\lambda\widehat{\mathrm{TO}}\sqrt{A/V}\).  Requiring the net lower
 margin to be nonnegative gives
 \[
-  \lambda\widehat{TO}\sqrt{A/V}
+  \lambda\widehat{\mathrm{TO}}\sqrt{A/V}
   \le
   \bar r_{\mathrm{gross}}
   - z_{\alpha}\mathcal M\sigma_{\mathrm{row}}/\sqrt{T}.
 \]
-Rearranging yields the capacity frontier in Proposition
+Rearranging yields the sensitivity bound in Proposition
 \ref{prop:capacity-frontier}.  If
 the volatility input is already the date-level portfolio volatility, the
 date boundary has already embedded the cross-sectional UVIF component,
@@ -222,6 +224,13 @@ This section gives the appendix version of the known-edge calibration
 check.  The synthetic panel is not empirical evidence for a public
 strategy; it verifies that the composite audit gate can accept a
 declared positive signal when the data-generating process contains one.
+The generated panel has \(T=5000\) dates and \(N=100\) names.  Signed
+returns include daily alpha \(0.12/252\), idiosyncratic volatility
+\(0.01\), a common loading of \(0.50\), AR(1) common-factor coefficient
+\(0.10\), signal-stay probability \(0.98\), and seed 777.  The displayed
+run is one representative known-edge calibration with 5000 bootstrap
+draws and 10000 same-date permutations; costs use the same 5 bps
+turnover-stress convention as the public artifacts.
 
 \input{generated_positive_control_artifacts.tex}
 
@@ -234,6 +243,11 @@ but are not treated as empirical evidence.
 Panel candidates and pre-aggregated factor benchmarks are reported in
 separate groups because only the former provide row-level signals for
 same-date permutation and sampling-boundary diagnostics.
+For each empirical table group, the check is whether the result survives
+moving from rows to date returns, whether nearby HAC/bootstrap variants
+agree, and whether placebo or cost diagnostics overturn the simple
+Sharpe interpretation.  Large disagreement across these tables is a
+robustness warning, not a new discovery channel.
 
 \input{generated_empirical_artifacts.tex}
 
@@ -244,6 +258,9 @@ coverage is therefore reported against that date-level target, not
 against a separate row-distribution target.  The design-sweep table is a
 stress diagnostic over same-date correlation and selected-count pressure
 under a zero-edge null.
+The main concern in this table group is size distortion: a method that
+looks powerful because it overrejects under the null is not acceptable
+for confirmatory evaluation.
 
 \input{generated_simulation_artifacts.tex}
 

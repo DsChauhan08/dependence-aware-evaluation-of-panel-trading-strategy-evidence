@@ -3,7 +3,7 @@ This supplement reports loaded sources in separated groups.  The
 full-campaign loader provenance is retained in the generated metadata;
 it is not a comparable pass/fail audit table.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \small
 \caption{Source frequency and annualization metadata.}
@@ -11,7 +11,7 @@ it is not a comparable pass/fail audit table.
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lllll}
 \toprule
-Source & type & period & \$A\_f\$ & dates \\
+Source & type & period & A\_f & dates \\
 \midrule
 AQR Betting Against Beta, equity factors & single\_series\_factor & daily & 252.000 & 25281 \\
 AQR HML Devil & single\_series\_factor & daily & 252.000 & 26590 \\
@@ -25,15 +25,15 @@ French 25 Size/BM, skipped-momentum panel & panel & daily & 252.000 & 3477 \\
 }
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \small
-\caption{Panel candidates subject to the full audit gate.}
+\caption{Panel candidates subject to the composite audit gate.}
 \label{tab:panel-candidates}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{llllllll}
 \toprule
-Panel candidate & SR & HAC p+ & Boot p+ & RW p & Perm p & Net SR & Pass 5\% \\
+Panel candidate & SR & HAC p+ & Boot p+ & RW p & Perm p & Net SR & Audit gate 5\% \\
 \midrule
 French momentum deciles, rank-threshold panel & 0.447 & 7.54e-05 & 2.00e-04 & 2.00e-04 & 1.000 & 0.447 & no \\
 French WML decile benchmark & 0.497 & 5.53e-06 & 2.00e-04 & 2.00e-04 & 1.00e-04 & 0.497 & yes \\
@@ -43,7 +43,7 @@ French 25 Size/BM, skipped-momentum panel & 0.058 & 0.412 & 0.422 & 0.480 & 0.94
 }
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \small
 \caption{Single-series factor benchmarks subject to time-series inference only.}
@@ -60,9 +60,10 @@ AQR Value and Momentum Everywhere & 0.572 & 1.62e-04 & 2.00e-04 & 2.00e-04 & tim
 \bottomrule
 \end{tabular}%
 }
+\par\footnotesize\emph{Note:} Time-series only means not eligible for same-date permutation, ERIR, or the composite panel audit gate.
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \small
 \caption{Canonical French momentum benchmark validation.}
@@ -78,29 +79,43 @@ French WML decile benchmark & 0.900 & 26131 & 1926-11-04 & 2026-04-30 & 0.497 & 
 }
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \small
-\caption{Sampling-boundary design-effect diagnostics.}
-\label{tab:row-boundary}
+\caption{Selected-count and dependence diagnostics for panel candidates.}
+\label{tab:row-boundary-counts}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{lllllllllllll}
+\begin{tabular}{llllllll}
 \toprule
-Candidate & status & thr & rows & dates & avg names & rho & SE infl. & row t & HAC z & row p+ & HAC p+ & RW p \\
+Candidate & status & thr & rows & dates & avg names & rho & SE infl. \\
 \midrule
-AQR Betting Against Beta, equity factors & not\_applicable\_single\_series & 0.000 & 25281 & 25281 & 1.000 &  &  &  &  &  &  & 2.00e-04 \\
-AQR HML Devil & not\_applicable\_single\_series & 0.000 & 26590 & 26590 & 1.000 &  &  &  &  &  &  & 0.002 \\
-AQR Quality Minus Junk & not\_applicable\_single\_series & 0.000 & 17681 & 17681 & 1.000 &  &  &  &  &  &  & 2.00e-04 \\
-AQR Value and Momentum Everywhere & not\_applicable\_single\_series & 0.000 & 651 & 651 & 1.000 &  &  &  &  &  &  & 2.00e-04 \\
-French momentum deciles, rank-threshold panel & Available & 0.700 & 104524 & 26131 & 4.000 & -0.138 & 0.766 & 3.584 & 3.790 & 1.70e-04 & 7.54e-05 & 2.00e-04 \\
-French WML decile benchmark & Available & 0.900 & 52262 & 26131 & 2.000 & -0.583 & 0.646 & 3.299 & 4.395 & 4.85e-04 & 5.53e-06 & 2.00e-04 \\
-French 25 Size/BM, skipped-momentum panel & Available & 0.500 & 45201 & 3477 & 13.000 & 0.667 & 3.000 & 0.664 & 0.222 & 0.253 & 0.412 & 0.480 \\
+French momentum deciles, rank-threshold panel & Available & 0.700 & 104524 & 26131 & 4.000 & -0.138 & 0.766 \\
+French WML decile benchmark & Available & 0.900 & 52262 & 26131 & 2.000 & -0.583 & 0.646 \\
+French 25 Size/BM, skipped-momentum panel & Available & 0.500 & 45201 & 3477 & 13.000 & 0.667 & 3.000 \\
 \bottomrule
 \end{tabular}%
 }
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!htbp]
+\centering
+\small
+\caption{Row-naive and date-level p-value diagnostics for panel candidates.}
+\label{tab:row-boundary-pvalues}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllll}
+\toprule
+Candidate & thr & row t & HAC z & row p+ & HAC p+ & RW p \\
+\midrule
+French momentum deciles, rank-threshold panel & 0.700 & 3.584 & 3.790 & 1.70e-04 & 7.54e-05 & 2.00e-04 \\
+French WML decile benchmark & 0.900 & 3.299 & 4.395 & 4.85e-04 & 5.53e-06 & 2.00e-04 \\
+French 25 Size/BM, skipped-momentum panel & 0.500 & 0.664 & 0.222 & 0.253 & 0.412 & 0.480 \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[!htbp]
 \centering
 \small
 \caption{Dependence audit summary for panel candidates.}
@@ -112,14 +127,14 @@ Candidate & Row p+ & UVIF & ERIR & Audit p+ & Net SR & Status \\
 \midrule
 French momentum deciles, rank-threshold panel & 1.70e-04 & 1.000 & 1.000 & 1.000 & 0.447 & Fails permutation gate \\
 French WML decile benchmark & 4.85e-04 & 1.000 & 1.000 & 2.00e-04 & 0.497 & Passes composite gate \\
-French 25 Size/BM, skipped-momentum panel & 0.253 & 9.002 & 0.111 & 0.943 & -0.050 & Fails cost gate \\
+French 25 Size/BM, skipped-momentum panel & 0.253 & 9.002 & 0.111 & 0.943 & -0.050 & Fails statistical and cost gates \\
 \bottomrule
 \end{tabular}%
 }
 \par\footnotesize\emph{Note:} ERIR is a design-effect retention diagnostic and is not used as a rejection rule.
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \small
 \caption{Horizon-effect audit for the dynamic Size/BM momentum panel.}
@@ -137,7 +152,7 @@ L & thr & dates & avg names & gross SR & net SR 5bps & turnover & UVIF SR & seri
 }
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \small
 \caption{Primary-threshold dependence-aware Sharpe inference.}
@@ -173,7 +188,7 @@ French 25 Size/BM, skipped-momentum panel & 0.500 & prewhite & 0.058 & 0.255 & -
 }
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \small
 \caption{Same-date signal-permutation diagnostics for panel candidates.}
@@ -197,9 +212,10 @@ French 25 Size/BM, skipped-momentum panel & 0.900 & 0.054 & 0.119 & 0.069 & 0.83
 \bottomrule
 \end{tabular}%
 }
+\par\footnotesize\emph{Note:} A near-zero permutation-null standard deviation is interpreted as an uninformative placebo for that threshold, not as calibrated evidence against predictability.
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \small
 \caption{HAC bandwidth, prewhitening, and fixed-b robustness diagnostics.}
@@ -249,7 +265,7 @@ French 25 Size/BM, skipped-momentum panel & fixed-b 0.1 & 0.058 & 0.172 & 0.360 
 }
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \small
 \caption{Composite gate sensitivity by alpha threshold.}
@@ -266,7 +282,7 @@ alpha & candidates & passes \\
 }
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \small
 \caption{Holdout and subperiod Sharpe diagnostics.}
@@ -309,7 +325,7 @@ French 25 Size/BM, skipped-momentum panel & quarter\_max & 0.210 & 875 \\
 }
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \small
 \caption{Turnover-scaled cost sensitivity and break-even cost.}
@@ -360,16 +376,16 @@ French 25 Size/BM, skipped-momentum panel & 25 & 0.169 & 0.058 & -0.480 & 2.683 
 \end{table}
 
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.82\textwidth]{generated_figures/threshold_profile.png}
-\caption{Threshold profile for public candidate panels.}
+\caption{Threshold-profile diagnostics for public candidate panels; each line shows how annualized Sharpe changes when the registry-defined confidence threshold is varied.}
 \label{fig:threshold-profile}
 \end{figure}
 
-\begin{figure}[t]
+\begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.82\textwidth]{generated_figures/cost_sensitivity.png}
-\caption{Turnover-scaled cost sensitivity at primary candidate thresholds.}
+\caption{Turnover-scaled cost sensitivity at primary candidate thresholds; positive values indicate that the candidate remains above zero after the displayed linear cost stress.}
 \label{fig:cost-sensitivity}
 \end{figure}

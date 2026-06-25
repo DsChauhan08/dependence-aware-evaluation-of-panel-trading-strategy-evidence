@@ -2,20 +2,20 @@
 % Main-manuscript subset generated from generated_empirical_artifacts.tex.
 
 The panel-candidate table reports only sources with row-level
-signal-return structure and therefore eligibility for the full panel
-audit gate.  The single-series benchmark table reports pre-aggregated
+signal-return structure and therefore eligibility for the composite
+panel audit gate.  The single-series benchmark table reports pre-aggregated
 factor returns separately; those rows are time-series benchmarks, not
 failed panel-audit candidates.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \small
-\caption{Panel candidates subject to the full audit gate.}
+\caption{Panel candidates subject to the composite audit gate.}
 \label{tab:panel-candidates}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{llllllll}
 \toprule
-Panel candidate & SR & HAC p+ & Boot p+ & RW p & Perm p & Net SR & Pass 5\% \\
+Panel candidate & SR & HAC p+ & Boot p+ & RW p & Perm p & Net SR & Audit gate 5\% \\
 \midrule
 French momentum deciles, rank-threshold panel & 0.447 & 7.54e-05 & 2.00e-04 & 2.00e-04 & 1.000 & 0.447 & no \\
 French WML decile benchmark & 0.497 & 5.53e-06 & 2.00e-04 & 2.00e-04 & 1.00e-04 & 0.497 & yes \\
@@ -25,7 +25,7 @@ French 25 Size/BM, skipped-momentum panel & 0.058 & 0.412 & 0.422 & 0.480 & 0.94
 }
 \end{table}
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \small
 \caption{Single-series factor benchmarks subject to time-series inference only.}
@@ -42,12 +42,13 @@ AQR Value and Momentum Everywhere & 0.572 & 1.62e-04 & 2.00e-04 & 2.00e-04 & tim
 \bottomrule
 \end{tabular}%
 }
+\par\footnotesize\emph{Note:} Time-series only means not eligible for same-date permutation, ERIR, or the composite panel audit gate.
 \end{table}
 
 The benchmark validation table shows that the panel implementation
 matches the direct French winner-minus-loser construction.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \small
 \caption{Canonical French momentum benchmark validation.}
@@ -67,7 +68,7 @@ The dependence audit table summarizes the boundary directly: row-level
 evidence can disappear once same-date redundancy, ERIR, placebo evidence,
 and turnover-scaled net Sharpe are evaluated together.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \small
 \caption{Dependence audit summary for panel candidates.}
@@ -79,7 +80,7 @@ Candidate & Row p+ & UVIF & ERIR & Audit p+ & Net SR & Status \\
 \midrule
 French momentum deciles, rank-threshold panel & 1.70e-04 & 1.000 & 1.000 & 1.000 & 0.447 & Fails permutation gate \\
 French WML decile benchmark & 4.85e-04 & 1.000 & 1.000 & 2.00e-04 & 0.497 & Passes composite gate \\
-French 25 Size/BM, skipped-momentum panel & 0.253 & 9.002 & 0.111 & 0.943 & -0.050 & Fails cost gate \\
+French 25 Size/BM, skipped-momentum panel & 0.253 & 9.002 & 0.111 & 0.943 & -0.050 & Fails statistical and cost gates \\
 \bottomrule
 \end{tabular}%
 }
@@ -90,7 +91,7 @@ The horizon table shows that changing the lookback reduces turnover in
 the Size/BM stress panel but does not convert it into a robust net-Sharpe
 claim.
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \centering
 \small
 \caption{Horizon-effect audit for the dynamic Size/BM momentum panel.}
