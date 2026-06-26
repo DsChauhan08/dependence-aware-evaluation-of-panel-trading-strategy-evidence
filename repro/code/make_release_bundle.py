@@ -155,6 +155,11 @@ def copy_campaign_aggregates(campaign_root: Path, dst: Path) -> None:
                 path = cdir / name
                 if path.exists():
                     guarded_copy(path, dst / "empirical" / cdir.name / name)
+    synthetic = campaign_root / "synthetic_positive_control"
+    if synthetic.exists():
+        for path in sorted(synthetic.iterdir()):
+            if path.is_file() and path.suffix.lower() in {".csv", ".json"}:
+                guarded_copy(path, dst / "synthetic_positive_control" / path.name)
 
 
 def write_manifest(root: Path) -> None:

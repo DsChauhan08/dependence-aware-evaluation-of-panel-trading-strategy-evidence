@@ -44,7 +44,7 @@
 \section{Purpose}
 
 This appendix provides derivations, robustness checks, synthetic
-validation, and generated public-data artifacts omitted from the main
+calibration, and generated public-data artifacts omitted from the main
 manuscript for length.
 
 \section{Mean-Return Design-Effect Proof}
@@ -230,12 +230,16 @@ returns include daily alpha \(0.12/252\), idiosyncratic volatility
 \(0.10\), signal-stay probability \(0.98\), and seed 777.  The displayed
 run is one representative known-edge calibration with 5000 bootstrap
 draws and 10000 same-date permutations; costs use the same 5 bps
-turnover-stress convention as the public artifacts.
+turnover-stress convention as the public artifacts.  The replication
+screen below uses fewer resampling draws and is reported only as a power
+sanity check.
 
 \input{generated_positive_control_artifacts.tex}
 
 \section{Full Empirical Artifacts}
 
+These tables are audit logs rather than primary evidence; the main text
+reports the compressed interpretation.
 The inferential tables in this appendix report only public sources that
 loaded and produced reproducible artifacts.  Failed source-access
 attempts remain in the generated provenance files and campaign metadata,
@@ -244,8 +248,8 @@ Panel candidates and pre-aggregated factor benchmarks are reported in
 separate groups because only the former provide row-level signals for
 same-date permutation and sampling-boundary diagnostics.
 For each empirical table group, the check is whether the result survives
-moving from rows to date returns, whether nearby HAC/bootstrap variants
-agree, and whether placebo or cost diagnostics overturn the simple
+moving from rows to date returns, whether nearby HAC and dependent-bootstrap
+variants agree, and whether placebo or cost diagnostics overturn the simple
 Sharpe interpretation.  Large disagreement across these tables is a
 robustness warning, not a new discovery channel.
 
@@ -271,6 +275,16 @@ records loaders, public source metadata, threshold menus, primary
 thresholds, and lookback/skip parameters.  Changing a source, lookback,
 threshold, cost assumption, or eligibility rule after seeing results
 creates a new researcher menu and must be reported as exploratory.
+Rendered artifacts in the submitted package use the following SHA256
+identifiers:
+\begin{quote}\footnotesize
+registry:
+\texttt{3a616f119f3fe2603b0663e3f68c4994}\\
+\texttt{96c37a1781f3003e82814c9269a16259}\\
+generated campaign metadata:
+\texttt{5cb21ac2cb87cb74a26090a66b28dac68}\\
+\texttt{90f76dd1d4bd4391ea6290267810dff}
+\end{quote}
 
 Stationarity diagnostics, holdout splits, HAC bandwidth sweeps,
 prewhitened HAC, fixed-fraction HAC, moving-block bootstrap, and

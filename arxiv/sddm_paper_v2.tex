@@ -20,6 +20,7 @@
 \newtheorem{assumption}{Assumption}
 \newtheorem{theorem}{Theorem}
 \newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
 \newtheorem{corollary}{Corollary}
 \newtheorem{remark}{Remark}
 \newcommand{\E}{\mathbb{E}}
@@ -63,24 +64,20 @@ Researcher, India.\\
 
 \begin{abstract}
 Entity-time financial panels can be mis-evaluated when selected rows are
-treated as independent observations, even when the economically
+treated as independent observations even though the economically
 meaningful object is a date-level portfolio return. This paper studies
 the resulting sampling-boundary distortion for Sharpe-ratio evidence.
-The central diagnostic compares the long-run date-level delta-method
-variance of the Sharpe estimator with the row-pooled IID variance that
-would be reported under independent selected rows, termed here the
-Sharpe Unified Variance Inflation Factor. The diagnostic is paired with
-date aggregation and date-level HAC/bootstrap inference. Researcher-menu
-correction, placebo tests, factor-alpha checks, and turnover-cost
-sensitivity are used as claim-boundary diagnostics. Public Kenneth
-French panel benchmarks and AQR single-series factor benchmarks
-illustrate composite panel-audit and time-series-only cases. In null
-designs with cross-sectional and serial dependence, row-naive rejection
-reaches about 35 percent at a nominal 5 percent level, while date-level
-HAC and bootstrap procedures remain closer to nominal size. The
-contribution is a target-aware distortion record for the row-to-date
-target change that standard clustering, Sharpe time-series inference,
-and menu correction address only separately.
+The central sampling-boundary distortion ratio, implemented here as
+Sharpe UVIF, compares the long-run date-level delta-method variance of
+the Sharpe estimator with the row-pooled IID variance that would be
+reported under independent selected rows. Public Kenneth French panel
+benchmarks and AQR single-series factor benchmarks illustrate composite
+panel-audit and time-series-only cases. In null designs with
+cross-sectional and serial dependence, row-naive rejection reaches about
+35 percent at a nominal 5 percent level, while date-level HAC and
+dependent-bootstrap procedures remain closer to nominal size. The
+contribution is a target-aware distortion record for row-to-date Sharpe
+evidence.
 \end{abstract}
 
 \noindent\textbf{Keywords:} Sharpe ratio; sampling-boundary distortion; financial
@@ -92,10 +89,10 @@ evaluation
 
 \section{Introduction}
 
-\subsection{Problem: The wrong sampling boundary}
+\subsection{Problem: Row-to-date sampling boundary}
 
 Empirical finance evaluates signals in entity-time panels:
-factor screens, anomaly sorts, automated portfolio-selection pipelines,
+factor screens, anomaly sorts, automated portfolio-signal screens,
 model-selection grids, and trading-strategy backtests.  A typical panel
 can be written as
 \[
@@ -109,8 +106,8 @@ though they were independent.  This turns a panel with \(T\) dates and
 \(n_t\) selected rows per date into a nominal sample of \(\sum_t n_t\),
 even when same-date rows share common shocks.  This row-level
 calculation is used here as a baseline reference for bias quantification
-and as a concrete failure mode for automated signal-evaluation
-pipelines.  The failure is not merely a standard-error choice; it
+and as a concrete failure mode for automated empirical signal screens.
+The failure is not merely a standard-error choice; it
 changes the sampling unit from dates to rows.  This baseline is not
 presented as best-practice empirical asset pricing; it is the default
 failure mode in automated or non-clustered signal screens.
@@ -128,9 +125,9 @@ date-return series are recognized.  The paper is therefore a framework
 paper illustrated with public benchmark panels, not a comprehensive
 survey of all finance-panel evidence.
 
-The problem is not only a matter of notation.  A row-pooled \(t\)-test
-implicitly treats the cross-section on a date as many independent draws
-from the same experiment.  A portfolio signal or trading strategy,
+The problem is not only a matter of notation.  A row-pooled Sharpe
+report or \(t\)-test implicitly treats the cross-section on a date as
+many independent draws from the same experiment.  A portfolio signal or trading strategy,
 however, is marked to market by date.  If an evaluation selects several
 assets or portfolios on the same date, the economically relevant object
 is the date-level portfolio return after aggregation.  Cross-sectional
@@ -143,7 +140,7 @@ regression coefficients or means.  They do not by themselves report the
 distortion between a row-pooled Sharpe claim and the long-run variance
 of the economically relevant date-level Sharpe estimator.
 
-Automated signal-search pipelines can evaluate large numbers of entity-date
+Automated empirical signal screens can evaluate large numbers of entity-date
 rows and many menu variants in a single run.  The computational
 ease of row-level evaluation makes the sampling-boundary error easier to
 automate than to detect.  The threat model is therefore concrete: the
@@ -172,7 +169,7 @@ variance inflation factor for the nonlinear Sharpe ratio.  More
 generally, it is a target-aware diagnostic bridge: date-level HAC
 inference supplies the confirmatory date-level uncertainty estimate,
 while Sharpe UVIF shows how much of the original row-pooled precision
-came from the wrong sampling boundary.
+came from the row-level sampling boundary.
 
 \subsection{Solution: Dependence-aware inference}
 
@@ -183,14 +180,14 @@ the resulting diagnostic is Sharpe UVIF.  Unlike mean-only design
 effects, Sharpe UVIF applies the delta method to the nonlinear Sharpe
 functional and therefore carries the long-run covariance of both returns
 and squared returns into the uncertainty calculation.  Second, it embeds
-this variance accounting in a pre-specified evaluation design that
+this variance accounting in a registry-defined evaluation design that
 separates cross-sectional row multiplication from serial dependence in
 date-level portfolio returns.  Third, it uses public benchmark panels to
 show the interpretive consequences of the boundary change and Monte
 Carlo null designs to document the size distortion created by row-naive
 inference.
 
-The empirical section validates the pipeline on canonical French WML,
+The empirical section validates the implementation on canonical French WML,
 evaluates French panel stress cases, and reports AQR factor benchmarks
 as time-series-only evidence.  The public Kenneth French and AQR data
 are rendered into the manuscript from production CSV artifacts.
@@ -198,9 +195,9 @@ The conservative empirical question is whether apparently significant
 portfolio-signal claims are artifacts of row-level sampling and
 disappear after date aggregation, dependence adjustment, and
 researcher-menu correction.
-The same code also runs a Monte Carlo study comparing row-naive testing
-with date-level bootstrap, HAC-delta, block bootstrap, stationary
-bootstrap, and joint resampling decisions.
+The replication code also runs a Monte Carlo study comparing row-naive
+testing with date-IID bootstrap, HAC-delta, moving-block bootstrap,
+stationary bootstrap, and joint resampling decisions.
 
 \section{Related work}
 
@@ -225,6 +222,8 @@ specified.  They do not quantify how much apparent Sharpe precision was
 created before the evidence was moved from selected entity-date rows to
 the economically relevant date-return boundary.  The boundary problem
 occurs before Sharpe inference: which return series is the object?
+The missing object is a target-change map from row-level reported
+Sharpe evidence to date-level long-run Sharpe evidence.
 
 Researcher-menu and factor-zoo work addresses a third source of false
 precision.  White Reality Check and Romano-Wolf procedures control
@@ -240,12 +239,13 @@ failure channels that are often bundled together in practice:
 cross-sectional row multiplication, serial dependence in the date-return
 series, and researcher-menu search.
 
-Recent replication work in empirical asset pricing asks whether
+Recent empirical asset-pricing work asks whether
 published predictors survive stricter implementation, data, and
 multiple-testing standards.  The present paper asks an upstream
 question: before a predictor is interpreted as portfolio-performance
 evidence, has the sampling unit been moved from selected entity-date
-rows to the date-level return that can actually be allocated to?
+rows to the date-level return that can be interpreted as
+portfolio-performance evidence?
 
 \section{Sampling-boundary framework}
 \label{sec:method}
@@ -281,7 +281,8 @@ as though the selected \(Y_{t+1,i}\) were independent observations, while
 the confirmatory analysis estimates uncertainty for the realized
 date-return series \(\{R_t\}\).  In the empirical implementation,
 weights are normalized to the declared gross-exposure convention before
-returns are computed.
+returns are computed.  Unless otherwise stated, rendered public panel
+artifacts use unit gross exposure within the selected signed-return set.
 
 In the public equal-weight threshold implementation, optional
 non-negative weights \(a_{t,i}\) are normalized within the selected set
@@ -327,6 +328,8 @@ moment entering the smooth functional
 \[
   f(\mu,m_2)=\sqrt{A_f}\frac{\mu}{(m_2-\mu^2)^{1/2}}.
 \]
+This convention affects finite-sample scaling only and is used
+consistently across all plug-in calculations.
 Following \citet{ledoit2008robust}, the Sharpe ratio is treated as a
 smooth functional \(f(\theta)\) of the moment vector
 \(\theta=\E[g_t]\).  On sets where \(m_2-\mu^2\) is bounded away from
@@ -370,7 +373,7 @@ The bandwidth \(K_T\) is a tuning choice and may depend on \(T\).  The
 implementation reports the
 selected bandwidth and uses a documented automatic Bartlett bandwidth as
 the default; important empirical claims should be checked against
-reasonable nearby bandwidths and against the block-bootstrap intervals
+reported nearby bandwidths and against the block-bootstrap intervals
 rather than relying on a single HAC lag choice.
 The technical appendix reports prewhitened HAC and fixed-fraction HAC
 sensitivity checks.
@@ -409,7 +412,7 @@ set is
 \]
 The percentile score is a baseline screening rule, not an optimal
 weighting theorem.  Tie handling, one-name dates, and selected-count
-granularity are reported in the appendix and generated artifacts.
+granularity are reported in the appendix and replication artifacts.
 
 \subsection{Researcher menus, placebos, and factor alpha}
 
@@ -430,7 +433,7 @@ rather than selected after seeing results.  Pre-aggregated AQR factor-series
 candidates use the singleton threshold menu \(\mathcal T_c=\{0.0\}\);
 because they do not contain row-level constituent signals, same-date
 panel permutation is not applicable to them.
-The reason is mechanical.  Heuristically, under a Gaussian
+The reason is mechanical.  Under a simple Gaussian
 independent-strategy approximation, if \(N\) independent strategies with
 zero true Sharpe are searched over a sample of length \(T\), the maximum
 observed daily Sharpe is on the order of \(\sqrt{2\log(N)/T}\) before
@@ -509,9 +512,10 @@ Sharpe ratio is
 This is a first-order cost stress.  It assumes linear cost per unit of
 turnover and holds the return volatility fixed after subtracting costs.
 These assumptions are deliberately simple and are used only as a
-screening stress.  The resulting cost drag should be read as a lower
-bound when liquidity demand is material.  They are not a full execution
-model for high-frequency, capacity-constrained, or illiquid strategies.  Such
+screening stress.  The resulting cost drag may understate
+implementation costs when liquidity demand is material.  They are not a
+full execution model for high-frequency, capacity-constrained, or
+illiquid strategies.  Such
 applications require spread, impact, latency, borrow, and capacity
 models before any tradability claim.  This is a conservative cost-stress
 screen, not a tradability certificate.
@@ -539,16 +543,17 @@ passing the audit only if it clears a registry-defined composite gate:
   p_{\mathrm{RW}}\le \alpha,\qquad
   \widehat{\SR}_{net}(c)>0 .
 \]
-This is a conservative pre-specified reporting policy, not a uniformly
+This is a conservative registry-defined reporting policy, not a uniformly
 most powerful test, an optimal weighted test, or a claim that the gates
 exhaust all possible failure modes.  The gates
 are conjunctive because each one addresses a different reason a
 performance claim can fail: bootstrap-fragile Sharpe evidence, a placebo-consistent
 signal, dependence-adjusted insignificance, researcher-menu selection,
 or nonpositive net economics.
-Applications with different decision costs may pre-specify different
-gates, but they should not choose the gate sequence after seeing the
-results.
+Applications with different decision costs may choose different rules
+ex ante, but they should not choose the gate sequence after seeing the
+results.  The component diagnostics are reported so readers can apply
+less conservative decision rules.
 The reported artifacts make the gate threshold reproducible: in addition to
 the conventional \(\alpha=0.05\), a reader can recompute pass counts at
 stricter levels such as \(\alpha=0.01\) without changing the statistical
@@ -610,7 +615,7 @@ time, this equicorrelation estimate is a descriptive compression of the
 same-date covariance structure, not an identifying assumption for the
 confirmatory HAC or bootstrap tests.
 
-\begin{proposition}[Mean-return design effect]
+\begin{lemma}[Mean-return design effect]
 Under the equicorrelated row model, the ratio of the naive row-pooled
 reported standard error of the mean to the date-level standard error is
 \[
@@ -620,7 +625,7 @@ reported standard error of the mean to the date-level standard error is
 \]
 For \(\rho>0\) and \(\bar n>1\), the naive row-level standard-error
 report is too small.
-\end{proposition}
+\end{lemma}
 
 This calculation is not new as a sampling result; it is the
 Moulton-like special case of the paper's UVIF logic, written for signed
@@ -639,7 +644,7 @@ The square root is reported when the object is a standard-error or
 Thus \(\UVIF\) denotes a variance ratio, while \(\UVIF^{1/2}\) denotes
 the associated standard-error multiplier.  This mean-return calculation
 is expository: it makes the scale of understatement visible before the
-paper turns to HAC and bootstrap decisions on the realised date-return
+paper turns to HAC and dependent-bootstrap decisions on the realised date-return
 series.
 The magnitude can be economically large.  The relevant inflation factor
 for the true standard error relative to the naive row report is
@@ -702,7 +707,7 @@ the cross-sectional part of this variance ratio reduces to the same
 the linearized Sharpe influence rather than to raw returns.  Outside
 that special case, Sharpe UVIF is target-aware: it measures the gap
 between the row-level report and the date-level claim that can be
-traded, allocated to, or interpreted as portfolio evidence.
+interpreted as portfolio-performance evidence.
 
 \begin{assumption}[Sharpe UVIF regularity]
 The date-level process \(G_t=(R_t,R_t^2)'\) is stationary with finite
@@ -784,7 +789,7 @@ the claim is moved to the date-return boundary and when the date series
 has long-run serial covariance in \((R_t,R_t^2)\).  It does not identify
 a causal trading edge, does not prove that row and date Sharpe
 functionals are equal outside the stated exchangeability conditions, and
-does not replace the confirmatory date-level HAC, bootstrap,
+does not replace the confirmatory date-level HAC, dependent-bootstrap,
 researcher-menu, placebo, factor-alpha, and cost diagnostics.  The
 empirical role of Sharpe UVIF is therefore diagnostic: it explains the
 sampling-boundary distortion that the claim-boundary diagnostics then evaluate
@@ -880,16 +885,16 @@ diagnostics and stress simulations, but those outputs are caveats and
 diagnostics, not proof of asymptotic validity in those settings.
 \end{remark}
 
-\section{Synthetic positive-control validation}
+\section{Synthetic positive-control calibration}
 \label{sec:positive-control}
 
 The claim boundary is not mechanically anti-discovery.  To check that the
-composite gates can pass a true signal, a synthetic panel is generated
+composite criteria can pass a true signal, a synthetic panel is generated
 with a persistent predictive signal, moderate same-date dependence, and
 serial dependence in the date-level returns.  The signal is constructed
-before inference is run, the same date-aggregation and audit gates are
+before inference is run, the same date-aggregation and audit criteria are
 applied, and the resulting positive-control candidate passes HAC,
-Romano-Wolf, and same-date permutation checks.  This validation is not
+Romano-Wolf, and same-date permutation checks.  This calibration is not
 used as evidence for a public trading strategy; it shows that the
 procedure can accept known positive evidence when the data-generating
 process contains a genuine date-level edge.
@@ -899,8 +904,10 @@ annual alpha \(0.12\) (daily alpha \(0.12/252\)), idiosyncratic
 volatility \(0.01\), common-factor loading \(0.50\), AR(1) common-factor
 coefficient \(0.10\), signal-stay probability \(0.98\), and seed 777.
 The generated artifact records the bootstrap and permutation counts used
-for the run.  The design is intentionally simple: it is a known-edge
-calibration check for the audit gate, not a model of any public anomaly.
+for the detailed run and reports a lower-resolution replication screen
+as a power sanity check.  The design is intentionally simple: it is a
+representative known-edge calibration check for the audit criteria, not
+a model of any public anomaly.
 
 \input{generated_positive_control_artifacts.tex}
 
@@ -977,7 +984,7 @@ loser.  The broader rank-threshold profile and the French Size/BM
 dynamic-momentum panel are evaluated as stress cases rather than as
 canonical anomaly replications.  The AQR
 factor-series candidates have positive time-series evidence in the
-reported HAC and bootstrap diagnostics, but because they are
+reported HAC and block-bootstrap diagnostics, but because they are
 pre-aggregated factor returns rather than row-level signal panels, they
 cannot be promoted to passed panel-evaluation candidates.
 
@@ -1025,10 +1032,10 @@ The production campaign uses \(1000\) Monte Carlo replications for the
 displayed size and rejection-rate tables, \(T=1000\) dates and \(N=50\)
 entities in the main null designs, \(5000\) bootstrap draws per
 simulation, and seed-indexed replications generated from the simulation
-index.  Moving-block and stationary bootstrap procedures use the same
-block-length rule as the empirical audit code, and the full DGP grid,
-seed policy, registry hash, and run metadata are included in the
-reproducibility package.
+index.  Moving-block and stationary bootstrap procedures use the
+block-length rule reported in Table \ref{tab:simulation-settings}; the
+full DGP grid, seed policy, registry hash, and run metadata are included
+in the reproducibility package.
 The null designs set the true edge to zero while varying
 cross-sectional correlation and serial memory; the power designs then
 increase the true annualized Sharpe on the same dependence-aware
@@ -1132,7 +1139,7 @@ is direct: statistical significance earned by multiplying dependent rows
 is not by itself portfolio-performance evidence.
 
 The public campaign shows how this claim boundary changes interpretation.
-The canonical French WML candidate validates the pipeline against the
+The canonical French WML candidate validates the implementation against the
 direct winner-minus-loser construction.  By contrast, broader
 rank-threshold and dynamic Size/BM panel claims fail dependence-aware,
 placebo, researcher-menu, or cost boundaries; in the Size/BM stress

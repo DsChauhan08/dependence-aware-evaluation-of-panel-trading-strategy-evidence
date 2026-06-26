@@ -1,0 +1,2 @@
+replications,n_boot,n_perms,block_pass_rate,hac_pass_rate,romano_wolf_pass_rate,permutation_pass_rate,cost_pass_rate,all_pass_rate,mean_gross_sharpe
+100,499,199,1.0,1.0,1.0,1.0,1.0,1.0,1.4555449419563238

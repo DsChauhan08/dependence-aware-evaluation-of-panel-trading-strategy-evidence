@@ -1183,12 +1183,16 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
     plot_power(campaign_root / "simulation", figdir)
     plot_null_size(campaign_root / "simulation", figdir)
 
+    pagebreak = "\n\\clearpage\n"
     empirical_sections = [
         "This supplement reports loaded sources in separated groups.  The\n"
         "full-campaign loader provenance is retained in the generated metadata;\n"
-        "it is not a comparable pass/fail audit table.\n",
+        "it is not a comparable pass/fail audit table.  The tables are audit\n"
+        "logs rather than primary evidence; the main text reports the compressed\n"
+        "interpretation.\n",
         latex_table(annualization_metadata_table(campaign_root), "Source frequency and annualization metadata.", "tab:annualization-metadata"),
         latex_table(panel_candidate_table(campaign_root), "Panel candidates subject to the composite audit gate.", "tab:panel-candidates"),
+        pagebreak,
         latex_table(
             single_series_factor_table(campaign_root),
             "Single-series factor benchmarks subject to time-series inference only.",
@@ -1196,6 +1200,7 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
             note="Time-series only means not eligible for same-date permutation, ERIR, or the composite panel audit gate.",
         ),
         latex_table(campaign_momentum_benchmark_table(campaign_root), "Canonical French momentum benchmark validation.", "tab:momentum-benchmark"),
+        pagebreak,
         latex_table(
             campaign_row_boundary_count_table(campaign_root),
             "Selected-count and dependence diagnostics for panel candidates.",
@@ -1206,6 +1211,7 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
             "Row-naive and date-level p-value diagnostics for panel candidates.",
             "tab:row-boundary-pvalues",
         ),
+        pagebreak,
         latex_table(
             campaign_phantom_audit_table(campaign_root),
             "Dependence audit summary for panel candidates.",
@@ -1213,14 +1219,18 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
             note="ERIR is a design-effect retention diagnostic and is not used as a rejection rule.",
         ),
         latex_table(campaign_horizon_effect_table(campaign_root), "Horizon-effect audit for the dynamic Size/BM momentum panel.", "tab:horizon-effect"),
+        pagebreak,
         latex_table(campaign_inference_table(campaign_root), "Primary-threshold dependence-aware Sharpe inference.", "tab:empirical-inference"),
+        pagebreak,
         latex_table(
             campaign_permutation_table(campaign_root),
             "Same-date signal-permutation diagnostics for panel candidates.",
             "tab:permutation",
             note="A near-zero permutation-null standard deviation is interpreted as an uninformative placebo for that threshold, not as calibrated evidence against predictability.",
         ),
+        pagebreak,
         latex_table(campaign_robustness_table(campaign_root), "HAC bandwidth, prewhitening, and fixed-b robustness diagnostics.", "tab:hac-robustness"),
+        pagebreak,
         latex_table(campaign_gate_table(campaign_root), "Composite gate sensitivity by alpha threshold.", "tab:gate-sensitivity"),
         latex_table(campaign_holdout_table(campaign_root), "Holdout and subperiod Sharpe diagnostics.", "tab:holdout-subperiods"),
         latex_table(campaign_cost_table(campaign_root), "Turnover-scaled cost sensitivity and break-even cost.", "tab:costs"),
