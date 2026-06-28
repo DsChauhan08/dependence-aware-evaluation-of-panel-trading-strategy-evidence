@@ -62,6 +62,7 @@ FULL_N_BOOT = 5000
 FULL_N_PERMS = 10000
 BOOT_METHODS = ["iid", "blocked", "stationary", "cluster_date"]
 COVERAGE_METHODS = ["iid", "blocked", "stationary", "hac_delta", "row_naive"]
+PERMUTATION_DEGENERATE_SD_TOL = 1e-10
 
 
 def annualization_factor(spec: dict[str, Any]) -> float:
@@ -74,6 +75,18 @@ def periodicity(spec: dict[str, Any]) -> str:
 
 def candidate_type(spec: dict[str, Any]) -> str:
     return str(spec.get("candidate_type", "panel"))
+
+
+def permutation_null_diagnostic(values: np.ndarray, tol: float = PERMUTATION_DEGENERATE_SD_TOL) -> tuple[str, bool, float]:
+    finite = np.asarray(values, dtype=float)
+    finite = finite[np.isfinite(finite)]
+    if len(finite) == 0:
+        return "insufficient_permutation_draws", False, np.nan
+    null_sd = float(np.std(finite, ddof=1)) if len(finite) > 1 else 0.0
+    unique_count = len(np.unique(finite))
+    if unique_count <= 1 or (np.isfinite(null_sd) and null_sd <= tol):
+        return "degenerate", False, null_sd
+    return "ok", True, null_sd
 
 
 FULL_DGPS: dict[str, dict[str, Any]] = {
@@ -217,6 +230,7 @@ def grouped_signal_permutation_test(
             "p_positive": np.nan,
             "n_perms": 0,
             "status": "not_applicable_single_series",
+            "permutation_informative": False,
             "seed": seed,
         } for thr in thresholds])
         return summary, pd.DataFrame()
@@ -263,17 +277,19 @@ def grouped_signal_permutation_test(
         values = np.asarray(draws[thr], dtype=float)
         values = values[np.isfinite(values)]
         obs = observed[thr]
+        status, informative, null_sd = permutation_null_diagnostic(values)
         rows.append({
             "threshold": thr,
             "observed_sharpe": obs,
             "null_mean": float(np.mean(values)) if len(values) else np.nan,
-            "null_sd": float(np.std(values, ddof=1)) if len(values) > 1 else np.nan,
+            "null_sd": null_sd,
             "null_q025": float(np.quantile(values, 0.025)) if len(values) else np.nan,
             "null_q500": float(np.quantile(values, 0.500)) if len(values) else np.nan,
             "null_q975": float(np.quantile(values, 0.975)) if len(values) else np.nan,
-            "p_positive": float((1.0 + np.sum(values >= obs)) / (len(values) + 1.0)) if len(values) else np.nan,
+            "p_positive": float((1.0 + np.sum(values >= obs)) / (len(values) + 1.0)) if informative else np.nan,
             "n_perms": int(len(values)),
-            "status": "ok",
+            "status": status,
+            "permutation_informative": bool(informative),
             "seed": seed,
         })
     return pd.DataFrame(rows), pd.DataFrame(null_rows)
@@ -610,25 +626,44 @@ def audit_candidate(
         float(alpha_period.iloc[0]) > 0
         and float(alpha_df.get("p_positive", pd.Series([1.0])).iloc[0]) <= 0.05
     )
-    permutation_applicable = perm_primary.get("status", "ok") == "ok" and int(perm_primary.get("n_perms", 0)) > 0
+    permutation_status = str(perm_primary.get("status", "ok"))
+    permutation_informative = (
+        permutation_status == "ok"
+        and bool(perm_primary.get("permutation_informative", True))
+        and int(perm_primary.get("n_perms", 0)) > 0
+        and pd.notna(perm_primary.get("p_positive", np.nan))
+    )
+    permutation_pass = permutation_informative and float(perm_primary["p_positive"]) <= 0.05
     gate_checks = {
         "holdout_sharpe_positive": float(holdout.loc[holdout["window"].eq("holdout_30pct"), "sharpe"].iloc[0]) > 0,
         "hac_positive_p_le_005": float(hac.positive_p_value) <= 0.05,
         "romano_wolf_p_le_005": float(rw_primary["p_adjusted"]) <= 0.05,
-        "permutation_p_le_005": permutation_applicable and float(perm_primary["p_positive"]) <= 0.05,
+        "permutation_informative": bool(permutation_informative),
+        "permutation_p_le_005": bool(permutation_pass),
         "factor_alpha_positive_if_available": bool(alpha_pass),
         "net_sharpe_5bps_positive": float(net_5) > 0,
         "subperiod_not_one_window": int((quarter_sharpes > 0).sum()) >= 3,
     }
+    applicable_checks = {
+        key: value
+        for key, value in gate_checks.items()
+        if key not in {"permutation_informative", "permutation_p_le_005"}
+    }
+    if permutation_informative:
+        applicable_checks["permutation_p_le_005"] = bool(permutation_pass)
     audit_gate = {
         **meta,
         "gross_sharpe": _sharpe(returns, annualise=annualise),
         "hac_p_positive": float(hac.positive_p_value),
         "romano_wolf_p_primary": float(rw_primary["p_adjusted"]),
-        "permutation_p_primary": float(perm_primary["p_positive"]) if permutation_applicable else None,
+        "permutation_p_primary": float(perm_primary["p_positive"]) if permutation_informative else None,
+        "permutation_status_primary": permutation_status,
+        "permutation_informative_primary": bool(permutation_informative),
         "net_sharpe_5bps": float(net_5),
         "checks": gate_checks,
+        "applicable_checks": applicable_checks,
         "passes_audit_gate": bool(all(gate_checks.values())),
+        "passes_applicable_gate": bool(all(applicable_checks.values())),
     }
     write_json(gate_path, audit_gate)
     return audit_gate
@@ -675,10 +710,13 @@ def run_empirical(outdir: Path, registry_path: Path, n_boot: int, n_perms: int, 
                 "candidate_id": spec["id"],
                 "status": "ok",
                 "passes_audit_gate": bool(gate.get("passes_audit_gate", gate.get("viab" + "le", False))),
+                "passes_applicable_gate": bool(gate.get("passes_applicable_gate", False)),
                 "gross_sharpe": gate["gross_sharpe"],
                 "hac_p_positive": gate["hac_p_positive"],
                 "rw_p": gate["romano_wolf_p_primary"],
                 "permutation_p": gate["permutation_p_primary"],
+                "permutation_status": gate.get("permutation_status_primary"),
+                "permutation_informative": gate.get("permutation_informative_primary"),
                 "annualization_factor": gate.get("annualization_factor", spec.get("annualization_factor", 252.0)),
                 "periodicity": gate.get("periodicity", spec.get("periodicity", "daily")),
                 "candidate_type": gate.get("candidate_type", spec.get("candidate_type", "panel")),
@@ -721,11 +759,16 @@ def write_gate_sensitivity(outdir: Path) -> pd.DataFrame:
                     "candidate_id": candidate_dir.name,
                     "alpha": alpha,
                     "status": status,
+                    "permutation_status": status,
+                    "permutation_informative": False,
                     "passes_all": False,
+                    "passes_applicable": False,
             })
             continue
         gate = json.loads((gate_path if gate_path.exists() else legacy_gate_path).read_text(encoding="utf-8"))
         permutation_p = gate.get("permutation_p_primary")
+        permutation_status = gate.get("permutation_status_primary", "ok" if permutation_p is not None else "not_applicable")
+        permutation_informative = bool(gate.get("permutation_informative_primary", permutation_p is not None))
         bootstrap_p = np.inf
         methods_path = candidate_dir / "methods.csv"
         if methods_path.exists():
@@ -738,8 +781,10 @@ def write_gate_sensitivity(outdir: Path) -> pd.DataFrame:
             hac = float(gate.get("hac_p_positive", np.inf)) <= alpha
             boot = bootstrap_p <= alpha
             rw = float(gate.get("romano_wolf_p_primary", np.inf)) <= alpha
-            perm = permutation_p is not None and float(permutation_p) <= alpha
+            perm = permutation_informative and permutation_p is not None and float(permutation_p) <= alpha
             net = float(gate.get("net_sharpe_5bps", -np.inf)) > 0
+            base_applicable = bool(hac and boot and rw and net)
+            applicable = bool(base_applicable and (perm if permutation_informative else True))
             rows.append({
                 "candidate_id": candidate_dir.name,
                 "alpha": alpha,
@@ -748,8 +793,11 @@ def write_gate_sensitivity(outdir: Path) -> pd.DataFrame:
                 "passes_bootstrap": boot,
                 "passes_romano_wolf": rw,
                 "passes_permutation": perm,
+                "permutation_status": permutation_status,
+                "permutation_informative": permutation_informative,
                 "passes_net_5bps": net,
-                "passes_all": bool(hac and boot and rw and perm and net),
+                "passes_all": bool(hac and boot and rw and permutation_informative and perm and net),
+                "passes_applicable": applicable,
                 "gross_sharpe": gate.get("gross_sharpe"),
                 "hac_p_positive": gate.get("hac_p_positive"),
                 "bootstrap_p": bootstrap_p if np.isfinite(bootstrap_p) else None,
@@ -760,7 +808,10 @@ def write_gate_sensitivity(outdir: Path) -> pd.DataFrame:
     df = pd.DataFrame(rows)
     write_csv(outdir / "candidate_gate_sensitivity.csv", df)
     if not df.empty:
-        counts = df.groupby("alpha", as_index=False)["passes_all"].sum().rename(columns={"passes_all": "n_passes"})
+        counts = (
+            df.groupby("alpha", as_index=False)
+            .agg(n_full_passes=("passes_all", "sum"), n_applicable_passes=("passes_applicable", "sum"))
+        )
         write_csv(outdir / "candidate_gate_counts.csv", counts)
     return df
 

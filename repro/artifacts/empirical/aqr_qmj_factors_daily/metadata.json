@@ -4,7 +4,7 @@
   "candidate_type": "single_series_factor",
   "exposure": "as_selected",
   "family": "aqr",
-  "generated_at_utc": "2026-06-25T12:32:17.095053+00:00",
+  "generated_at_utc": "2026-06-28T11:17:56.485043+00:00",
   "metadata_url": "https://www.aqr.com/Insights/Datasets",
   "n_assets": 1,
   "n_boot": 5000,

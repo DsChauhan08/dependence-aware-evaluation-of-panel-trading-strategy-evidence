@@ -9,6 +9,14 @@
 \usepackage{float}
 \usepackage[margin=1in]{geometry}
 \usepackage{hyperref}
+\hypersetup{
+  pdfauthor={},
+  pdftitle={},
+  pdfsubject={},
+  pdfkeywords={},
+  pdfcreator={},
+  pdfproducer={}
+}
 \usepackage{setspace}
 \onehalfspacing
 
@@ -43,9 +51,9 @@
 
 \section{Purpose}
 
-This appendix provides derivations, robustness checks, synthetic
-calibration, and generated public-data artifacts omitted from the main
-manuscript for length.
+This appendix provides derivations, calibration checks, robustness
+tables, and reproducibility artifacts omitted from the main manuscript
+for brevity.
 
 \section{Mean-Return Design-Effect Proof}
 
@@ -81,6 +89,8 @@ Sharpe-ratio distortion result.
 
 \section{Sharpe UVIF Derivation}
 
+These calculations supply the algebra behind Proposition 1 in the main
+manuscript.
 Let \(R_t\) be the date-level portfolio excess return and
 \(G_t=(R_t,R_t^2)'\).  The annualized Sharpe ratio is the smooth
 functional
@@ -137,7 +147,7 @@ the serial long-run factor.  Componentwise,
 The \(\Omega_{22}\) term contains long-run covariances of squared
 returns and therefore brings fourth moments into Sharpe-ratio variance.
 
-\section{Optional Square-Root Impact Sensitivity Extension}
+\section{Optional Capacity-Stress Note}
 
 The public sorted-portfolio examples in the main manuscript do not
 contain average daily volume or order-size information, so they do not
@@ -216,7 +226,11 @@ used for the mean-return design effect,
 Thus an ERIR of \(0.111\) means that roughly \(1-0.111=0.889\), or 89
 percent, of nominal row-level information is redundant under this
 diagnostic approximation.  Confirmatory inference remains based on
-date-level HAC-delta and dependent-bootstrap procedures.
+date-level HAC-delta and dependent-bootstrap procedures.  When the
+descriptive equicorrelation estimate is non-positive, the unclipped ERIR
+can exceed one and the corresponding UVIF can fall below one; the main
+manuscript displays a conservative one-sided UVIF floor at one and
+reports the unclipped diagnostics separately.
 
 \section{Synthetic Positive Control}
 
@@ -233,6 +247,23 @@ draws and 10000 same-date permutations; costs use the same 5 bps
 turnover-stress convention as the public artifacts.  The replication
 screen below uses fewer resampling draws and is reported only as a power
 sanity check.
+The data-generating process is
+\[
+  f_t = 0.10 f_{t-1}+u_t,\qquad
+  \epsilon_{t,i}\sim N(0,0.01^2),
+\]
+\[
+  z_{t,i}\in\{-1,1\},\qquad
+  \Pr(z_{t,i}=z_{t-1,i})=0.98,
+\]
+\[
+  r_{t+1,i}=z_{t,i}(0.12/252)+0.50 f_t+\epsilon_{t,i},
+  \qquad s_{t,i}=z_{t,i}.
+\]
+The audit then applies the same signed-row construction, date
+aggregation, HAC-delta inference, Romano-Wolf menu adjustment,
+same-date permutation, and 5 bps cost stress used in the public
+artifacts.
 
 \input{generated_positive_control_artifacts.tex}
 
@@ -277,13 +308,11 @@ threshold, cost assumption, or eligibility rule after seeing results
 creates a new researcher menu and must be reported as exploratory.
 Rendered artifacts in the submitted package use the following SHA256
 identifiers:
-\begin{quote}\footnotesize
-registry:
-\texttt{3a616f119f3fe2603b0663e3f68c4994}\\
-\texttt{96c37a1781f3003e82814c9269a16259}\\
-generated campaign metadata:
-\texttt{5cb21ac2cb87cb74a26090a66b28dac68}\\
-\texttt{90f76dd1d4bd4391ea6290267810dff}
+\begin{quote}\scriptsize
+\noindent registry \texttt{code/campaign\_registry.json}:\\
+\texttt{3a616f119f3fe2603b0663e3f68c499496c37a1781f3003e82814c9269a16259}\\
+\noindent generated campaign metadata \texttt{campaign\_metadata.json}:\\
+\texttt{5cb21ac2cb87cb74a26090a66b28dac6890f76dd1d4bd4391ea6290267810dff}
 \end{quote}
 
 Stationarity diagnostics, holdout splits, HAC bandwidth sweeps,

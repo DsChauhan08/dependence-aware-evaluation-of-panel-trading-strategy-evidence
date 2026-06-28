@@ -1,5 +1,13 @@
 {
   "annualization_factor": 12.0,
+  "applicable_checks": {
+    "factor_alpha_positive_if_available": true,
+    "hac_positive_p_le_005": true,
+    "holdout_sharpe_positive": true,
+    "net_sharpe_5bps_positive": true,
+    "romano_wolf_p_le_005": true,
+    "subperiod_not_one_window": true
+  },
   "candidate_id": "aqr_value_momentum_everywhere_monthly",
   "candidate_type": "single_series_factor",
   "checks": {
@@ -7,13 +15,14 @@
     "hac_positive_p_le_005": true,
     "holdout_sharpe_positive": true,
     "net_sharpe_5bps_positive": true,
+    "permutation_informative": false,
     "permutation_p_le_005": false,
     "romano_wolf_p_le_005": true,
     "subperiod_not_one_window": true
   },
   "exposure": "as_selected",
   "family": "aqr",
-  "generated_at_utc": "2026-06-25T12:35:37.885881+00:00",
+  "generated_at_utc": "2026-06-28T11:23:04.976802+00:00",
   "gross_sharpe": 0.5723827172708332,
   "hac_p_positive": 0.00016160865015368842,
   "metadata_url": "https://www.aqr.com/Insights/Datasets",
@@ -25,9 +34,12 @@
   "notes": [
     "factor_series_source: cross-sectional signal permutation is not applicable"
   ],
+  "passes_applicable_gate": true,
   "passes_audit_gate": false,
   "periodicity": "monthly",
+  "permutation_informative_primary": false,
   "permutation_p_primary": null,
+  "permutation_status_primary": "not_applicable_single_series",
   "primary_threshold": 0.0,
   "romano_wolf_p_primary": 0.0001999600079984003,
   "sample_end": "2026-03-31",

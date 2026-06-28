@@ -6,10 +6,10 @@ Public repository: https://github.com/DsChauhan08/dependence-aware-evaluation-of
 
 ## Main Files
 
-- `journal/main_manuscript_blinded.pdf`: blinded peer-review manuscript PDF for journals that require separate title pages.
-- `journal/title_page.md`: author title page.
-- `journal/technical_appendix_supplement.pdf`: blinded technical appendix for supplementary upload.
-- `journal/review_repro_anonymized.zip`: anonymized replication materials for double-blind review.
+- `journal/MF_sharpe_uvif_main_blinded.pdf`: blinded peer-review manuscript PDF for journals that require separate title pages.
+- `journal/MF_sharpe_uvif_title_page.md`: author title page.
+- `journal/MF_sharpe_uvif_appendix_blinded.pdf`: blinded technical appendix for supplementary upload.
+- `journal/MF_sharpe_uvif_replication_blinded.zip`: anonymized replication materials for double-blind review.
 - `arxiv/`: editable LaTeX source and generated manuscript artifacts.
 - `repro/`: public-data loaders, simulations, tests, aggregate artifacts, and reproduction instructions.
 

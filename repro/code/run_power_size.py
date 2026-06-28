@@ -154,6 +154,11 @@ def run_power() -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    print(f"Size/power audit: {N_SIM} sims, {N_BOOT} bootstrap draws, {N_JOBS} jobs")
-    print(run_size_test().to_string(index=False, float_format="%.4f"))
-    print(run_power().to_string(index=False, float_format="%.4f"))
+    mode = os.environ.get("SDDM_POWER_SIZE_MODE", "both").strip().lower()
+    if mode not in {"both", "size", "power"}:
+        raise SystemExit(f"unknown SDDM_POWER_SIZE_MODE={mode!r}")
+    print(f"Size/power audit: {N_SIM} sims, {N_BOOT} bootstrap draws, {N_JOBS} jobs, mode={mode}")
+    if mode in {"both", "size"}:
+        print(run_size_test().to_string(index=False, float_format="%.4f"))
+    if mode in {"both", "power"}:
+        print(run_power().to_string(index=False, float_format="%.4f"))

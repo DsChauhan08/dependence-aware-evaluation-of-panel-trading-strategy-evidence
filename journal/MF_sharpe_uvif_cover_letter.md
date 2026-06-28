@@ -12,7 +12,11 @@ The manuscript should be of interest to readers working in financial econometric
 
 I am the sole author. I received no external funding for this research and declare no conflict of interest. The replication code, public aggregate artifacts, configuration files, simulation scripts, and reproducibility materials are available at https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence.
 
-Modern Finance requires at least three suggested reviewers in the cover letter. These reviewer names, affiliations, and e-mail addresses must be supplied by the author before upload.
+Suggested reviewers:
+
+1. [Name], [Affiliation], [Email], [Reason this reviewer is suitable and has no conflict]
+2. [Name], [Affiliation], [Email], [Reason this reviewer is suitable and has no conflict]
+3. [Name], [Affiliation], [Email], [Reason this reviewer is suitable and has no conflict]
 
 Sincerely,
 

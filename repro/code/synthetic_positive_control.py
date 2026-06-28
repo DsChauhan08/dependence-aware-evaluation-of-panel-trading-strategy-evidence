@@ -141,7 +141,7 @@ def render_latex(summary: pd.DataFrame, path: Path, replication_summary: pd.Data
         r"\label{tab:synthetic-positive-control}",
         r"\begin{tabular}{lrrrrrr}",
         r"\toprule",
-        r"Panel & $\bar\rho$ & Adj. & SR & HAC $p^+$ & RW $p$ & Perm. $p^+$ \\",
+        r"Panel & $\bar\rho$ & SE infl. & SR & HAC $p^+$ & RW $p$ & Perm. $p^+$ \\",
         r"\midrule",
         (
             "Synthetic control"

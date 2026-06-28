@@ -22,6 +22,12 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PAPER_DIR = PROJECT_ROOT / "paper"
 RELEASE_DIR = PROJECT_ROOT / "release"
+MF_MAIN_BLINDED = "MF_sharpe_uvif_main_blinded.pdf"
+MF_APPENDIX_BLINDED = "MF_sharpe_uvif_appendix_blinded.pdf"
+MF_TITLE_PAGE = "MF_sharpe_uvif_title_page.md"
+MF_COVER_LETTER = "MF_sharpe_uvif_cover_letter.md"
+MF_REPLICATION_ZIP = "MF_sharpe_uvif_replication_blinded.zip"
+MF_SHA256 = "MF_sharpe_uvif_sha256.txt"
 FORBIDDEN_PARTS = {
     "venv",
     ".venv",
@@ -180,14 +186,14 @@ def make_archive(folder: Path) -> Path:
 
 
 def write_anonymized_review_zip(repro_root: Path, journal_root: Path) -> Path:
-    anon = journal_root / "review_repro_anonymized"
+    anon = journal_root / "MF_sharpe_uvif_replication_blinded"
     reset_dir(anon)
     (anon / "README.md").write_text(
         "# Anonymous Replication Package\n\n"
         "This double-blind review package contains public-data loaders, simulation code, generated aggregate artifacts, and tests needed to reproduce the manuscript tables and figures. "
         "Author-identifying title-page material, cover letters, personal repository links, and public-archive metadata are excluded.\n\n"
         "Run `python -m pytest -q tests/test_audit_methods.py` for the method checks. "
-        "The manuscript artifacts were rendered from `public_aggregates/` with `code/render_manuscript_artifacts.py`.\n",
+        "The manuscript artifacts were rendered from the public aggregates using the included rendering utility.\n",
         encoding="utf-8",
     )
     for name in ["requirements-paper.txt"]:
@@ -235,7 +241,7 @@ def write_anonymized_review_zip(repro_root: Path, journal_root: Path) -> Path:
         if hits:
             raise ValueError(f"author-identifying text in anonymous review package: {path}: {hits}")
 
-    zip_path = journal_root / "review_repro_anonymized.zip"
+    zip_path = journal_root / MF_REPLICATION_ZIP
     if zip_path.exists():
         zip_path.unlink()
     with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
@@ -265,9 +271,9 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
     if (PAPER_DIR / "sddm_paper_v2.pdf").exists():
         guarded_copy(PAPER_DIR / "sddm_paper_v2.pdf", ssrn / "sddm_paper_v2.pdf")
     if (PAPER_DIR / "sddm_paper_v2_blinded.pdf").exists():
-        guarded_copy(PAPER_DIR / "sddm_paper_v2_blinded.pdf", journal / "main_manuscript_blinded.pdf")
+        guarded_copy(PAPER_DIR / "sddm_paper_v2_blinded.pdf", journal / MF_MAIN_BLINDED)
     if (PAPER_DIR / "sddm_technical_appendix_blinded.pdf").exists():
-        guarded_copy(PAPER_DIR / "sddm_technical_appendix_blinded.pdf", journal / "technical_appendix_supplement.pdf")
+        guarded_copy(PAPER_DIR / "sddm_technical_appendix_blinded.pdf", journal / MF_APPENDIX_BLINDED)
 
     for name in ["README_REPRO.md", "requirements-paper.txt", "LICENSE", "CITATION.cff"]:
         guarded_copy(PROJECT_ROOT / name, repro / name)
@@ -300,7 +306,7 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
         "SSRN package: upload the PDF only after the platform disclosure requirements are resolved.\n",
         encoding="utf-8",
     )
-    (journal / "cover_letter_template.md").write_text(
+    (journal / MF_COVER_LETTER).write_text(
         "# Cover Letter Template\n\n"
         "Dear Editor,\n\n"
         "I am submitting my manuscript, \"Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels,\" for consideration as an Article in Modern Finance.\n\n"
@@ -308,7 +314,10 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
         "The empirical sections use public Kenneth French and AQR data as benchmark and stress-test applications, while the Monte Carlo section shows that row-naive inference can substantially overreject under dependent nulls. The manuscript is positioned as a testing framework for evaluating Sharpe-ratio evidence in entity-time financial panels rather than as a new-anomaly or trading-rule paper.\n\n"
         "The manuscript should be of interest to readers working in financial econometrics, empirical asset pricing, portfolio-performance evaluation, factor screening, and reproducible finance methodology. The manuscript is not under consideration by another journal and has not been formally published in a peer-reviewed venue.\n\n"
         "I am the sole author. I received no external funding for this research and declare no conflict of interest. The replication code, public aggregate artifacts, configuration files, simulation scripts, and reproducibility materials are available at https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence.\n\n"
-        "Modern Finance requires at least three suggested reviewers in the cover letter. These reviewer names, affiliations, and e-mail addresses must be supplied by the author before upload.\n\n"
+        "Suggested reviewers:\n\n"
+        "1. [Name], [Affiliation], [Email], [Reason this reviewer is suitable and has no conflict]\n"
+        "2. [Name], [Affiliation], [Email], [Reason this reviewer is suitable and has no conflict]\n"
+        "3. [Name], [Affiliation], [Email], [Reason this reviewer is suitable and has no conflict]\n\n"
         "Sincerely,\n\n"
         "Dhananjay S. Chauhan\n"
         "Independent Researcher, India\n"
@@ -316,7 +325,7 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
         "Email: dschauhan08.me@gmail.com\n",
         encoding="utf-8",
     )
-    (journal / "title_page.md").write_text(
+    (journal / MF_TITLE_PAGE).write_text(
         "# Title Page\n\n"
         "Title: Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels\n\n"
         "Author: Dhananjay S. Chauhan\n\n"
@@ -340,10 +349,10 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
         "This repository contains the public manuscript, technical appendix, aggregate public artifacts, and reproducibility code for the paper.\n\n"
         "Public repository: https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence\n\n"
         "## Main Files\n\n"
-        "- `journal/main_manuscript_blinded.pdf`: blinded peer-review manuscript PDF for journals that require separate title pages.\n"
-        "- `journal/title_page.md`: author title page.\n"
-        "- `journal/technical_appendix_supplement.pdf`: blinded technical appendix for supplementary upload.\n"
-        "- `journal/review_repro_anonymized.zip`: anonymized replication materials for double-blind review.\n"
+        f"- `journal/{MF_MAIN_BLINDED}`: blinded peer-review manuscript PDF for journals that require separate title pages.\n"
+        f"- `journal/{MF_TITLE_PAGE}`: author title page.\n"
+        f"- `journal/{MF_APPENDIX_BLINDED}`: blinded technical appendix for supplementary upload.\n"
+        f"- `journal/{MF_REPLICATION_ZIP}`: anonymized replication materials for double-blind review.\n"
         "- `arxiv/`: editable LaTeX source and generated manuscript artifacts.\n"
         "- `repro/`: public-data loaders, simulations, tests, aggregate artifacts, and reproduction instructions.\n\n"
         "## Release Archives\n\n"
@@ -361,6 +370,8 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
     for folder in [arxiv, ssrn, journal, repro]:
         write_manifest(folder)
         make_archive(folder)
+    (journal / MF_SHA256).write_text((journal / "MANIFEST.sha256").read_text(encoding="utf-8"), encoding="utf-8")
+    make_archive(journal)
 
 
 def main() -> None:

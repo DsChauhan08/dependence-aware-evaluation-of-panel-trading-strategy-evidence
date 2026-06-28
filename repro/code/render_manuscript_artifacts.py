@@ -80,6 +80,9 @@ def fmt(x, digits: int = 3) -> str:
 
 STATUS_LABELS = {
     "ok": "Available",
+    "degenerate": "Permutation null degenerate",
+    "not_applicable_single_series": "Not applicable",
+    "insufficient_permutation_draws": "Insufficient permutation draws",
     "failed": "Source not loaded",
     "phantom": "Fails permutation gate",
     "robust": "Passes composite gate",
@@ -137,6 +140,26 @@ def journal_status(value: object) -> str:
         return ""
     text = str(value)
     return STATUS_LABELS.get(text.lower(), text)
+
+
+def display_permutation_p(status: object, p_value: object) -> object:
+    status_text = str(status).lower()
+    if status_text in {"degenerate", "not_applicable_single_series", "insufficient_permutation_draws"}:
+        return "N/A"
+    return p_value
+
+
+def bool_field(value: object, default: bool = False) -> bool:
+    if pd.isna(value):
+        return default
+    if isinstance(value, (bool, np.bool_)):
+        return bool(value)
+    text = str(value).strip().lower()
+    if text in {"true", "1", "yes", "y"}:
+        return True
+    if text in {"false", "0", "no", "n"}:
+        return False
+    return default
 
 
 def tex_escape(value: object) -> str:
@@ -236,9 +259,10 @@ def candidate_campaign_table(campaign_root: Path) -> pd.DataFrame:
             "HAC p+": r.get("hac_p_positive", np.nan),
             "Boot p+": gate.get("bootstrap_p", np.nan),
             "RW p": r.get("rw_p", np.nan),
-            "Perm p": r.get("permutation_p", np.nan),
+            "Perm p": display_permutation_p(gate.get("permutation_status", r.get("permutation_status", "")), r.get("permutation_p", np.nan)),
             "Net SR": gate.get("net_sharpe_5bps", np.nan),
-            "Audit gate 5%": bool(gate.get("passes_all", False)),
+            "Audit gate 5%": bool_field(gate.get("passes_all", False)),
+            "Applicable checks 5%": bool_field(gate.get("passes_applicable", False)),
         })
     return pd.DataFrame(rows)
 
@@ -274,9 +298,10 @@ def panel_candidate_table(campaign_root: Path) -> pd.DataFrame:
             "HAC p+": r.get("hac_p_positive", np.nan),
             "Boot p+": gate.get("bootstrap_p", np.nan),
             "RW p": r.get("rw_p", np.nan),
-            "Perm p": r.get("permutation_p", np.nan),
+            "Perm p": display_permutation_p(gate.get("permutation_status", r.get("permutation_status", "")), r.get("permutation_p", np.nan)),
             "Net SR": gate.get("net_sharpe_5bps", np.nan),
-            "Audit gate 5%": bool(gate.get("passes_all", False)),
+            "Audit gate 5%": bool_field(gate.get("passes_all", False)),
+            "Applicable checks 5%": bool_field(gate.get("passes_applicable", False)),
         })
     return pd.DataFrame(rows)
 
@@ -365,7 +390,8 @@ def campaign_permutation_table(campaign_root: Path) -> pd.DataFrame:
             continue
         df = pd.read_csv(path)
         for _, r in df.iterrows():
-            if r.get("status", "ok") != "ok":
+            status = r.get("status", "ok")
+            if str(status).lower() not in {"ok", "degenerate"}:
                 continue
             rows.append({
                 "Candidate": candidate_name(cdir.name),
@@ -373,7 +399,8 @@ def campaign_permutation_table(campaign_root: Path) -> pd.DataFrame:
                 "obs SR": r.get("observed_sharpe", np.nan),
                 "null mean": r.get("null_mean", np.nan),
                 "null sd": r.get("null_sd", np.nan),
-                "p+": r.get("p_positive", np.nan),
+                "p+": display_permutation_p(status, r.get("p_positive", np.nan)),
+                "status": journal_status(status),
                 "perms": r.get("n_perms", np.nan),
             })
     return pd.DataFrame(rows)
@@ -421,6 +448,35 @@ def campaign_row_boundary_pvalue_table(campaign_root: Path) -> pd.DataFrame:
     return df[[c for c in cols if c in df.columns]] if not df.empty else df
 
 
+def campaign_uvif_flooring_table(campaign_root: Path) -> pd.DataFrame:
+    rows = []
+    for cdir in campaign_candidates(campaign_root):
+        if cdir.name not in PANEL_CANDIDATES:
+            continue
+        path = cdir / "row_boundary.csv"
+        if not path.exists():
+            continue
+        df = pd.read_csv(path)
+        if df.empty or df.iloc[0].get("status") != "ok":
+            continue
+        r = df.iloc[0]
+        sei = r.get("trading_moulton_factor", np.nan)
+        uvif_unclipped = float(sei) ** 2 if pd.notna(sei) else np.nan
+        uvif_displayed = max(1.0, uvif_unclipped) if pd.notna(uvif_unclipped) else np.nan
+        erir_unclipped = 1.0 / uvif_unclipped if pd.notna(uvif_unclipped) and uvif_unclipped > 0 else np.nan
+        erir_displayed = 1.0 / uvif_displayed if pd.notna(uvif_displayed) and uvif_displayed > 0 else np.nan
+        rows.append({
+            "Candidate": candidate_name(cdir.name),
+            "rho": r.get("rho_same_date", np.nan),
+            "SE infl.": sei,
+            "UVIF unclipped": uvif_unclipped,
+            "UVIF displayed": uvif_displayed,
+            "ERIR unclipped": erir_unclipped,
+            "ERIR displayed": erir_displayed,
+        })
+    return pd.DataFrame(rows)
+
+
 def campaign_horizon_effect_table(campaign_root: Path) -> pd.DataFrame:
     path = campaign_root / "horizon_effect.csv"
     if not path.exists():
@@ -460,23 +516,28 @@ def campaign_phantom_audit_table(campaign_root: Path) -> pd.DataFrame:
         gate = gate05[gate05.get("candidate_id") == cid]
         gate_row = gate.iloc[0] if len(gate) else pd.Series(dtype=object)
         perm_p = gate_row.get("permutation_p", np.nan)
+        perm_status = gate_row.get("permutation_status", "")
+        perm_informative = bool_field(gate_row.get("permutation_informative", pd.notna(perm_p)), default=pd.notna(perm_p))
         stat_ps = [
             r.get("hac_p_positive", np.nan),
             r.get("romano_wolf_p", np.nan),
-            perm_p,
         ]
+        if perm_informative:
+            stat_ps.append(perm_p)
         stat_ps = [float(x) for x in stat_ps if pd.notna(x)]
         audit_p = max(stat_ps) if stat_ps else np.nan
         sei = r.get("trading_moulton_factor", np.nan)
         uvif = max(1.0, float(sei) ** 2) if pd.notna(sei) else np.nan
-        eir = 1.0 / uvif if pd.notna(uvif) and uvif > 0 else np.nan
         row_p = r.get("row_p_positive", np.nan)
-        passes_all = bool(gate_row.get("passes_all", False)) if len(gate) else False
+        passes_all = bool_field(gate_row.get("passes_all", False)) if len(gate) else False
+        passes_applicable = bool_field(gate_row.get("passes_applicable", False)) if len(gate) else False
         net_sr = gate_row.get("net_sharpe_5bps", np.nan)
         stat_fail = pd.notna(audit_p) and float(audit_p) > 0.05
         cost_fail = pd.notna(net_sr) and float(net_sr) <= 0
         if passes_all:
             status = "Passes composite gate"
+        elif str(perm_status).lower() == "degenerate" and passes_applicable:
+            status = "Permutation uninformative; applicable checks pass"
         elif pd.notna(row_p) and float(row_p) <= 0.05 and pd.notna(audit_p) and float(audit_p) > 0.05:
             status = "Fails permutation gate"
         elif stat_fail and cost_fail:
@@ -489,7 +550,6 @@ def campaign_phantom_audit_table(campaign_root: Path) -> pd.DataFrame:
             "Candidate": candidate_name(cid),
             "Row p+": row_p,
             "UVIF": uvif,
-            "ERIR": eir,
             "Audit p+": audit_p,
             "Net SR": net_sr,
             "Status": status,
@@ -566,13 +626,15 @@ def campaign_robustness_table(campaign_root: Path) -> pd.DataFrame:
 def campaign_gate_table(campaign_root: Path) -> pd.DataFrame:
     df = pd.read_csv(campaign_root / "candidate_gate_sensitivity.csv")
     if df.empty:
-        return pd.DataFrame(columns=["alpha", "candidates", "passes"])
+        return pd.DataFrame(columns=["alpha", "candidates", "full passes", "applicable passes"])
     rows = []
     for alpha, group in df.groupby("alpha"):
+        applicable_col = "passes_applicable" if "passes_applicable" in group.columns else "passes_all"
         rows.append({
             "alpha": alpha,
             "candidates": str(int(len(group))),
-            "passes": str(int(group["passes_all"].fillna(False).sum())),
+            "full passes": str(int(group["passes_all"].fillna(False).sum())),
+            "applicable passes": str(int(group[applicable_col].fillna(False).sum())),
         })
     return pd.DataFrame(rows)
 
@@ -1147,7 +1209,7 @@ def render(outdir: Path, paper_dir: Path) -> None:
         latex_table(power_table(outdir), "Rejection rates across true annualized Sharpe values.", "tab:power"),
     ]
     sections = empirical_sections + simulation_sections
-    header = f"% Generated by render_manuscript_artifacts.py from {outdir}\n"
+    header = f"% Generated from {outdir}\n"
     if "smoke" in str(outdir):
         header += "% SMOKE ARTIFACTS ONLY: do not submit these numbers.\n"
     (paper_dir / "generated_empirical_artifacts.tex").write_text(
@@ -1197,7 +1259,7 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
             single_series_factor_table(campaign_root),
             "Single-series factor benchmarks subject to time-series inference only.",
             "tab:single-series-benchmarks",
-            note="Time-series only means not eligible for same-date permutation, ERIR, or the composite panel audit gate.",
+            note="Time-series only means not eligible for same-date permutation, row-retention diagnostics, or the composite panel audit gate.",
         ),
         latex_table(campaign_momentum_benchmark_table(campaign_root), "Canonical French momentum benchmark validation.", "tab:momentum-benchmark"),
         pagebreak,
@@ -1211,12 +1273,18 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
             "Row-naive and date-level p-value diagnostics for panel candidates.",
             "tab:row-boundary-pvalues",
         ),
+        latex_table(
+            campaign_uvif_flooring_table(campaign_root),
+            "Unclipped and one-sided floored UVIF diagnostics for panel candidates.",
+            "tab:uvif-flooring",
+            note="Displayed main-text UVIF values are floored at one when the equicorrelation diagnostic is non-inflationary; unclipped values remain descriptive diagnostics and are not rejection rules.",
+        ),
         pagebreak,
         latex_table(
             campaign_phantom_audit_table(campaign_root),
             "Dependence audit summary for panel candidates.",
             "tab:dependence-audit",
-            note="ERIR is a design-effect retention diagnostic and is not used as a rejection rule.",
+            note="Displayed UVIF is a one-sided inflation summary floored at one. Degenerate same-date permutation diagnostics are reported as uninformative rather than converted into failures.",
         ),
         latex_table(campaign_horizon_effect_table(campaign_root), "Horizon-effect audit for the dynamic Size/BM momentum panel.", "tab:horizon-effect"),
         pagebreak,
@@ -1226,7 +1294,7 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
             campaign_permutation_table(campaign_root),
             "Same-date signal-permutation diagnostics for panel candidates.",
             "tab:permutation",
-            note="A near-zero permutation-null standard deviation is interpreted as an uninformative placebo for that threshold, not as calibrated evidence against predictability.",
+            note="A near-zero permutation-null standard deviation is reported as N/A because the placebo is uninformative for that threshold, not calibrated evidence for or against predictability.",
         ),
         pagebreak,
         latex_table(campaign_robustness_table(campaign_root), "HAC bandwidth, prewhitening, and fixed-b robustness diagnostics.", "tab:hac-robustness"),
@@ -1256,7 +1324,7 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
     ])
 
     sections = empirical_sections + simulation_sections
-    header = f"% Generated by render_manuscript_artifacts.py from campaign root {campaign_root}\n"
+    header = f"% Generated from campaign root {campaign_root}\n"
     (paper_dir / "generated_empirical_artifacts.tex").write_text(
         header + "\n".join(empirical_sections),
         encoding="utf-8",
@@ -1279,19 +1347,19 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
             single_series_factor_table(campaign_root),
             "Single-series factor benchmarks subject to time-series inference only.",
             "tab:single-series-benchmarks",
-            note="Time-series only means not eligible for same-date permutation, ERIR, or the composite panel audit gate.",
+            note="Time-series only means not eligible for same-date permutation, row-retention diagnostics, or the composite panel audit gate.",
         ),
         "The benchmark validation table shows that the panel implementation\n"
         "matches the direct French winner-minus-loser construction.\n",
         latex_table(campaign_momentum_benchmark_table(campaign_root), "Canonical French momentum benchmark validation.", "tab:momentum-benchmark"),
         "The dependence audit table summarizes the boundary directly: row-level\n"
-        "evidence can disappear once same-date redundancy, ERIR, placebo evidence,\n"
+        "evidence can disappear once same-date redundancy, placebo evidence,\n"
         "and turnover-scaled net Sharpe are evaluated together.\n",
         latex_table(
             campaign_phantom_audit_table(campaign_root),
             "Dependence audit summary for panel candidates.",
             "tab:dependence-audit",
-            note="ERIR is a design-effect retention diagnostic and is not used as a rejection rule.",
+            note="Displayed UVIF is a one-sided inflation summary floored at one. Degenerate same-date permutation diagnostics are reported as uninformative rather than converted into failures.",
         ),
         "The horizon table shows that changing the lookback reduces turnover in\n"
         "the Size/BM stress panel but does not convert it into a robust net-Sharpe\n"

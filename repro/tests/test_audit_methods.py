@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 
 import numpy as np
 import pandas as pd
@@ -31,9 +32,15 @@ from threshold_analysis import (
     romano_wolf_stepdown,
 )
 from public_data import cost_sensitivity, hac_bandwidth_sensitivity, same_date_permutation_test
-from render_manuscript_artifacts import reject_smoke_path
+from render_manuscript_artifacts import campaign_phantom_audit_table, reject_smoke_path
 from campaign_sources import LoadedCandidate, _ranked_long_short_panel, load_registry
-from run_full_campaign import french_wml_benchmark, row_boundary_diagnostics
+from run_full_campaign import (
+    french_wml_benchmark,
+    grouped_signal_permutation_test,
+    permutation_null_diagnostic,
+    row_boundary_diagnostics,
+    write_gate_sensitivity,
+)
 from make_release_bundle import FORBIDDEN_PARTS, guarded_copy
 from walk_forward import compute_turnover, target_weights, turnover_decomposition
 
@@ -209,6 +216,87 @@ def test_registry_declares_monthly_aqr_annualization_and_daily_defaults():
     assert by_id["aqr_value_momentum_everywhere_monthly"]["annualization_factor"] == 12
     assert by_id["french_momentum_deciles_daily_wml"]["periodicity"] == "daily"
     assert by_id["french_momentum_deciles_daily_wml"]["annualization_factor"] == 252
+
+
+def test_permutation_diagnostic_marks_constant_null_degenerate():
+    status, informative, null_sd = permutation_null_diagnostic(np.ones(20))
+    assert status == "degenerate"
+    assert informative is False
+    assert null_sd == 0.0
+
+
+def test_same_date_permutation_reports_degenerate_null_as_not_informative():
+    rng = np.random.default_rng(123)
+    panel = PanelData(
+        dates=np.arange(40).astype("datetime64[D]"),
+        tickers=np.array(["A", "B", "C"]),
+        predictions=np.ones((40, 3)),
+        realised=rng.normal(0.001, 0.01, size=(40, 3)),
+        confidence=np.ones((40, 3)),
+    )
+    summary, _ = grouped_signal_permutation_test(panel, thresholds=[0.0], n_perms=25, seed=7)
+    row = summary.iloc[0]
+    assert row["status"] == "degenerate"
+    assert row["permutation_informative"] is False or row["permutation_informative"] == False
+    assert np.isnan(row["p_positive"])
+
+
+def test_degenerate_permutation_is_not_full_pass_but_can_pass_applicable_gate(tmp_path):
+    cdir = tmp_path / "empirical" / "candidate"
+    cdir.mkdir(parents=True)
+    (cdir / "audit_gate.json").write_text(
+        """{
+          "gross_sharpe": 0.5,
+          "hac_p_positive": 0.01,
+          "romano_wolf_p_primary": 0.02,
+          "permutation_p_primary": null,
+          "permutation_status_primary": "degenerate",
+          "permutation_informative_primary": false,
+          "net_sharpe_5bps": 0.4,
+          "passes_audit_gate": false,
+          "passes_applicable_gate": true
+        }""",
+        encoding="utf-8",
+    )
+    pd.DataFrame([{"method": "blocked", "p_positive": 0.01}]).to_csv(cdir / "methods.csv", index=False)
+    sens = write_gate_sensitivity(tmp_path)
+    row = sens[sens["alpha"].eq(0.05)].iloc[0]
+    assert bool(row["passes_all"]) is False
+    assert bool(row["passes_applicable"]) is True
+    assert bool(row["permutation_informative"]) is False
+
+
+def test_renderer_labels_degenerate_permutation_as_applicable_checks_pass(tmp_path):
+    emp = tmp_path / "empirical" / "french_momentum_deciles_daily_rank"
+    emp.mkdir(parents=True)
+    (emp / "metadata.json").write_text(
+        json.dumps({"candidate_id": "french_momentum_deciles_daily_rank"}),
+        encoding="utf-8",
+    )
+    pd.DataFrame([
+        {
+            "candidate_id": "french_momentum_deciles_daily_rank",
+            "alpha": 0.05,
+            "passes_all": False,
+            "passes_applicable": True,
+            "permutation_status": "degenerate",
+            "permutation_informative": False,
+            "permutation_p": np.nan,
+            "net_sharpe_5bps": 0.4,
+        }
+    ]).to_csv(tmp_path / "candidate_gate_sensitivity.csv", index=False)
+    pd.DataFrame([
+        {
+            "status": "ok",
+            "row_p_positive": 0.001,
+            "hac_p_positive": 0.01,
+            "romano_wolf_p": 0.02,
+            "trading_moulton_factor": 0.75,
+        }
+    ]).to_csv(emp / "row_boundary.csv", index=False)
+    table = campaign_phantom_audit_table(tmp_path)
+    assert table.iloc[0]["Status"] == "Permutation uninformative; applicable checks pass"
+    assert "ERIR" not in table.columns
 
 
 def test_hac_bandwidth_sensitivity_reports_fixed_and_auto_lags():

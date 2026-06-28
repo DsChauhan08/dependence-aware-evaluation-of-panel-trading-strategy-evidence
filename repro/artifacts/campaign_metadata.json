@@ -1,12 +1,12 @@
 {
-  "command": "sddm-paper-v2/code/run_full_campaign.py --output-root sddm-paper-v2/code/output_major_revision_20260625 --n-sim 1000 --n-boot 5000 --n-perms 10000 --n-jobs 12 --coverage-parallel 4 --skip-simulations --no-resume --write-memo",
+  "command": "sddm-paper-v2/code/run_full_campaign.py --output-root sddm-paper-v2/code/output_modern_finance_hardening_20260628 --n-sim 1000 --n-boot 5000 --n-perms 10000 --n-jobs 12 --coverage-parallel 4 --seed 42 --write-memo",
   "coverage_parallel": 4,
   "full_scale_targets": {
     "n_boot": 5000,
     "n_perms": 10000,
     "n_sim": 1000
   },
-  "generated_at_utc": "2026-06-25T12:09:54.019994+00:00",
+  "generated_at_utc": "2026-06-28T09:05:06.410991+00:00",
   "n_boot": 5000,
   "n_jobs": 12,
   "n_perms": 10000,
