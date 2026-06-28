@@ -362,6 +362,9 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
         "The public release excludes proprietary predictions, raw trade records, private tickers, production feature definitions, and unrelated workspace artifacts.\n",
         encoding="utf-8",
     )
+    scope_note = PAPER_DIR / "modern_finance_scope_control.md"
+    if scope_note.exists():
+        guarded_copy(scope_note, root / "MODERN_FINANCE_SCOPE_CONTROL.md")
 
     if compile_pdf:
         for _ in range(3):

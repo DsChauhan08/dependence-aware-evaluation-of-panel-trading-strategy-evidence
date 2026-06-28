@@ -153,7 +153,7 @@ The public sorted-portfolio examples in the main manuscript do not
 contain average daily volume or order-size information, so they do not
 support a capacity claim.  For traded-security panels where those inputs
 are available, a square-root impact diagnostic can be added as an
-optional extension to the statistical claim boundary.
+optional sensitivity extension.
 
 \begin{proposition}[Square-root impact sensitivity bound]
 \label{prop:capacity-frontier}
@@ -236,8 +236,9 @@ reports the unclipped diagnostics separately.
 
 This section gives the appendix version of the known-edge calibration
 check.  The synthetic panel is not empirical evidence for a public
-strategy; it verifies that the composite audit gate can accept a
-declared positive signal when the data-generating process contains one.
+strategy; it verifies that the registry-defined reporting rule can
+accept a declared positive signal when the data-generating process
+contains one.
 The generated panel has \(T=5000\) dates and \(N=100\) names.  Signed
 returns include daily alpha \(0.12/252\), idiosyncratic volatility
 \(0.01\), a common loading of \(0.50\), AR(1) common-factor coefficient
@@ -319,6 +320,6 @@ Stationarity diagnostics, holdout splits, HAC bandwidth sweeps,
 prewhitened HAC, fixed-fraction HAC, moving-block bootstrap, and
 stationary bootstrap results are secondary robustness checks.  They are
 used to identify fragile claims, not to replace the main date-return
-decision boundary.
+decision rule.
 
 \end{document}

@@ -80,7 +80,8 @@ Sharpe uncertainty. The diagnostic is paired with date aggregation,
 HAC-delta inference, dependent bootstrap resampling, menu correction,
 placebo diagnostics, and turnover-cost stress tests. Public Kenneth
 French panel benchmarks and AQR pre-aggregated factor series illustrate,
-respectively, panel-evaluable and time-series-only cases. In dependent
+respectively, row-level panel candidates and pre-aggregated time-series
+benchmarks. In dependent
 null simulations, row-naive testing rejects about 35 percent of the time
 at a nominal 5 percent level, whereas date-level HAC and
 dependent-bootstrap procedures remain near nominal size. The contribution
@@ -123,11 +124,12 @@ portfolio-signal evaluations can all multiply observations across
 assets on the same date while the economic payoff is realized through a
 date-level portfolio return.  The paper uses public trading-panel and
 factor-screen examples because they make the sampling boundary visible,
-but the statistical problem is a general financial-econometrics question:
+but the statistical problem is a recurring financial-econometrics question:
 what uncertainty should be attached to a Sharpe estimate after
 cross-sectional row multiplication and serial dependence in the
 date-return series are recognized.  The paper studies a general
-inference problem and illustrates it with public benchmark panels.
+inference problem in entity-time financial panels and illustrates it with
+public benchmark panels.
 
 The problem is not only a matter of notation.  A row-pooled Sharpe
 report or \(t\)-test implicitly treats the cross-section on a date as
@@ -255,9 +257,9 @@ interpretable date-level portfolio return, so same-date clusters cannot
 create sample size by row multiplication.  Its second channel is serial: all
 Sharpe decisions are made on the date-return series using HAC-delta and
 dependent-bootstrap procedures.  For panel candidates with row-level
-signal-return pairs, a claim must survive both channels before the paper
-asks the separate researcher-menu, placebo, factor-alpha, and cost
-questions.
+signal-return pairs, the confirmatory implementation reports both
+channels before adding researcher-menu, placebo, factor-alpha, and
+turnover-cost sensitivity diagnostics.
 
 Each panel candidate is reported at three levels: the row-naive
 baseline, the date-level confirmatory estimate, and the UVIF diagnostic
@@ -379,7 +381,7 @@ sensitivity checks.
 Because financial date returns can be heavy-tailed, HAC-delta evidence
 is reported alongside bootstrap \(p\)-values and intervals.  When HAC
 and dependent-bootstrap conclusions disagree, the result is reported as
-robustness-fragile rather than promoted as a positive-edge finding.
+robustness-fragile rather than summarized as a positive-edge finding.
 
 \section{Audit protocol and implementation}
 
@@ -528,14 +530,14 @@ capacity claim.
 
 \subsection{Composite audit-gate decision}
 
-The protocol reports component diagnostics, but the final claim boundary is
-deliberately stricter than any single statistic.  The gates are a
-lexicographic filter: a candidate must first clear the date-level
-statistical boundary, then the dependent-bootstrap robustness boundary,
-then the researcher-menu and placebo integrity boundaries, and finally
-the turnover-cost sensitivity boundary.  A candidate is reported as
-passing the full composite audit only if all applicable diagnostics are
-informative and it clears a registry-defined composite gate:
+The protocol reports component diagnostics, and the registry-defined
+summary rule is deliberately stricter than any single statistic.  The
+audit gate is a reproducible reporting rule: a candidate is first
+evaluated at the date-level statistical boundary, then with
+dependent-bootstrap robustness, researcher-menu adjustment, same-date
+placebo evidence, and turnover-cost sensitivity.  A candidate is reported
+as passing the full composite audit only if all applicable diagnostics
+are informative and it clears the registry-defined gate:
 \[
   p_{\mathrm{boot}}\le \alpha,\qquad
   p_{\mathrm{perm}}\le \alpha,\qquad
@@ -545,15 +547,15 @@ informative and it clears a registry-defined composite gate:
 \]
 If the same-date permutation null is degenerate or otherwise
 uninformative, the candidate is reported separately as passing or failing
-the remaining applicable checks; it is not promoted as a full composite
-pass.
+the remaining applicable checks; it is not classified as a full
+composite pass.
 This is a conservative registry-defined reporting policy, not a uniformly
 most powerful test, an optimal weighted test, or a claim that the gates
 exhaust all possible failure modes.  The gates
 are conjunctive because each one addresses a different reason a
 performance claim can fail: bootstrap-fragile Sharpe evidence, a placebo-consistent
 signal, dependence-adjusted insignificance, researcher-menu selection,
-or nonpositive net economics.
+or nonpositive net Sharpe after turnover-cost sensitivity.
 Applications with different decision costs may choose different rules
 ex ante, but they should not choose the gate sequence after seeing the
 results.  The component diagnostics are reported so readers can apply
@@ -569,16 +571,17 @@ HAC-delta or Romano-Wolf tests, but they do not contain the row-level
 signal panel needed for this placebo.  Such cases are reported as not
 applicable for the permutation gate rather than as passed panel evaluations.
 
-The stages have different interpretations.  The permutation gate asks
+The stages have different interpretations.  The permutation diagnostic asks
 whether the signal-return pairing beats a same-date placebo.  The HAC
-gate asks whether the resulting date-return Sharpe is positive after
+diagnostic asks whether the resulting date-return Sharpe is positive after
 serial dependence and heteroskedasticity are accounted for.  The
-bootstrap gate asks whether that conclusion survives resampling of the
-date-return series.  The Romano-Wolf gate asks whether the claim survives
-the fixed researcher menu.  The cost gate asks whether the edge remains
-economically usable after turnover-scaled frictions.  Factor-alpha,
+bootstrap diagnostic asks whether that conclusion survives resampling of
+the date-return series.  The Romano-Wolf diagnostic asks whether the
+claim survives the fixed researcher menu.  The cost diagnostic reports
+whether net Sharpe remains positive after turnover-scaled frictions.
+Factor-alpha,
 holdout, subperiod, and stationarity diagnostics are reported alongside
-these gates to prevent a single favorable statistic from becoming the
+these checks to prevent a single favorable statistic from becoming the
 claim.
 
 \section{Sharpe UVIF theory}
@@ -795,7 +798,7 @@ functionals are equal outside the stated exchangeability conditions, and
 does not replace the confirmatory date-level HAC, dependent-bootstrap,
 researcher-menu, placebo, factor-alpha, and cost diagnostics.  The
 empirical role of Sharpe UVIF is therefore diagnostic: it explains the
-sampling-boundary distortion that the claim-boundary diagnostics then evaluate
+sampling-boundary distortion that the reported diagnostics then evaluate
 with date-level inferential procedures.  The sample UVIF reported in
 the empirical section is a plug-in diagnostic for this population ratio;
 confirmatory rejection decisions do not depend on estimating UVIF
@@ -875,7 +878,7 @@ diagnostics, not proof of asymptotic validity in those settings.
 \section{Synthetic positive-control calibration}
 \label{sec:positive-control}
 
-The claim boundary is not mechanically anti-discovery.  To check that the
+The reporting rule is not mechanically anti-discovery.  To check that the
 composite criteria can pass a true signal, a synthetic panel is generated
 with a persistent predictive signal, moderate same-date dependence, and
 serial dependence in the date-level returns.  The signal is constructed
@@ -901,7 +904,7 @@ a model of any public anomaly.
 \paragraph{Appendix material.}
 The worked numerical example, full proof details, positive-control data
 generation notes, and secondary robustness artifacts are reported in the
-technical appendix.  The main manuscript keeps only the claim boundary
+technical appendix.  The main manuscript keeps only the decision rule
 and the evidence needed to evaluate it.
 
 \section{Public benchmark and stress-test evidence}
@@ -920,8 +923,9 @@ main tables therefore separate panel candidates from single-series
 factor benchmarks.  Failed public-data access attempts are kept in the
 provenance artifacts rather than treated as main empirical results.
 
-Table \ref{tab:panel-candidates} reports panel candidates subject to the composite
-audit gate.  Table \ref{tab:single-series-benchmarks} reports
+Table \ref{tab:panel-candidates} reports row-level panel candidates
+subject to the composite audit gate.  Table
+\ref{tab:single-series-benchmarks} reports
 pre-aggregated factor benchmarks subject to time-series inference only.
 Table \ref{tab:momentum-benchmark} verifies that the canonical WML
 candidate matches the direct French winner-minus-loser decile benchmark.
@@ -945,7 +949,7 @@ decision.  A raw positive Sharpe that does not survive FF3 plus momentum
 alpha, bootstrap robustness, Romano-Wolf/White checks, same-date
 placebos, or plausible costs should not be interpreted as reliable
 portfolio-performance evidence.  This is the empirical implication of
-the claim-boundary design: familiar
+the sampling-boundary design: familiar
 public candidates can look attractive at one boundary and fail at the
 composite decision boundary.
 
@@ -968,7 +972,7 @@ canonical anomaly replications.  The AQR
 factor-series candidates have positive time-series evidence in the
 reported HAC and block-bootstrap diagnostics, but because they are
 pre-aggregated factor returns rather than row-level signal panels, they
-cannot be promoted to passed panel-evaluation candidates.
+are not classified as passed panel-evaluation candidates.
 
 The horizon-effect audit shows that the dynamic Size/BM momentum stress
 case fails because of weak signal and execution drag, not because the
@@ -1110,7 +1114,7 @@ The paper's central message is simple.  In financial panels, multiplying
 same-date rows does not automatically create independent Sharpe-ratio
 evidence when the allocable object is a date-level portfolio return.  The
 solution proposed here is not a new anomaly but a sampling-boundary
-audit: aggregate to the date-return series, estimate long-run Sharpe
+framework: aggregate to the date-return series, estimate long-run Sharpe
 uncertainty at that boundary, and record how far the row-pooled report
 differed from the confirmatory date-level claim.
 
@@ -1123,9 +1127,11 @@ cannot clear the panel permutation gate.
 
 The broader implication is that Sharpe-ratio evidence in panels should be
 judged at the date boundary that investors can actually hold.  Future
-work should extend the framework to nonlinear market-impact and capacity
-models, time-varying cross-sectional dependence, and richer
-blocked-permutation designs.
+work can extend the framework to nonlinear market-impact and capacity
+models, time-varying cross-sectional dependence, variable selected-count
+asymptotics, larger anomaly panels, and richer blocked-permutation
+designs; those extensions are beyond the scope of this Modern
+Finance-focused submission.
 
 \section*{Author contributions}
 
