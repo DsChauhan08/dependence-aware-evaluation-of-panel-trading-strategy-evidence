@@ -71,22 +71,19 @@ Researcher, India.\\
 \fi
 
 \begin{abstract}
-Entity-time financial panels are often mis-evaluated when same-date
+Entity-time financial panels can be mis-evaluated when same-date
 selected rows are treated as independent observations even though the
-payoff object is a date-level portfolio return. This paper defines the
-Sharpe Unified Variance Inflation Factor, a variance-ratio diagnostic
-comparing row-pooled IID Sharpe uncertainty with date-level long-run
-Sharpe uncertainty. The diagnostic is paired with date aggregation,
-HAC-delta inference, dependent bootstrap resampling, menu correction,
-placebo diagnostics, and turnover-cost stress tests. Public Kenneth
-French panel benchmarks and AQR pre-aggregated factor series illustrate,
-respectively, row-level panel candidates and pre-aggregated time-series
-benchmarks. In dependent
-null simulations, row-naive testing rejects about 35 percent of the time
-at a nominal 5 percent level, whereas date-level HAC and
-dependent-bootstrap procedures remain near nominal size. The contribution
-is a reproducible sampling-boundary audit for Sharpe-ratio evidence in
-financial panels.
+payoff object is a date-level portfolio return. This paper formalizes
+that row-to-date sampling-boundary distortion for Sharpe-ratio evidence
+and defines Sharpe UVIF, an uncertainty ratio comparing row-pooled IID
+Sharpe inference with date-level long-run Sharpe inference. The main
+inferential object is the date-level return series, evaluated with
+HAC-delta and dependent-bootstrap procedures. In dependent-null
+simulations, row-naive testing rejects about 35 percent of the time at a
+nominal 5 percent level, whereas date-level dependence-aware procedures
+remain near nominal size. Public Kenneth French panels and AQR
+pre-aggregated factor series illustrate when the boundary correction
+preserves canonical WML evidence and when weaker stress cases fail.
 \end{abstract}
 
 \noindent\textbf{Keywords:} Sharpe ratio; sampling-boundary distortion; financial
@@ -117,6 +114,8 @@ even when same-date rows share common shocks.  This row-level benchmark
 is retained only as the audit baseline against which date-level inference
 is compared.  The failure is not merely a standard-error choice; it
 changes the sampling unit from dates to rows.
+Row-pooled inference is used here as a diagnostic failure mode, not as a
+description of best-practice empirical asset pricing.
 
 The issue extends beyond a single trading-strategy application.  Factor
 screens, anomaly panels, model-selection procedures, and automated
@@ -124,7 +123,7 @@ portfolio-signal evaluations can all multiply observations across
 assets on the same date while the economic payoff is realized through a
 date-level portfolio return.  The paper uses public trading-panel and
 factor-screen examples because they make the sampling boundary visible,
-but the statistical problem is a recurring financial-econometrics question:
+but the statistical problem is a general financial-econometrics question:
 what uncertainty should be attached to a Sharpe estimate after
 cross-sectional row multiplication and serial dependence in the
 date-return series are recognized.  The paper studies a general
@@ -141,9 +140,8 @@ dependence determines how much extra information the additional selected
 rows actually contain, and serial dependence determines the long-run
 variance of the date series.
 Standard clustering techniques, including the finance-panel guidance of
-\citet{petersen2009estimating}, address standard errors for linear
-regression coefficients or means.  Clustering addresses standard errors
-for linear means or coefficients, but it does not by itself map
+\citet{petersen2009estimating}, address uncertainty for linear means or
+regression coefficients; they do not by themselves map
 row-pooled Sharpe evidence to the long-run variance of the economically
 relevant date-level Sharpe functional.
 
@@ -153,8 +151,10 @@ most severe when many same-date entities are selected, common shocks are
 strong, menus are searched, and the confirmatory statistic is a nonlinear
 Sharpe functional.
 
-The object that records this boundary change is the Sharpe Unified
-Variance Inflation Factor, or Sharpe UVIF:
+The required diagnostic is a ratio between the uncertainty attached to
+the date-level Sharpe claim and the uncertainty a row-pooled IID analysis
+would report.  I refer to this ratio as the Sharpe Unified Variance
+Inflation Factor, or Sharpe UVIF:
 \[
   \UVIF_{\SR}
   =
@@ -174,23 +174,23 @@ Sharpe inference and date-level long-run Sharpe inference.
 
 \subsection{Solution: Dependence-aware inference}
 
-This paper makes three contributions.  First, it defines Sharpe UVIF, a
-variance-ratio diagnostic linking row-pooled IID Sharpe inference to
-date-level long-run Sharpe inference.  Unlike mean-only design effects,
-Sharpe UVIF applies the delta method to the nonlinear Sharpe functional
-and therefore carries the long-run covariance of both returns and squared
-returns into the uncertainty calculation.  Second, it embeds this
-variance accounting in a frozen evaluation protocol that separates
-cross-sectional row multiplication from serial dependence in date-level
-portfolio returns.  Third, it documents the practical size distortion
-created by row-naive inference in public benchmark panels and Monte Carlo
-designs, showing that apparent precision can be generated by treating
-same-date dependent rows as independent evidence.
+This paper makes three contributions.  First, it formalizes
+sampling-boundary distortion for Sharpe-ratio evidence by linking
+row-pooled IID Sharpe inference to date-level long-run Sharpe inference.
+Unlike mean-only design effects, the Sharpe UVIF diagnostic applies the
+delta method to the nonlinear Sharpe functional and therefore carries the
+long-run covariance of both returns and squared returns into the
+uncertainty calculation.  Second, it embeds this variance accounting in a
+registry-defined evaluation design that separates cross-sectional row
+multiplication from serial dependence in date-level portfolio returns.
+Third, the Monte Carlo experiments quantify the size distortion from
+row-naive inference, while the public benchmark panels show how the same
+boundary logic changes empirical interpretation.
 
-The empirical section validates the implementation on canonical French
+The empirical section checks the implementation on canonical French
 WML, evaluates French panel stress cases, and reports AQR factor
 benchmarks as time-series-only evidence.  The public Kenneth French and
-AQR evidence is rendered from frozen reproducibility artifacts.
+AQR evidence is rendered from registry-defined reproducibility artifacts.
 The conservative empirical question is whether apparently significant
 portfolio-signal claims are artifacts of row-level sampling and
 disappear after date aggregation, dependence adjustment, and
@@ -273,7 +273,8 @@ weight assigned to selected row \(i\).  The portfolio return used for
 Sharpe inference is the date-level object
 \begin{equation}
   R_{t+1}=\sum_{i\in S_t} w_{t,i}Y_{t+1,i},
-  \qquad \sum_{i\in S_t}|w_{t,i}|<\infty .
+  \qquad \sum_{i\in S_t}|w_{t,i}|=1
+  \ \text{on active public-panel dates}.
   \label{eq:date-target}
 \end{equation}
 This is the target boundary.  A row-pooled analysis estimates uncertainty
@@ -330,6 +331,8 @@ moment entering the smooth functional
 \[
   f(\mu,m_2)=\sqrt{A_f}\frac{\mu}{(m_2-\mu^2)^{1/2}}.
 \]
+This convention only changes finite-sample scaling and is kept
+consistent across the plug-in variance calculations.
 Following \citet{ledoit2008robust}, the Sharpe ratio is treated as a
 smooth functional \(f(\theta)\) of the moment vector
 \(\theta=\E[g_t]\).  On sets where \(m_2-\mu^2\) is bounded away from

@@ -123,6 +123,7 @@ def copy_campaign_aggregates(campaign_root: Path, dst: Path) -> None:
         "source_registry_snapshot.json",
         "candidate_gate_sensitivity.csv",
         "candidate_gate_counts.csv",
+        "horizon_effect.csv",
         "artifact_provenance.csv",
     }
     for name in aggregate_names:

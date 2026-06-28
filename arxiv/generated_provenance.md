@@ -1,6 +1,6 @@
 # Generated Artifact Provenance
 
-- `sddm-paper-v2/code/output_modern_finance_hardening_20260628/artifact_provenance.csv` sha256 `791e82c4889ef198b246298276f936dd309d6227478a58fe3605f7b069dbc8f6`
+- `sddm-paper-v2/code/output_modern_finance_hardening_20260628/artifact_provenance.csv` sha256 `06a3129ada76530a4e6f543158fb9c03b81cc248b5db0cb702bb4a6fb7d0ee1e`
 - `sddm-paper-v2/code/output_modern_finance_hardening_20260628/campaign_attempts.csv` sha256 `852e182a477408d6cd79872b760b208387500f64aa8f1844757a4726056dc879`
 - `sddm-paper-v2/code/output_modern_finance_hardening_20260628/campaign_metadata.json` sha256 `9721005f0e1283508357c77fbeeda4c891b15e92da40ab633809625dac21466b`
 - `sddm-paper-v2/code/output_modern_finance_hardening_20260628/candidate_gate_counts.csv` sha256 `b27cca45aee81a4e972251d372035a3e2b912dadf250092579e57cf134624a21`
@@ -143,6 +143,7 @@
 - `sddm-paper-v2/code/output_modern_finance_hardening_20260628/empirical/french_size_bm_daily_dynamic_momentum/stationarity.csv` sha256 `ef822e09e25eeecb23accb5f83beb6204ce2997a29e32f02ddcd252d84e4c370`
 - `sddm-paper-v2/code/output_modern_finance_hardening_20260628/empirical/french_size_bm_daily_dynamic_momentum/threshold_menu.csv` sha256 `740cdbe53c1227a0dff135b75d6d7626eca9b92fa3b08fdb0614e936424b23d1`
 - `sddm-paper-v2/code/output_modern_finance_hardening_20260628/empirical/stooq_fixed_etf_daily_dynamic_momentum/failure.json` sha256 `d9ae83e9b4699d7e55e2ef37c3dcb7cb88b8fb7568fe788b1a14bc7d53d4d343`
+- `sddm-paper-v2/code/output_modern_finance_hardening_20260628/horizon_effect.csv` sha256 `537a7cc2fab597d11b7a555dbd0dcc205550d7e9e8e226f08b3a2824fc5873db`
 - `sddm-paper-v2/code/output_modern_finance_hardening_20260628/simulation/coverage_01_iid.csv` sha256 `1d27e733ebb306730af2bc2dad286e3ea647846f1f5e9f7db926826623f35c5f`
 - `sddm-paper-v2/code/output_modern_finance_hardening_20260628/simulation/coverage_02_ser_mild.csv` sha256 `11418096467ee3c23bd2b683ac4ca8940587f862eb1923c863665bc60135cfe2`
 - `sddm-paper-v2/code/output_modern_finance_hardening_20260628/simulation/coverage_03_ser_strong.csv` sha256 `6171d28decfd658273974fa1d80bf0c7fb338462fe12b4548e6c21b2ef4d547b`

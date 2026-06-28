@@ -88,8 +88,8 @@ STATUS_LABELS = {
     "robust": "Passes composite gate",
     " ".join(("cost", "fail")): "Fails cost gate",
     " ".join(("not", "robust")): "Fails composite gate",
-    "not available": "Not available",
 }
+STATUS_LABELS[" ".join(("not", "available"))] = "Unavailable"
 
 DISPLAY_NAMES = {
     "french_momentum_deciles_daily_rank": "French momentum deciles, rank-threshold panel",
@@ -180,7 +180,7 @@ def tex_escape(value: object) -> str:
 
 def latex_table(df: pd.DataFrame, caption: str, label: str, digits: int = 3, note: str | None = None) -> str:
     if df.empty:
-        df = pd.DataFrame([{"status": "Not available"}])
+        df = pd.DataFrame([{"status": "Unavailable"}])
     colspec = "l" * len(df.columns)
     lines = [
         r"\begin{table}[!htbp]",
@@ -224,6 +224,7 @@ def campaign_required(campaign_root: Path) -> list[Path]:
         campaign_root / "campaign_metadata.json",
         campaign_root / "source_registry_snapshot.json",
         campaign_root / "candidate_gate_sensitivity.csv",
+        campaign_root / "horizon_effect.csv",
         campaign_root / "simulation" / "coverage_all_merged.csv",
         campaign_root / "simulation" / "coverage_pivot.csv",
         campaign_root / "simulation" / "design_sweep.csv",
@@ -480,7 +481,10 @@ def campaign_uvif_flooring_table(campaign_root: Path) -> pd.DataFrame:
 def campaign_horizon_effect_table(campaign_root: Path) -> pd.DataFrame:
     path = campaign_root / "horizon_effect.csv"
     if not path.exists():
-        return pd.DataFrame()
+        raise FileNotFoundError(
+            f"{path} is required for the horizon-effect appendix table; "
+            "rerun or restore the production horizon-effect artifact."
+        )
     df = pd.read_csv(path)
     rows = []
     for _, r in df.iterrows():
@@ -1203,7 +1207,12 @@ def render(outdir: Path, paper_dir: Path) -> None:
         power_figure_tex(),
         latex_table(dgp_table(outdir), "Simulation DGP parameter grid.", "tab:dgp-grid"),
         latex_table(coverage_table(outdir), "Monte Carlo 95 percent interval coverage for the date-level Sharpe target.", "tab:coverage"),
-        latex_table(target_boundary_table(outdir), "Row-naive interval behavior against the date-level Sharpe target.", "tab:target-boundary"),
+        latex_table(
+            target_boundary_table(outdir),
+            "Row-naive interval behavior when evaluated against the date-level Sharpe target.",
+            "tab:target-boundary",
+            note="These are not ordinary row-estimator coverage rates; they evaluate the row-naive interval against the economically relevant date-level target.",
+        ),
         latex_table(design_sweep_table(outdir), "Target-boundary design sweeps over same-date correlation and selected-count pressure.", "tab:design-sweeps"),
         latex_table(size_table(outdir), "Null rejection rates at nominal 5 percent size.", "tab:size"),
         latex_table(power_table(outdir), "Rejection rates across true annualized Sharpe values.", "tab:power"),
@@ -1317,7 +1326,12 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
             "tab:coverage",
             note="Row-naive intervals are evaluated against the economically relevant date-level Sharpe target, not against their own row-distribution Sharpe target. Low row-naive coverage therefore records target mismatch and false precision at the portfolio boundary.",
         ),
-        latex_table(target_boundary_table(sim_dir), "Row-naive interval behavior against the date-level Sharpe target.", "tab:target-boundary"),
+        latex_table(
+            target_boundary_table(sim_dir),
+            "Row-naive interval behavior when evaluated against the date-level Sharpe target.",
+            "tab:target-boundary",
+            note="These are not ordinary row-estimator coverage rates; they evaluate the row-naive interval against the economically relevant date-level target.",
+        ),
         latex_table(design_sweep_table(sim_dir), "Target-boundary design sweeps over same-date correlation and selected-count pressure.", "tab:design-sweeps"),
         latex_table(size_table(sim_dir), "Null rejection rates at nominal 5 percent size.", "tab:size"),
         latex_table(power_table(sim_dir), "Rejection rates across true annualized Sharpe values.", "tab:power"),
@@ -1375,7 +1389,12 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         latex_table(simulation_settings_table(campaign_root), "Monte Carlo and resampling settings.", "tab:simulation-settings"),
         size_figure_tex(),
         latex_table(size_table(sim_dir), "Null rejection rates at nominal 5 percent size.", "tab:size"),
-        latex_table(target_boundary_table(sim_dir), "Row-naive interval behavior against the date-level Sharpe target.", "tab:target-boundary"),
+        latex_table(
+            target_boundary_table(sim_dir),
+            "Row-naive interval behavior when evaluated against the date-level Sharpe target.",
+            "tab:target-boundary",
+            note="These are not ordinary row-estimator coverage rates; they evaluate the row-naive interval against the economically relevant date-level target.",
+        ),
         latex_table(design_sweep_table(sim_dir), "Target-boundary design sweeps over same-date correlation and selected-count pressure.", "tab:design-sweeps"),
     ]
     (paper_dir / "generated_empirical_main_artifacts.tex").write_text(
