@@ -1,67 +1,28 @@
 % Generated from campaign root sddm-paper-v2/code/output_modern_finance_hardening_20260628
 % Main-manuscript subset generated from generated_empirical_artifacts.tex.
 
-The panel-candidate table reports only sources with row-level
-signal-return structure and therefore eligibility for the full panel
-decision rule.  The single-series benchmark table reports pre-aggregated
-factor returns separately; those rows are time-series benchmarks, not
-failed panel candidates.
+The main empirical tables report the row-level panel candidates only.
+Pre-aggregated AQR factor series, benchmark-validation details, horizon
+sensitivity, and full robustness diagnostics are reported in the
+technical appendix.
 
 \begin{table}[!htbp]
 \centering
 \small
-\caption{Panel candidates with row-level signal-return structure.}
-\label{tab:panel-candidates}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lllllllll}
-\toprule
-Panel candidate & SR & HAC p+ & Boot p+ & RW p & Perm p & Net SR & Full rule 5\% & Applicable checks 5\% \\
-\midrule
-French momentum deciles, rank-threshold panel & 0.447 & 7.54e-05 & 2.00e-04 & 2.00e-04 & N/A & 0.447 & no & yes \\
-French WML decile benchmark & 0.497 & 5.53e-06 & 2.00e-04 & 2.00e-04 & 1.00e-04 & 0.497 & yes & yes \\
-French 25 Size/BM, skipped-momentum panel & 0.058 & 0.412 & 0.422 & 0.480 & 0.943 & -0.050 & no & no \\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
-
-\begin{table}[!htbp]
-\centering
-\small
-\caption{Single-series factor benchmarks subject to time-series inference only.}
-\label{tab:single-series-benchmarks}
+\caption{Panel candidates and final evaluation status.}
+\label{tab:panel-status}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{llllll}
 \toprule
-Single-series benchmark & SR & HAC p+ & Boot p+ & RW p & Scope \\
+Panel candidate & SR & HAC p+ & Perm p & Net SR & Status \\
 \midrule
-AQR Betting Against Beta, equity factors & 0.741 & 3.08e-13 & 2.00e-04 & 2.00e-04 & time-series only \\
-AQR Quality Minus Junk & 0.536 & 2.26e-05 & 2.00e-04 & 2.00e-04 & time-series only \\
-AQR HML Devil & 0.336 & 0.004 & 0.002 & 0.002 & time-series only \\
-AQR Value and Momentum Everywhere & 0.572 & 1.62e-04 & 2.00e-04 & 2.00e-04 & time-series only \\
+French momentum deciles, rank-threshold panel & 0.447 & 7.54e-05 & N/A & 0.447 & Permutation uninformative; remaining criteria pass \\
+French WML decile benchmark & 0.497 & 5.53e-06 & 1.00e-04 & 0.497 & Passes full evaluation \\
+French 25 Size/BM, skipped-momentum panel & 0.058 & 0.412 & 0.943 & -0.050 & Fails statistical and cost checks \\
 \bottomrule
 \end{tabular}%
 }
-\par\footnotesize\emph{Note:} Time-series only means not eligible for same-date permutation, row-retention diagnostics, or the full panel decision rule.
-\end{table}
-
-The benchmark validation table shows that the panel implementation
-matches the direct French winner-minus-loser construction.
-
-\begin{table}[!htbp]
-\centering
-\small
-\caption{Canonical French momentum benchmark validation.}
-\label{tab:momentum-benchmark}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{llllllll}
-\toprule
-Candidate & thr & n & start & end & panel SR & direct WML SR & scale \\
-\midrule
-French WML decile benchmark & 0.900 & 26131 & 1926-11-04 & 2026-04-30 & 0.497 & 0.497 & 0.500 \\
-\bottomrule
-\end{tabular}%
-}
+\par\footnotesize\emph{Note:} Permutation N/A means that the same-date placebo was uninformative for that threshold; it is not counted as a full pass.
 \end{table}
 
 The comparator table makes the standard-practice contrast explicit:
@@ -85,49 +46,4 @@ French 25 Size/BM, skipped-momentum panel & 0.253 & 0.417 & 0.412 & 0.422 & 9.00
 \end{tabular}%
 }
 \par\footnotesize\emph{Note:} The row-naive column treats selected rows as independent. Date-IID, date-HAC, and block-bootstrap columns operate on the date-level portfolio return series.
-\end{table}
-
-The sampling-boundary table summarizes the boundary directly:
-row-level evidence can disappear once same-date redundancy, placebo
-evidence, and turnover-scaled net Sharpe are evaluated together.
-
-\begin{table}[!htbp]
-\centering
-\small
-\caption{Sampling-boundary summary for panel candidates.}
-\label{tab:dependence-summary}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{llllll}
-\toprule
-Candidate & Row p+ & UVIF & Max p+ & Net SR & Status \\
-\midrule
-French momentum deciles, rank-threshold panel & 1.70e-04 & 1.000 & 2.00e-04 & 0.447 & Permutation uninformative; applicable checks pass \\
-French WML decile benchmark & 4.85e-04 & 1.000 & 2.00e-04 & 0.497 & Passes full rule \\
-French 25 Size/BM, skipped-momentum panel & 0.253 & 9.002 & 0.943 & -0.050 & Fails statistical and cost checks \\
-\bottomrule
-\end{tabular}%
-}
-\par\footnotesize\emph{Note:} Displayed UVIF is a one-sided inflation summary floored at one. Degenerate same-date permutation diagnostics are reported as uninformative rather than converted into failures.
-\end{table}
-
-The horizon table shows that changing the lookback reduces turnover in
-the Size/BM stress panel but does not convert it into a robust net-Sharpe
-claim.
-
-\begin{table}[!htbp]
-\centering
-\small
-\caption{Horizon-effect sensitivity for the dynamic Size/BM momentum panel.}
-\label{tab:horizon-effect}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{llllllllll}
-\toprule
-L & thr & dates & avg names & gross SR & net SR 5bps & turnover & UVIF SR & serial UVIF & HAC p+ \\
-\midrule
-1 & 0.500 & 3497 & 12.913 & 0.073 & -0.394 & 0.733 & 11.498 & 0.891 & 0.386 \\
-5 & 0.500 & 3493 & 13.000 & -0.312 & -0.528 & 0.339 & 12.880 & 0.990 & 0.878 \\
-21 & 0.500 & 3477 & 13.000 & 0.058 & -0.050 & 0.169 & 12.121 & 0.933 & 0.412 \\
-\bottomrule
-\end{tabular}%
-}
 \end{table}

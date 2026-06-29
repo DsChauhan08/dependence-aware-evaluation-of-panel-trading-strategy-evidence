@@ -6,53 +6,6 @@ dependent nulls, row-naive testing rejects about one third of the time
 at a nominal 5 percent level, while date-level HAC, block-bootstrap,
 stationary, and Romano-Wolf procedures stay much closer to size.
 
-\begin{table}[!htbp]
-\centering
-\small
-\caption{Monte Carlo design contract.}
-\label{tab:simulation-contract}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{llllllllll}
-\toprule
-Design & T & N & Selected count & XS dep. & Serial dep. & Heterosk. & Reps & Resampling & Seed \\
-\midrule
-IID null & 1000 & 50 & all rows & rho=0 & AR(1)=0 & none & 1000 & 5000 boot & rep index \\
-Dependent null & 1000 & 50 & all rows & rho=0.2 & AR(1)=0.2 & none & 1000 & 5000 boot & rep index \\
-GARCH null & 1000 & 50 & all rows & rho=0.2 & AR(1)=0.2 & GARCH(0.05,0.90) & 1000 & 5000 boot & rep index \\
-Positive control & 5000 & 100 & signal-selected rows & common loading=0.50 & AR(1)=0.10 & none & 100 & 499 boot & 777 \\
-\bottomrule
-\end{tabular}%
-}
-\par\footnotesize\emph{Note:} All null designs have true Sharpe equal to zero. Positive-control rows use a declared nonzero signal and are included to show that the reporting rule is not mechanically anti-discovery.
-\end{table}
-
-\begin{table}[!htbp]
-\centering
-\small
-\caption{Monte Carlo and resampling settings.}
-\label{tab:simulation-settings}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{ll}
-\toprule
-Setting & Value \\
-\midrule
-Monte Carlo replications & 1000 \\
-Bootstrap draws & 5000 \\
-Permutation draws & 10000 \\
-Main null panel sizes & T=1000, N=50 \\
-Cross-sectional correlation grid & 0.000, 0.200, 0.250, 0.300, 0.350, 0.400, 0.500 \\
-AR(1) grid & 0.000, 0.150, 0.200, 0.300, 0.500, 0.700 \\
-GARCH parameter pairs & (0.050, 0.900); (0.100, 0.850); (0.150, 0.800) \\
-HAC bandwidth rule & automatic Bartlett, with fixed-lag sensitivity checks \\
-Moving-block length & ceil(T to the 1/5 times max(D,1)), capped at floor(T/3) \\
-Stationary mean block & same length as moving-block rule \\
-Dependence factor D & (2 rho1/(1-rho1)) to the 2/3 for positive AR(1) rho1; otherwise 1 \\
-Seed policy & seed-indexed replications from campaign runner \\
-\bottomrule
-\end{tabular}%
-}
-\end{table}
-
 
 
 \begin{figure}[!htbp]
@@ -78,60 +31,4 @@ null\_iid & 0.060 & 0.060 & 0.061 & 0.060 & 0.062 & 0.062 \\
 \bottomrule
 \end{tabular}%
 }
-\end{table}
-
-\begin{table}[!htbp]
-\centering
-\small
-\caption{Row-naive interval behavior when evaluated against the date-level Sharpe target.}
-\label{tab:target-boundary}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lllllll}
-\toprule
-DGP & Name & row coverage & bias vs date SR & CI width & mean SE & n \\
-\midrule
-01\_iid & IID baseline & 0.000 & -2.567 & 0.278 & 0.071 & 1000 \\
-02\_ser\_mild & Serial mild & 0.000 & -2.567 & 0.278 & 0.071 & 1000 \\
-03\_ser\_strong & Serial strong & 0.000 & -2.568 & 0.278 & 0.071 & 1000 \\
-04\_xs\_mild & Cross mild & 0.073 & -0.474 & 0.278 & 0.071 & 1000 \\
-05\_xs\_strong & Cross strong & 0.262 & -0.153 & 0.278 & 0.071 & 1000 \\
-06\_both\_mod & Both moderate & 0.088 & -0.503 & 0.278 & 0.071 & 1000 \\
-07\_both\_strong & Both strong & 0.178 & -0.145 & 0.278 & 0.071 & 1000 \\
-08\_realistic & Realistic & 0.107 & -0.277 & 0.124 & 0.032 & 1000 \\
-09\_garch\_mild & GARCH mild & 0.110 & -0.473 & 0.278 & 0.071 & 1000 \\
-10\_garch\_strong & GARCH strong & 0.199 & -0.268 & 0.278 & 0.071 & 1000 \\
-11\_multifactor & Multi-factor K=3 & 0.225 & -0.327 & 0.278 & 0.071 & 1000 \\
-12\_regime & Regime-switching & 0.306 & -0.092 & 0.197 & 0.050 & 1000 \\
-13\_high\_ar1 & High-persistence AR(1) & 0.137 & -0.338 & 0.278 & 0.071 & 1000 \\
-14\_garch\_highvol & High-volatility GARCH & 0.193 & -0.325 & 0.278 & 0.071 & 1000 \\
-\bottomrule
-\end{tabular}%
-}
-\par\footnotesize\emph{Note:} These are not ordinary row-estimator coverage rates; they evaluate the row-naive interval against the economically relevant date-level target.
-\end{table}
-
-\begin{table}[!htbp]
-\centering
-\small
-\caption{Sampling-boundary stress tests under a zero-edge null.}
-\label{tab:design-sweeps}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{llllll}
-\toprule
-Panel & Setting & Row rej. & HAC rej. & Row mean SE & HAC mean SE \\
-\midrule
-A. Same-date correlation (N=50) & rho=0.000 & 0.097 & 0.056 & 0.071 & 0.598 \\
-A. Same-date correlation (N=50) & rho=0.100 & 0.310 & 0.064 & 0.071 & 0.598 \\
-A. Same-date correlation (N=50) & rho=0.300 & 0.354 & 0.044 & 0.071 & 0.599 \\
-A. Same-date correlation (N=50) & rho=0.350 & 0.368 & 0.071 & 0.071 & 0.597 \\
-A. Same-date correlation (N=50) & rho=0.500 & 0.409 & 0.047 & 0.071 & 0.597 \\
-A. Same-date correlation (N=50) & rho=0.700 & 0.408 & 0.060 & 0.071 & 0.599 \\
-B. Selected count (rho=0.35) & N=5 & 0.192 & 0.058 & 0.225 & 0.598 \\
-B. Selected count (rho=0.35) & N=25 & 0.308 & 0.052 & 0.100 & 0.600 \\
-B. Selected count (rho=0.35) & N=50 & 0.368 & 0.071 & 0.071 & 0.597 \\
-B. Selected count (rho=0.35) & N=100 & 0.421 & 0.056 & 0.050 & 0.598 \\
-\bottomrule
-\end{tabular}%
-}
-\par\footnotesize\emph{Note:} Row-naive overrejection rises with same-date dependence and selected-count pressure, whereas date-level HAC remains close to nominal size.
 \end{table}

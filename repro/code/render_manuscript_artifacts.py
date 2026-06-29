@@ -307,6 +307,26 @@ def panel_candidate_table(campaign_root: Path) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def main_panel_status_table(campaign_root: Path) -> pd.DataFrame:
+    panels = panel_candidate_table(campaign_root)
+    summary = campaign_phantom_audit_table(campaign_root)
+    status_by_name = {}
+    if not summary.empty:
+        status_by_name = dict(zip(summary["Candidate"], summary["Status"]))
+    rows = []
+    for _, r in panels.iterrows():
+        name = r.get("Panel candidate", "")
+        rows.append({
+            "Panel candidate": name,
+            "SR": r.get("SR", np.nan),
+            "HAC p+": r.get("HAC p+", np.nan),
+            "Perm p": r.get("Perm p", np.nan),
+            "Net SR": r.get("Net SR", np.nan),
+            "Status": status_by_name.get(name, ""),
+        })
+    return pd.DataFrame(rows)
+
+
 def standard_comparator_table(campaign_root: Path) -> pd.DataFrame:
     rows = []
     for cdir in campaign_candidates(campaign_root):
@@ -568,9 +588,9 @@ def campaign_phantom_audit_table(campaign_root: Path) -> pd.DataFrame:
         stat_fail = pd.notna(audit_p) and float(audit_p) > 0.05
         cost_fail = pd.notna(net_sr) and float(net_sr) <= 0
         if passes_all:
-            status = "Passes full rule"
+            status = "Passes full evaluation"
         elif str(perm_status).lower() == "degenerate" and passes_applicable:
-            status = "Permutation uninformative; applicable checks pass"
+            status = "Permutation uninformative; remaining criteria pass"
         elif pd.notna(row_p) and float(row_p) <= 0.05 and pd.notna(audit_p) and float(audit_p) > 0.05:
             status = "Fails permutation check"
         elif stat_fail and cost_fail:
@@ -578,7 +598,7 @@ def campaign_phantom_audit_table(campaign_root: Path) -> pd.DataFrame:
         elif cost_fail:
             status = "Fails cost check"
         else:
-            status = "Fails full rule"
+            status = "Does not pass full evaluation"
         rows.append({
             "Candidate": candidate_name(cid),
             "Row p+": row_p,
@@ -1491,21 +1511,16 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
 
     empirical_main_sections = [
         "% Main-manuscript subset generated from generated_empirical_artifacts.tex.\n",
-        "The panel-candidate table reports only sources with row-level\n"
-        "signal-return structure and therefore eligibility for the full panel\n"
-        "decision rule.  The single-series benchmark table reports pre-aggregated\n"
-        "factor returns separately; those rows are time-series benchmarks, not\n"
-        "failed panel candidates.\n",
-        latex_table(panel_candidate_table(campaign_root), "Panel candidates with row-level signal-return structure.", "tab:panel-candidates"),
+        "The main empirical tables report the row-level panel candidates only.\n"
+        "Pre-aggregated AQR factor series, benchmark-validation details, horizon\n"
+        "sensitivity, and full robustness diagnostics are reported in the\n"
+        "technical appendix.\n",
         latex_table(
-            single_series_factor_table(campaign_root),
-            "Single-series factor benchmarks subject to time-series inference only.",
-            "tab:single-series-benchmarks",
-            note="Time-series only means not eligible for same-date permutation, row-retention diagnostics, or the full panel decision rule.",
+            main_panel_status_table(campaign_root),
+            "Panel candidates and final evaluation status.",
+            "tab:panel-status",
+            note="Permutation N/A means that the same-date placebo was uninformative for that threshold; it is not counted as a full pass.",
         ),
-        "The benchmark validation table shows that the panel implementation\n"
-        "matches the direct French winner-minus-loser construction.\n",
-        latex_table(campaign_momentum_benchmark_table(campaign_root), "Canonical French momentum benchmark validation.", "tab:momentum-benchmark"),
         "The comparator table makes the standard-practice contrast explicit:\n"
         "row-naive evidence is shown next to date-level HAC and bootstrap\n"
         "inference on the portfolio return series.\n",
@@ -1515,19 +1530,6 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
             "tab:standard-comparator",
             note="The row-naive column treats selected rows as independent. Date-IID, date-HAC, and block-bootstrap columns operate on the date-level portfolio return series.",
         ),
-        "The sampling-boundary table summarizes the boundary directly:\n"
-        "row-level evidence can disappear once same-date redundancy, placebo\n"
-        "evidence, and turnover-scaled net Sharpe are evaluated together.\n",
-        latex_table(
-            campaign_phantom_audit_table(campaign_root),
-            "Sampling-boundary summary for panel candidates.",
-            "tab:dependence-summary",
-            note="Displayed UVIF is a one-sided inflation summary floored at one. Degenerate same-date permutation diagnostics are reported as uninformative rather than converted into failures.",
-        ),
-        "The horizon table shows that changing the lookback reduces turnover in\n"
-        "the Size/BM stress panel but does not convert it into a robust net-Sharpe\n"
-        "claim.\n",
-        latex_table(campaign_horizon_effect_table(campaign_root), "Horizon-effect sensitivity for the dynamic Size/BM momentum panel.", "tab:horizon-effect"),
     ]
     simulation_main_sections = [
         "% Main-manuscript subset generated from generated_simulation_artifacts.tex.\n",
@@ -1535,27 +1537,8 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         "dependent nulls, row-naive testing rejects about one third of the time\n"
         "at a nominal 5 percent level, while date-level HAC, block-bootstrap,\n"
         "stationary, and Romano-Wolf procedures stay much closer to size.\n",
-        latex_table(
-            monte_carlo_design_contract_table(campaign_root),
-            "Monte Carlo design contract.",
-            "tab:simulation-contract",
-            note="All null designs have true Sharpe equal to zero. Positive-control rows use a declared nonzero signal and are included to show that the reporting rule is not mechanically anti-discovery.",
-        ),
-        latex_table(simulation_settings_table(campaign_root), "Monte Carlo and resampling settings.", "tab:simulation-settings"),
         size_figure_tex(),
         latex_table(size_table(sim_dir), "Null rejection rates at nominal 5 percent size.", "tab:size"),
-        latex_table(
-            target_boundary_table(sim_dir),
-            "Row-naive interval behavior when evaluated against the date-level Sharpe target.",
-            "tab:target-boundary",
-            note="These are not ordinary row-estimator coverage rates; they evaluate the row-naive interval against the economically relevant date-level target.",
-        ),
-        latex_table(
-            design_sweep_table(sim_dir),
-            "Sampling-boundary stress tests under a zero-edge null.",
-            "tab:design-sweeps",
-            note="Row-naive overrejection rises with same-date dependence and selected-count pressure, whereas date-level HAC remains close to nominal size.",
-        ),
     ]
     (paper_dir / "generated_empirical_main_artifacts.tex").write_text(
         header + "\n".join(empirical_main_sections),
