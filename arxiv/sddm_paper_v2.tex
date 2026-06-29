@@ -7,6 +7,7 @@
 \usepackage{array}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage[labelsep=period]{caption}
 \usepackage{natbib}
 \usepackage[margin=1in]{geometry}
 \usepackage[hyphens]{url}
@@ -71,20 +72,19 @@ Researcher, India.\\
 \fi
 
 \begin{abstract}
-Financial panels can misstate Sharpe-ratio evidence when selected
-asset-date rows are treated as independent observations even though the
-performance object is a date-level portfolio return. This paper studies
-that sampling-boundary distortion using public Kenneth French panels, AQR
-factor series, and Monte Carlo designs. The central diagnostic, Sharpe
-UVIF, compares row-pooled IID Sharpe uncertainty with date-level long-run
-Sharpe uncertainty. Claims are evaluated using HAC-delta and
-dependent-bootstrap inference on date returns, with menu, placebo, and
-cost diagnostics reported separately. In dependent-null simulations,
-row-naive tests reject about 35 percent of the time at a nominal 5 percent
-level, while HAC, moving-block, stationary-bootstrap, and Romano-Wolf
-procedures remain much closer to nominal size. Public benchmarks show
-that the correction preserves canonical momentum evidence while weakening
-weaker panel claims.
+Sharpe ratios from financial panels can look more precise when
+asset-date rows are treated as independent even though portfolio
+performance is realized as date-level returns. This paper studies that
+sampling-boundary distortion in public Kenneth French panels, AQR factor
+series, and Monte Carlo designs. It introduces Sharpe UVIF, a diagnostic
+ratio comparing row-pooled IID Sharpe uncertainty with date-level
+long-run uncertainty. Empirical claims are evaluated after date
+aggregation using heteroskedasticity-and-autocorrelation consistent
+(HAC) delta inference and dependent bootstraps, with menu, placebo, and
+turnover-cost diagnostics reported separately. Under dependent zero-edge
+nulls, row-naive tests reject about 35 percent at a nominal 5 percent
+level, while date-level corrections stay much closer to nominal.
+Canonical momentum evidence survives; weaker panel claims do not.
 \end{abstract}
 
 \noindent\textbf{Keywords:} Sharpe ratio; panel data; cross-sectional dependence;
@@ -740,7 +740,8 @@ counterfactual reporting benchmark rather than the maintained sampling
 law.
 \end{assumption}
 
-\paragraph{Sharpe UVIF decomposition.}
+\begin{proposition}[Sharpe UVIF decomposition]
+\label{prop:sharpe-uvif-decomposition}
 Let \(R_t\) be the date-level portfolio excess return and
 \(G_t=(R_t,R_t^2)'\).  Define
 \(\theta_R=(\mu_R,m_{2,R})'=\E[G_t]\),
@@ -797,10 +798,11 @@ and the scalar long-run variance entering the numerator is
   \label{eq:uvif-fourth-moment}
 \end{equation}
 where \(\Omega_{ab}\) denotes the \((a,b)\) element of \(\Omega_R\).
+\end{proposition}
 
 \noindent The proof is given in the technical appendix.
 
-\subsection{What the Sharpe UVIF decomposition does and does not identify}
+\subsection{What Proposition 1 does and does not identify}
 
 The decomposition is a first-order variance calculation for a fixed
 aggregation rule and a constant selected-count approximation.  It
@@ -1097,8 +1099,8 @@ the public, commercial, or not-for-profit sectors.
 Acknowledgments are omitted from the review manuscript to preserve
 double-blind anonymity.
 \else
-The author thanks reviewers of earlier manuscript drafts and public data
-providers for maintaining the datasets used in this study.
+The author thanks the maintainers of the public datasets used in this
+study.
 \fi
 
 \section*{Conflicts of interest}

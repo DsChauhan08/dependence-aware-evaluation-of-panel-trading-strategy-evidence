@@ -475,7 +475,7 @@ def main():
     pivot = coverage_df.pivot_table(
         values="Coverage", index="DGP", columns="Method", aggfunc="first"
     )
-    print("\n\nTable 1: Coverage Rates")
+    print("\n\nTable 1. Coverage Rates")
     print(pivot.to_string(float_format="%.3f"))
     pivot.to_csv("output/table1_coverage_pivot.csv")
 
