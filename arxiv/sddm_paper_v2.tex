@@ -47,7 +47,7 @@
   \blindedfalse
 \fi
 
-\title{Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels}
+\title{Sharpe-Ratio Inference at the Date Boundary in Financial Panels}
 \ifblinded
 \author{}
 \else
@@ -71,19 +71,18 @@ Researcher, India.\\
 \fi
 
 \begin{abstract}
-Selected rows in financial panels are sometimes evaluated as if they
-were independent observations even though the economically relevant
-payoff is a date-level portfolio return. This paper studies the
-resulting distortion in Sharpe-ratio evidence. It defines Sharpe UVIF,
-the ratio between date-level long-run Sharpe uncertainty and the
-row-pooled IID uncertainty that would be reported under independent
-selected rows. The analysis is conducted on the date-level return series
-using HAC-delta and dependent-bootstrap inference. In dependent-null
-simulations, row-naive testing rejects about 35 percent of the time at a
-nominal 5 percent level, while date-level dependence-aware procedures
-remain close to nominal size. Public Kenneth French panels and AQR
-factor series illustrate when correcting the sampling boundary preserves
-strong evidence and when weaker claims do not survive.
+Financial panels are sometimes evaluated by treating selected
+entity-date rows as independent observations even though the investable
+payoff is a date-level portfolio return. This paper studies how that
+mismatch distorts Sharpe-ratio inference. I compare row-pooled IID
+Sharpe uncertainty with date-level long-run Sharpe uncertainty using a
+variance-ratio diagnostic, Sharpe UVIF, and conduct inference on the
+date-return series with HAC-delta and dependent-bootstrap methods. In
+dependent-null simulations, row-naive tests reject about 35 percent of
+the time at a nominal 5 percent level, while date-level procedures
+remain close to nominal size. Public Kenneth French panel benchmarks and
+AQR factor series show when the correction leaves strong evidence intact
+and when weaker claims disappear.
 \end{abstract}
 
 \noindent\textbf{Keywords:} Sharpe ratio; panel data; cross-sectional dependence;
@@ -96,23 +95,30 @@ portfolio returns
 
 \subsection{Problem: Row-to-date sampling boundary}
 
-Empirical finance evaluates signals in entity-time panels:
-factor screens, anomaly sorts, automated portfolio-signal screens,
-model-selection grids, and trading-strategy backtests.  A typical panel
-can be written as
+Empirical finance often evaluates signals in entity-time panels: factor
+screens, anomaly sorts, automated portfolio-signal screens,
+model-selection grids, and trading-strategy backtests.  Suppose a signal
+screen selects many assets on each decision date and then reports a
+Sharpe ratio by pooling all selected entity-date rows.  If the
+economically relevant payoff is the portfolio return earned on each
+date, the apparent row count can exaggerate precision even before
+serial dependence is considered.  The evaluation has changed the
+sampling unit from dates to rows.
+
+A typical panel can be written as
 \[
   \mathcal P=\{(t,i,s_{t,i},r_{t+1,i})\},
 \]
 where \(t\) indexes dates, \(i\) indexes assets or portfolios,
 \(s_{t,i}\) is a signal, and \(r_{t+1,i}\) is the next-period return.
-One evaluation failure mode is
-to evaluate a positive edge using all selected symbol-date rows as
-though they were independent.  This turns a panel with \(T\) dates and
-\(n_t\) selected rows per date into a nominal sample of \(\sum_t n_t\),
-even when same-date rows share common shocks.  This row-level benchmark
-is retained only as the diagnostic baseline against which date-level
-inference is compared.  The failure is not merely a standard-error choice; it
-changes the sampling unit from dates to rows.
+One evaluation failure mode is to evaluate a positive edge using all
+selected symbol-date rows as though they were independent.  This turns a
+panel with \(T\) dates and \(n_t\) selected rows per date into a nominal
+sample of \(\sum_t n_t\), even when same-date rows share common shocks.
+This row-level benchmark is retained only as the diagnostic baseline
+against which date-level inference is compared.  The failure is not
+merely a standard-error choice; it changes the sampling unit from dates
+to rows.
 The row-pooled construction is used here as a diagnostic baseline, not
 as a characterization of good empirical practice.
 
@@ -145,10 +151,17 @@ row-pooled Sharpe evidence to the long-run variance of the economically
 relevant date-level Sharpe functional.
 
 Automated empirical signal screens can evaluate large numbers of
-entity-date rows and many menu variants in a single run.  The error is
-most severe when many same-date entities are selected, common shocks are
+entity-date rows and many menu variants in a single run.  The distortion
+is largest when many same-date entities are selected, common shocks are
 strong, menus are searched, and the confirmatory statistic is a nonlinear
 Sharpe functional.
+
+The intuition is simple.  If 50 selected rows are generated from only a
+small number of economically relevant dates, the row count can make the
+Sharpe estimate look more precise than the portfolio-return evidence
+supports.  The relevant sampling object is the date-level return series,
+not the multiplied row count.  Sharpe UVIF records how far the
+row-pooled IID uncertainty sits from the date-level long-run uncertainty.
 
 The required diagnostic is a ratio between the uncertainty attached to
 the date-level Sharpe claim and the uncertainty a row-pooled IID analysis
@@ -263,6 +276,35 @@ turnover-cost sensitivity diagnostics.
 Each panel candidate is reported at three levels: the row-naive
 baseline, the date-level confirmatory estimate, and the UVIF diagnostic
 gap between them.
+
+\begin{figure}[!htbp]
+\centering
+\small
+\setlength{\fboxsep}{6pt}
+\fbox{\parbox{0.25\textwidth}{\centering Selected entity-date rows\\
+\(\{Y_{t+1,i}:i\in S_t\}\)}}\quad
+\(\rightarrow\)\quad
+\fbox{\parbox{0.25\textwidth}{\centering Date aggregation\\
+\(R_{t+1}=\sum_i w_{t,i}Y_{t+1,i}\)}}\quad
+\(\rightarrow\)\quad
+\fbox{\parbox{0.25\textwidth}{\centering Date-return inference\\
+HAC and dependent bootstrap}}
+
+\vspace{0.6em}
+
+\fbox{\parbox{0.25\textwidth}{\centering Row-pooled comparator\\
+IID row uncertainty}}\quad
+\(\rightarrow\)\quad
+\fbox{\parbox{0.25\textwidth}{\centering Sharpe UVIF\\
+date vs row uncertainty}}\quad
+\(\rightarrow\)\quad
+\fbox{\parbox{0.25\textwidth}{\centering Supplementary checks\\
+menu, placebo, alpha, cost}}
+\caption{Inference workflow. The empirical claim is evaluated at the
+date-level portfolio-return boundary; row-pooled evidence is retained as
+a comparator rather than as the maintained sampling law.}
+\label{fig:workflow}
+\end{figure}
 
 \subsection{Date aggregation as the target boundary}
 
@@ -1052,21 +1094,23 @@ Sharpe.  The purpose is not to rank methods by power alone.  A method
 that appears powerful because it overrejects under the null is not
 acceptable for confirmatory evaluation.
 
-Table \ref{tab:simulation-settings} reports the compact simulation and
-resampling settings used for the reported results.  Table
-\ref{tab:size} gives the main size evidence.  The row-naive column is the familiar
-symbol-date analysis; the HAC-delta, moving-block, stationary, and
-Romano-Wolf columns make decisions from the date-return series.  When
-row-naive rejection is high in null or near-null designs but the
-dependence-aware methods remain near nominal size, the apparent extra
-power is a false precision gain from treating same-date rows as
-independent evidence.  Table \ref{tab:target-boundary} reports row-naive
-interval behavior against the date-level Sharpe target, making the target
-mismatch explicit.  Table \ref{tab:design-sweeps} then sweeps same-date
-correlation and selected-count pressure under a zero-edge null.  These
-sweeps are diagnostic stress tests for the sampling boundary; they do
-not introduce a new empirical claim.  The technical appendix reports the
-full DGP grid, coverage table, power table, and power-curve figure.
+Table \ref{tab:simulation-contract} states the main design contract for
+the null and positive-control experiments, and Table
+\ref{tab:simulation-settings} reports the resampling settings used for
+the reported results.  Table \ref{tab:size} gives the main size
+evidence.  The row-naive column is the familiar symbol-date analysis; the
+HAC-delta, moving-block, stationary, and Romano-Wolf columns make
+decisions from the date-return series.  When row-naive rejection is high
+in null or near-null designs but the dependence-aware methods remain
+near nominal size, the apparent extra power is a false precision gain
+from treating same-date rows as independent evidence.  Table
+\ref{tab:target-boundary} reports row-naive interval behavior against
+the date-level Sharpe target, making the target mismatch explicit.
+Table \ref{tab:design-sweeps} then sweeps same-date correlation and
+selected-count pressure under a zero-edge null.  These sweeps are
+diagnostic stress tests for the sampling boundary; they do not introduce
+a new empirical claim.  The technical appendix reports the full DGP
+grid, coverage table, power table, and power-curve figure.
 
 \input{generated_simulation_main_artifacts.tex}
 

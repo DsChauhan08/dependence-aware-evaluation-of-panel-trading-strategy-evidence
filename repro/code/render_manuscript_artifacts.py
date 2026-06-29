@@ -1045,6 +1045,62 @@ def simulation_settings_table(campaign_root: Path) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def monte_carlo_design_contract_table(campaign_root: Path) -> pd.DataFrame:
+    meta = read_json(campaign_root / "campaign_metadata.json") if (campaign_root / "campaign_metadata.json").exists() else {}
+    reps = meta.get("n_sim", "")
+    boot = meta.get("n_boot", "")
+    return pd.DataFrame([
+        {
+            "Design": "IID null",
+            "T": 1000,
+            "N": 50,
+            "Selected count": "all rows",
+            "XS dep.": "rho=0",
+            "Serial dep.": "AR(1)=0",
+            "Heterosk.": "none",
+            "Reps": reps,
+            "Resampling": f"{boot} boot",
+            "Seed": "rep index",
+        },
+        {
+            "Design": "Dependent null",
+            "T": 1000,
+            "N": 50,
+            "Selected count": "all rows",
+            "XS dep.": "rho=0.2",
+            "Serial dep.": "AR(1)=0.2",
+            "Heterosk.": "none",
+            "Reps": reps,
+            "Resampling": f"{boot} boot",
+            "Seed": "rep index",
+        },
+        {
+            "Design": "GARCH null",
+            "T": 1000,
+            "N": 50,
+            "Selected count": "all rows",
+            "XS dep.": "rho=0.2",
+            "Serial dep.": "AR(1)=0.2",
+            "Heterosk.": "GARCH(0.05,0.90)",
+            "Reps": reps,
+            "Resampling": f"{boot} boot",
+            "Seed": "rep index",
+        },
+        {
+            "Design": "Positive control",
+            "T": 5000,
+            "N": 100,
+            "Selected count": "signal-selected rows",
+            "XS dep.": "common loading=0.50",
+            "Serial dep.": "AR(1)=0.10",
+            "Heterosk.": "none",
+            "Reps": 100,
+            "Resampling": "499 boot",
+            "Seed": 777,
+        },
+    ])
+
+
 def size_table(outdir: Path) -> pd.DataFrame:
     df = read(outdir, "size_test_audit.csv")
     pivot = df.pivot_table(values="rejection_rate", index="dgp", columns="method", aggfunc="first").reset_index()
@@ -1389,6 +1445,12 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
 
     sim_dir = campaign_root / "simulation"
     simulation_sections = [power_figure_tex()]
+    simulation_sections.append(latex_table(
+        monte_carlo_design_contract_table(campaign_root),
+        "Monte Carlo design contract.",
+        "tab:simulation-contract",
+        note="All null designs have true Sharpe equal to zero. Positive-control rows use a declared nonzero signal and are included to show that the reporting rule is not mechanically anti-discovery.",
+    ))
     simulation_sections.append(latex_table(simulation_settings_table(campaign_root), "Monte Carlo and resampling settings.", "tab:simulation-settings"))
     if (sim_dir / "dgp_configs.csv").exists():
         simulation_sections.append(latex_table(dgp_table(sim_dir), "Simulation DGP parameter grid.", "tab:dgp-grid"))
@@ -1473,6 +1535,12 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         "dependent nulls, row-naive testing rejects about one third of the time\n"
         "at a nominal 5 percent level, while date-level HAC, block-bootstrap,\n"
         "stationary, and Romano-Wolf procedures stay much closer to size.\n",
+        latex_table(
+            monte_carlo_design_contract_table(campaign_root),
+            "Monte Carlo design contract.",
+            "tab:simulation-contract",
+            note="All null designs have true Sharpe equal to zero. Positive-control rows use a declared nonzero signal and are included to show that the reporting rule is not mechanically anti-discovery.",
+        ),
         latex_table(simulation_settings_table(campaign_root), "Monte Carlo and resampling settings.", "tab:simulation-settings"),
         size_figure_tex(),
         latex_table(size_table(sim_dir), "Null rejection rates at nominal 5 percent size.", "tab:size"),

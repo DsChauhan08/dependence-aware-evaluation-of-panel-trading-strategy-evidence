@@ -1,6 +1,6 @@
 # Title Page
 
-Title: Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels
+Title: Sharpe-Ratio Inference at the Date Boundary in Financial Panels
 
 Author: Dhananjay S. Chauhan
 

@@ -1,4 +1,4 @@
-# Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels
+# Sharpe-Ratio Inference at the Date Boundary in Financial Panels
 
 This repository contains the public manuscript, technical appendix, aggregate public artifacts, and reproducibility code for the paper.
 

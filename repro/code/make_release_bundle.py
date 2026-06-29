@@ -28,6 +28,7 @@ MF_TITLE_PAGE = "MF_sharpe_uvif_title_page.md"
 MF_COVER_LETTER = "MF_sharpe_uvif_cover_letter.md"
 MF_REPLICATION_ZIP = "MF_sharpe_uvif_replication_blinded.zip"
 MF_SHA256 = "MF_sharpe_uvif_sha256.txt"
+PAPER_TITLE = "Sharpe-Ratio Inference at the Date Boundary in Financial Panels"
 FORBIDDEN_PARTS = {
     "venv",
     ".venv",
@@ -310,7 +311,7 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
     (journal / MF_COVER_LETTER).write_text(
         "# Cover Letter\n\n"
         "Dear Editor,\n\n"
-        "Please consider the manuscript, \"Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels,\" for publication as an Article in Modern Finance.\n\n"
+        f"Please consider the manuscript, \"{PAPER_TITLE},\" for publication as an Article in Modern Finance.\n\n"
         "The paper is a financial econometrics methodology study. It examines how Sharpe-ratio evidence can be misstated when selected rows in an entity-time panel are treated as independent observations even though the economically relevant payoff is a date-level portfolio return. The paper proposes Sharpe UVIF, a diagnostic comparing row-pooled IID Sharpe uncertainty with date-level long-run Sharpe uncertainty, and evaluates the problem using date aggregation, HAC-delta inference, dependent bootstrap procedures, public benchmark applications, and Monte Carlo evidence.\n\n"
         "The empirical illustrations use public Kenneth French and AQR data, while the simulations show that row-naive testing can substantially overreject under dependence. The manuscript is positioned as a methods paper for evaluating panel-based Sharpe evidence rather than as a new anomaly or trading-rule paper.\n\n"
         "The submission is original, is not under consideration elsewhere, and has not been published in a peer-reviewed outlet. Separate blinded manuscript files, a separate blinded appendix, an anonymized replication ZIP, and a separate title page have been prepared in accordance with the journal's review requirements.\n\n"
@@ -327,7 +328,7 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
     )
     (journal / MF_TITLE_PAGE).write_text(
         "# Title Page\n\n"
-        "Title: Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels\n\n"
+        f"Title: {PAPER_TITLE}\n\n"
         "Author: Dhananjay S. Chauhan\n\n"
         "Affiliation: Independent Researcher, India\n\n"
         "Corresponding author: Dhananjay S. Chauhan, Independent Researcher, India\n\n"
@@ -345,7 +346,7 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
         encoding="utf-8",
     )
     (root / "README.md").write_text(
-        "# Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels\n\n"
+        f"# {PAPER_TITLE}\n\n"
         "This repository contains the public manuscript, technical appendix, aggregate public artifacts, and reproducibility code for the paper.\n\n"
         "Public repository: https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence\n\n"
         "## Main Files\n\n"

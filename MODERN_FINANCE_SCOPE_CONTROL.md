@@ -9,10 +9,11 @@ inference, public benchmark and stress-test evidence, a synthetic positive
 control, and Monte Carlo overrejection checks.
 
 The Deep Research agenda is a future version-3 roadmap, not a requirement for
-this submission.  Do not add CRSP/Compustat evidence, firm-level universes,
-large anomaly-panel replications, variable selected-count asymptotics,
-menu-uniform theory, heavy-tail suites, structural-break suites, or new
-estimator-theory theorem sets before the Modern Finance submission.
+this submission.  Do not add new commercial database evidence, large
+security-level universes, large anomaly-panel replications, variable
+selected-count asymptotics, menu-uniform theory, heavy-tail suites,
+structural-break suites, or new estimator-theory theorem sets before the
+Modern Finance submission.
 
 Any final pre-submission edits should be containment edits only: narrow claims,
 keep cost language as turnover-cost sensitivity, keep degenerate permutation

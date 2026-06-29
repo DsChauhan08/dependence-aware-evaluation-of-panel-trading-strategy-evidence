@@ -1,7 +1,7 @@
 # Reproducibility Instructions
 
 This package reproduces the public-data and simulation evidence for
-`Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels`.
+`Sharpe-Ratio Inference at the Date Boundary in Financial Panels`.
 
 Public repository:
 https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence

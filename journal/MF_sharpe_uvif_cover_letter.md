@@ -2,7 +2,7 @@
 
 Dear Editor,
 
-Please consider the manuscript, "Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels," for publication as an Article in Modern Finance.
+Please consider the manuscript, "Sharpe-Ratio Inference at the Date Boundary in Financial Panels," for publication as an Article in Modern Finance.
 
 The paper is a financial econometrics methodology study. It examines how Sharpe-ratio evidence can be misstated when selected rows in an entity-time panel are treated as independent observations even though the economically relevant payoff is a date-level portfolio return. The paper proposes Sharpe UVIF, a diagnostic comparing row-pooled IID Sharpe uncertainty with date-level long-run Sharpe uncertainty, and evaluates the problem using date aggregation, HAC-delta inference, dependent bootstrap procedures, public benchmark applications, and Monte Carlo evidence.
 

@@ -9,6 +9,26 @@ stationary, and Romano-Wolf procedures stay much closer to size.
 \begin{table}[!htbp]
 \centering
 \small
+\caption{Monte Carlo design contract.}
+\label{tab:simulation-contract}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llllllllll}
+\toprule
+Design & T & N & Selected count & XS dep. & Serial dep. & Heterosk. & Reps & Resampling & Seed \\
+\midrule
+IID null & 1000 & 50 & all rows & rho=0 & AR(1)=0 & none & 1000 & 5000 boot & rep index \\
+Dependent null & 1000 & 50 & all rows & rho=0.2 & AR(1)=0.2 & none & 1000 & 5000 boot & rep index \\
+GARCH null & 1000 & 50 & all rows & rho=0.2 & AR(1)=0.2 & GARCH(0.05,0.90) & 1000 & 5000 boot & rep index \\
+Positive control & 5000 & 100 & signal-selected rows & common loading=0.50 & AR(1)=0.10 & none & 100 & 499 boot & 777 \\
+\bottomrule
+\end{tabular}%
+}
+\par\footnotesize\emph{Note:} All null designs have true Sharpe equal to zero. Positive-control rows use a declared nonzero signal and are included to show that the reporting rule is not mechanically anti-discovery.
+\end{table}
+
+\begin{table}[!htbp]
+\centering
+\small
 \caption{Monte Carlo and resampling settings.}
 \label{tab:simulation-settings}
 \resizebox{\textwidth}{!}{%
