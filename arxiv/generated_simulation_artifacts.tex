@@ -127,34 +127,27 @@ DGP & Name & row coverage & bias vs date SR & CI width & mean SE & n \\
 \begin{table}[!htbp]
 \centering
 \small
-\caption{Target-boundary design sweeps over same-date correlation and selected-count pressure.}
+\caption{Sampling-boundary stress tests under a zero-edge null.}
 \label{tab:design-sweeps}
 \resizebox{\textwidth}{!}{%
-\begin{tabular}{lllllllll}
+\begin{tabular}{llllll}
 \toprule
-design & method & rej. & SE & bias & mean interval SE & N & rho & n \\
+Panel & Setting & Row rej. & HAC rej. & Row mean SE & HAC mean SE \\
 \midrule
-rho=0.5, N=50 & row\_naive & 0.409 & 0.016 & 0.004 & 0.071 & 50 & 0.500 & 1000 \\
-rho=0.5, N=50 & hac\_delta & 0.047 & 0.007 & 0.005 & 0.597 & 50 & 0.500 & 1000 \\
-rho=0.1, N=50 & row\_naive & 0.310 & 0.015 & 0.011 & 0.071 & 50 & 0.100 & 1000 \\
-rho=0.1, N=50 & hac\_delta & 0.064 & 0.008 & 0.031 & 0.598 & 50 & 0.100 & 1000 \\
-rho=0.0, N=50 & row\_naive & 0.097 & 0.009 & 0.002 & 0.071 & 50 & 0.000 & 1000 \\
-rho=0.0, N=50 & hac\_delta & 0.056 & 0.007 & 0.017 & 0.598 & 50 & 0.000 & 1000 \\
-rho=0.3, N=50 & row\_naive & 0.354 & 0.015 & 3.82e-04 & 0.071 & 50 & 0.300 & 1000 \\
-rho=0.3, N=50 & hac\_delta & 0.044 & 0.006 & 9.09e-05 & 0.599 & 50 & 0.300 & 1000 \\
-N=5, rho=0.35 & row\_naive & 0.192 & 0.012 & -0.013 & 0.225 & 5 & 0.350 & 1000 \\
-N=5, rho=0.35 & hac\_delta & 0.058 & 0.007 & -0.018 & 0.598 & 5 & 0.350 & 1000 \\
-N=25, rho=0.35 & row\_naive & 0.308 & 0.015 & -0.016 & 0.100 & 25 & 0.350 & 1000 \\
-N=25, rho=0.35 & hac\_delta & 0.052 & 0.007 & -0.026 & 0.600 & 25 & 0.350 & 1000 \\
-rho=0.7, N=50 & row\_naive & 0.408 & 0.016 & 0.004 & 0.071 & 50 & 0.700 & 1000 \\
-rho=0.7, N=50 & hac\_delta & 0.060 & 0.008 & 0.004 & 0.599 & 50 & 0.700 & 1000 \\
-N=50, rho=0.35 & row\_naive & 0.368 & 0.015 & -1.05e-04 & 0.071 & 50 & 0.350 & 1000 \\
-N=50, rho=0.35 & hac\_delta & 0.071 & 0.008 & -5.58e-05 & 0.597 & 50 & 0.350 & 1000 \\
-N=100, rho=0.35 & row\_naive & 0.421 & 0.016 & -0.002 & 0.050 & 100 & 0.350 & 1000 \\
-N=100, rho=0.35 & hac\_delta & 0.056 & 0.007 & -0.003 & 0.598 & 100 & 0.350 & 1000 \\
+A. Same-date correlation (N=50) & rho=0.000 & 0.097 & 0.056 & 0.071 & 0.598 \\
+A. Same-date correlation (N=50) & rho=0.100 & 0.310 & 0.064 & 0.071 & 0.598 \\
+A. Same-date correlation (N=50) & rho=0.300 & 0.354 & 0.044 & 0.071 & 0.599 \\
+A. Same-date correlation (N=50) & rho=0.350 & 0.368 & 0.071 & 0.071 & 0.597 \\
+A. Same-date correlation (N=50) & rho=0.500 & 0.409 & 0.047 & 0.071 & 0.597 \\
+A. Same-date correlation (N=50) & rho=0.700 & 0.408 & 0.060 & 0.071 & 0.599 \\
+B. Selected count (rho=0.35) & N=5 & 0.192 & 0.058 & 0.225 & 0.598 \\
+B. Selected count (rho=0.35) & N=25 & 0.308 & 0.052 & 0.100 & 0.600 \\
+B. Selected count (rho=0.35) & N=50 & 0.368 & 0.071 & 0.071 & 0.597 \\
+B. Selected count (rho=0.35) & N=100 & 0.421 & 0.056 & 0.050 & 0.598 \\
 \bottomrule
 \end{tabular}%
 }
+\par\footnotesize\emph{Note:} Row-naive overrejection rises with same-date dependence and selected-count pressure, whereas date-level HAC remains close to nominal size.
 \end{table}
 
 \begin{table}[!htbp]

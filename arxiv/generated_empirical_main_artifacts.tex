@@ -3,19 +3,19 @@
 
 The panel-candidate table reports only sources with row-level
 signal-return structure and therefore eligibility for the composite
-panel audit gate.  The single-series benchmark table reports pre-aggregated
+panel rule.  The single-series benchmark table reports pre-aggregated
 factor returns separately; those rows are time-series benchmarks, not
-failed panel-audit candidates.
+failed panel candidates.
 
 \begin{table}[!htbp]
 \centering
 \small
-\caption{Panel candidates subject to the composite audit gate.}
+\caption{Panel candidates subject to the composite reporting rule.}
 \label{tab:panel-candidates}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lllllllll}
 \toprule
-Panel candidate & SR & HAC p+ & Boot p+ & RW p & Perm p & Net SR & Audit gate 5\% & Applicable checks 5\% \\
+Panel candidate & SR & HAC p+ & Boot p+ & RW p & Perm p & Net SR & Full rule 5\% & Applicable checks 5\% \\
 \midrule
 French momentum deciles, rank-threshold panel & 0.447 & 7.54e-05 & 2.00e-04 & 2.00e-04 & N/A & 0.447 & no & yes \\
 French WML decile benchmark & 0.497 & 5.53e-06 & 2.00e-04 & 2.00e-04 & 1.00e-04 & 0.497 & yes & yes \\
@@ -42,7 +42,7 @@ AQR Value and Momentum Everywhere & 0.572 & 1.62e-04 & 2.00e-04 & 2.00e-04 & tim
 \bottomrule
 \end{tabular}%
 }
-\par\footnotesize\emph{Note:} Time-series only means not eligible for same-date permutation, row-retention diagnostics, or the composite panel audit gate.
+\par\footnotesize\emph{Note:} Time-series only means not eligible for same-date permutation, row-retention diagnostics, or the composite panel rule.
 \end{table}
 
 The benchmark validation table shows that the panel implementation
@@ -64,23 +64,46 @@ French WML decile benchmark & 0.900 & 26131 & 1926-11-04 & 2026-04-30 & 0.497 & 
 }
 \end{table}
 
-The dependence audit table summarizes the boundary directly: row-level
-evidence can disappear once same-date redundancy, placebo evidence,
-and turnover-scaled net Sharpe are evaluated together.
+The comparator table makes the standard-practice contrast explicit:
+row-naive evidence is shown next to date-level HAC and bootstrap
+inference on the portfolio return series.
 
 \begin{table}[!htbp]
 \centering
 \small
-\caption{Dependence audit summary for panel candidates.}
+\caption{Comparison with common row and date-level inference choices for panel candidates.}
+\label{tab:standard-comparator}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{llllll}
+\toprule
+Panel candidate & row p+ & date-IID p+ & date-HAC p+ & block p+ & UVIF \\
+\midrule
+French momentum deciles, rank-threshold panel & 1.70e-04 & 2.00e-04 & 7.54e-05 & 2.00e-04 & 1.000 \\
+French WML decile benchmark & 4.85e-04 & 2.00e-04 & 5.53e-06 & 2.00e-04 & 1.000 \\
+French 25 Size/BM, skipped-momentum panel & 0.253 & 0.417 & 0.412 & 0.422 & 9.002 \\
+\bottomrule
+\end{tabular}%
+}
+\par\footnotesize\emph{Note:} The row-naive column treats selected rows as independent. Date-IID, date-HAC, and block-bootstrap columns operate on the date-level portfolio return series.
+\end{table}
+
+The sampling-boundary table summarizes the boundary directly:
+row-level evidence can disappear once same-date redundancy, placebo
+evidence, and turnover-scaled net Sharpe are evaluated together.
+
+\begin{table}[!htbp]
+\centering
+\small
+\caption{Sampling-boundary summary for panel candidates.}
 \label{tab:dependence-audit}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{llllll}
 \toprule
-Candidate & Row p+ & UVIF & Audit p+ & Net SR & Status \\
+Candidate & Row p+ & UVIF & Max p+ & Net SR & Status \\
 \midrule
 French momentum deciles, rank-threshold panel & 1.70e-04 & 1.000 & 2.00e-04 & 0.447 & Permutation uninformative; applicable checks pass \\
-French WML decile benchmark & 4.85e-04 & 1.000 & 2.00e-04 & 0.497 & Passes composite gate \\
-French 25 Size/BM, skipped-momentum panel & 0.253 & 9.002 & 0.943 & -0.050 & Fails statistical and cost gates \\
+French WML decile benchmark & 4.85e-04 & 1.000 & 2.00e-04 & 0.497 & Passes full rule \\
+French 25 Size/BM, skipped-momentum panel & 0.253 & 9.002 & 0.943 & -0.050 & Fails statistical and cost checks \\
 \bottomrule
 \end{tabular}%
 }
@@ -94,7 +117,7 @@ claim.
 \begin{table}[!htbp]
 \centering
 \small
-\caption{Horizon-effect audit for the dynamic Size/BM momentum panel.}
+\caption{Horizon-effect sensitivity for the dynamic Size/BM momentum panel.}
 \label{tab:horizon-effect}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{llllllllll}

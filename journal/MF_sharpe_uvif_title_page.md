@@ -14,6 +14,6 @@ ORCID: https://orcid.org/0009-0003-1049-2213
 
 Public repository: https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence
 
-Keywords: Sharpe ratio; sampling-boundary distortion; financial econometrics; panel data; cross-sectional dependence; serial dependence; HAC inference; dependent bootstrap; multiple testing; portfolio signal evaluation
+Keywords: Sharpe ratio; panel data; cross-sectional dependence; serial dependence; bootstrap inference; portfolio evaluation; date-level portfolio returns
 
 JEL Codes: C12; C15; G11; G12; G17

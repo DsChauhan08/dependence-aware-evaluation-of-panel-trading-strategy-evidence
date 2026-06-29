@@ -71,25 +71,24 @@ Researcher, India.\\
 \fi
 
 \begin{abstract}
-Entity-time financial panels can be mis-evaluated when same-date
-selected rows are treated as independent observations even though the
-payoff object is a date-level portfolio return. This paper formalizes
-that row-to-date sampling-boundary distortion for Sharpe-ratio evidence
-and defines Sharpe UVIF, an uncertainty ratio comparing row-pooled IID
-Sharpe inference with date-level long-run Sharpe inference. The main
-inferential object is the date-level return series, evaluated with
-HAC-delta and dependent-bootstrap procedures. In dependent-null
+Selected rows in financial panels are sometimes evaluated as if they
+were independent observations even though the economically relevant
+payoff is a date-level portfolio return. This paper studies the
+resulting distortion in Sharpe-ratio evidence. It defines Sharpe UVIF,
+the ratio between date-level long-run Sharpe uncertainty and the
+row-pooled IID uncertainty that would be reported under independent
+selected rows. The analysis is conducted on the date-level return series
+using HAC-delta and dependent-bootstrap inference. In dependent-null
 simulations, row-naive testing rejects about 35 percent of the time at a
-nominal 5 percent level, whereas date-level dependence-aware procedures
-remain near nominal size. Public Kenneth French panels and AQR
-pre-aggregated factor series illustrate when the boundary correction
-preserves canonical WML evidence and when weaker stress cases fail.
+nominal 5 percent level, while date-level dependence-aware procedures
+remain close to nominal size. Public Kenneth French panels and AQR
+factor series illustrate when correcting the sampling boundary preserves
+strong evidence and when weaker claims do not survive.
 \end{abstract}
 
-\noindent\textbf{Keywords:} Sharpe ratio; sampling-boundary distortion; financial
-econometrics; panel data; cross-sectional dependence; serial dependence;
-HAC inference; dependent bootstrap; date-level portfolio returns;
-multiple testing; portfolio signal evaluation
+\noindent\textbf{Keywords:} Sharpe ratio; panel data; cross-sectional dependence;
+serial dependence; bootstrap inference; portfolio evaluation; date-level
+portfolio returns
 
 \noindent\textbf{JEL Codes:} C12; C15; G11; G12; G17
 
@@ -111,11 +110,11 @@ to evaluate a positive edge using all selected symbol-date rows as
 though they were independent.  This turns a panel with \(T\) dates and
 \(n_t\) selected rows per date into a nominal sample of \(\sum_t n_t\),
 even when same-date rows share common shocks.  This row-level benchmark
-is retained only as the audit baseline against which date-level inference
-is compared.  The failure is not merely a standard-error choice; it
+is retained only as the diagnostic baseline against which date-level
+inference is compared.  The failure is not merely a standard-error choice; it
 changes the sampling unit from dates to rows.
-Row-pooled inference is used here as a diagnostic failure mode, not as a
-description of best-practice empirical asset pricing.
+The row-pooled construction is used here as a diagnostic baseline, not
+as a characterization of good empirical practice.
 
 The issue extends beyond a single trading-strategy application.  Factor
 screens, anomaly panels, model-selection procedures, and automated
@@ -172,27 +171,27 @@ variance inflation factor for the nonlinear Sharpe ratio.  Sharpe UVIF
 is interpreted as a reported-uncertainty ratio between row-pooled IID
 Sharpe inference and date-level long-run Sharpe inference.
 
-\subsection{Solution: Dependence-aware inference}
+\subsection{Contribution and empirical approach}
 
-This paper makes three contributions.  First, it formalizes
-sampling-boundary distortion for Sharpe-ratio evidence by linking
-row-pooled IID Sharpe inference to date-level long-run Sharpe inference.
-Unlike mean-only design effects, the Sharpe UVIF diagnostic applies the
-delta method to the nonlinear Sharpe functional and therefore carries the
-long-run covariance of both returns and squared returns into the
-uncertainty calculation.  Second, it embeds this variance accounting in a
-registry-defined evaluation design that separates cross-sectional row
-multiplication from serial dependence in date-level portfolio returns.
-Third, the Monte Carlo experiments quantify the size distortion from
-row-naive inference, while the public benchmark panels show how the same
-boundary logic changes empirical interpretation.
+This paper contributes to financial econometrics in three ways.  First,
+it shows that Sharpe-ratio evidence from selected panel rows can be
+distorted when same-date observations are treated as independent even
+though the relevant payoff is a date-level portfolio return.  Second, it
+proposes Sharpe UVIF, a diagnostic that compares row-pooled reported
+Sharpe uncertainty with date-level long-run uncertainty and extends
+standard design-effect logic to the nonlinear Sharpe functional.  Third,
+using public Kenneth French panels, AQR factor series, and Monte Carlo
+designs, it shows that dependence-aware date-level inference can
+preserve strong benchmark evidence while overturning weaker panel claims
+that rely on row multiplication.
 
 The empirical section checks the implementation on canonical French
 WML, evaluates French panel stress cases, and reports AQR factor
 benchmarks as time-series-only evidence.  The public Kenneth French and
-AQR evidence is rendered from registry-defined reproducibility artifacts.
+AQR evidence is based on documented public data sources and reproduction
+files.
 The conservative empirical question is whether apparently significant
-portfolio-signal claims are artifacts of row-level sampling and
+portfolio-signal claims owe their precision to row-level sampling and
 disappear after date aggregation, dependence adjustment, and
 researcher-menu correction.
 The replication code also runs a Monte Carlo study comparing row-naive
@@ -247,17 +246,17 @@ evidence, has the sampling unit been moved from selected entity-date
 rows to the date-level return that can be interpreted as
 portfolio-performance evidence?
 
-\section{Sampling-boundary framework}
+\section{Methods and empirical design}
 \label{sec:method}
 
-The framework is a dependence-aware inference design rather than a
+The method is a dependence-aware inference design rather than a
 single test.  Its first channel is cross-sectional: all evidence is
 translated from selected symbol-date rows into one economically
 interpretable date-level portfolio return, so same-date clusters cannot
 create sample size by row multiplication.  Its second channel is serial: all
 Sharpe decisions are made on the date-return series using HAC-delta and
 dependent-bootstrap procedures.  For panel candidates with row-level
-signal-return pairs, the confirmatory implementation reports both
+signal-return pairs, the empirical implementation reports both
 channels before adding researcher-menu, placebo, factor-alpha, and
 turnover-cost sensitivity diagnostics.
 
@@ -283,7 +282,10 @@ the confirmatory analysis estimates uncertainty for the realized
 date-return series \(\{R_t\}\).  In the empirical implementation,
 weights are normalized to the declared gross-exposure convention before
 returns are computed.  Unless otherwise stated, rendered public panel
-artifacts use unit gross exposure within the selected signed-return set.
+tables use unit gross exposure within the selected signed-return set.
+For signed long-short rows, the selected positive and negative signs are
+combined into one unit-gross portfolio on each active date; dates with no
+selected row receive no active portfolio return.
 
 In the public equal-weight threshold implementation, optional
 non-negative weights \(a_{t,i}\) are normalized within the selected set
@@ -321,7 +323,7 @@ return for the decision date after subtracting the applicable risk-free
 rate when the source is not already a long-short excess-return series.
 Let \(A_f\) denote the source-specific annualization factor: \(A_f=252\)
 for daily sources and \(A_f=12\) for monthly sources in the public
-registry.
+configuration.
 Let \(g_u=(R_u,R_u^2)'\),
 \(\hat\mu=T_R^{-1}\sum_u R_u\),
 \(\hat m_2=T_R^{-1}\sum_u R_u^2\), and
@@ -386,7 +388,7 @@ is reported alongside bootstrap \(p\)-values and intervals.  When HAC
 and dependent-bootstrap conclusions disagree, the result is reported as
 robustness-fragile rather than summarized as a positive-edge finding.
 
-\section{Audit protocol and implementation}
+\section{Data, implementation, and decision rules}
 
 \subsection{Public-panel momentum implementation}
 
@@ -414,7 +416,7 @@ set is
 \]
 The percentile score is a baseline screening rule, not an optimal
 weighting theorem.  Tie handling, one-name dates, and selected-count
-granularity are reported in the appendix and replication artifacts.
+granularity are reported in the appendix and replication files.
 
 \subsection{Researcher menus, placebos, and factor alpha}
 
@@ -424,11 +426,11 @@ joint adjustment is Romano-Wolf stepdown max-\(t\) resampling over
 \(p\)-values and White's Reality Check are secondary diagnostics.  The
 Deflated Sharpe Ratio diagnostic of \citet{bailey2014probability} is
 reported as an additional selection-bias check.
-In the public campaign, the menu is the finite registry-defined set
+In the public implementation, the menu is the finite pre-specified set
 \[
   \mathcal M=\{(c,\theta_c,\tau):c\in\mathcal C,\ \tau\in\mathcal T_c\},
 \]
-where \(\theta_c\) denotes the candidate's frozen signal definition.
+where \(\theta_c\) denotes the candidate's fixed signal definition.
 For panel candidates, \(\mathcal T_c=\{0.0,0.3,0.5,0.7,0.9\}\) and
 any lookback and skip values are fixed in \path{code/campaign_registry.json}
 rather than selected after seeing results.  Pre-aggregated AQR factor-series
@@ -462,15 +464,15 @@ returns \(r_{t+1,i}\) is exchangeable within each date \(t\).  If signals
 are structurally tied to size, sector, liquidity, country, exchange,
 beta, or other common-factor state variables, an unrestricted same-date
 permutation can break the wrong null.  In those cases the analysis should
-permute within registry-defined blocks, residualize returns against the
+permute within pre-specified blocks, residualize returns against the
 structural variables before permutation, or mark the placebo as not
-applicable.  The permutation gate is therefore a design-specific
+applicable.  The permutation check is therefore a design-specific
 diagnostic rather than a universal validity guarantee.
 If the permutation null has near-zero dispersion, the placebo is treated
 as uninformative for that threshold rather than as calibrated evidence
 for or against predictability.  Such a diagnostic is reported as N/A: it
 is not counted as a permutation failure, and it is not sufficient for a
-full composite-gate pass.
+full composite-rule pass.
 
 The factor-alpha test estimates
 \begin{equation}
@@ -482,7 +484,7 @@ using HAC standard errors.  The null is \(H_0:\alpha\le0\).  Including
 momentum is essential because the public signal is itself momentum-like.
 The factor-alpha regression uses frequency-matched public factor returns
 and the same HAC lag rule as the main Sharpe analysis.  The alpha table
-is a diagnostic rather than the main gate for canonical benchmark
+is a diagnostic rather than the main test for canonical benchmark
 validation.
 
 \subsection{Turnover-scaled costs}
@@ -521,9 +523,9 @@ implementation costs when liquidity demand is material.  They are not a
 full execution model for high-frequency, capacity-constrained, or
 illiquid strategies.  Such
 applications require spread, impact, latency, borrow, and capacity
-models before any tradability claim.  This is a conservative cost-stress
-screen, not a tradability certificate.
-The empirical artifacts also report the break-even cost in basis points,
+models before any implementation claim.  This is a conservative
+cost-stress screen, not an execution model.
+The empirical tables also report the break-even cost in basis points,
 defined by \(\hat\mu-\widehat{TO}c=0\).  An optional square-root impact
 sensitivity extension in the spirit of \citet{almgren2001optimal} and the broader
 market-impact literature \citep{bouchaud2008markets} is provided in the
@@ -531,16 +533,16 @@ technical appendix.  The public sorted-portfolio examples do not contain
 average daily volume or order-size information, so they do not support a
 capacity claim.
 
-\subsection{Composite audit-gate decision}
+\subsection{Composite reporting rule}
 
-The protocol reports component diagnostics, and the registry-defined
+The implementation reports component diagnostics, and the pre-specified
 summary rule is deliberately stricter than any single statistic.  The
-audit gate is a reproducible reporting rule: a candidate is first
+composite rule is a conservative reporting rule: a candidate is first
 evaluated at the date-level statistical boundary, then with
 dependent-bootstrap robustness, researcher-menu adjustment, same-date
 placebo evidence, and turnover-cost sensitivity.  A candidate is reported
-as passing the full composite audit only if all applicable diagnostics
-are informative and it clears the registry-defined gate:
+as passing the full composite rule only if all applicable diagnostics
+are informative and it clears the pre-specified thresholds:
 \[
   p_{\mathrm{boot}}\le \alpha,\qquad
   p_{\mathrm{perm}}\le \alpha,\qquad
@@ -552,27 +554,27 @@ If the same-date permutation null is degenerate or otherwise
 uninformative, the candidate is reported separately as passing or failing
 the remaining applicable checks; it is not classified as a full
 composite pass.
-This is a conservative registry-defined reporting policy, not a uniformly
-most powerful test, an optimal weighted test, or a claim that the gates
-exhaust all possible failure modes.  The gates
+This is a conservative reporting policy, not a uniformly
+most powerful test, an optimal weighted test, or a claim that the checks
+exhaust all possible failure modes.  The checks
 are conjunctive because each one addresses a different reason a
 performance claim can fail: bootstrap-fragile Sharpe evidence, a placebo-consistent
 signal, dependence-adjusted insignificance, researcher-menu selection,
 or nonpositive net Sharpe after turnover-cost sensitivity.
 Applications with different decision costs may choose different rules
-ex ante, but they should not choose the gate sequence after seeing the
+ex ante, but they should not choose the rule sequence after seeing the
 results.  The component diagnostics are reported so readers can apply
 less conservative decision rules.
-The reported artifacts make the gate threshold reproducible: in addition to
+The reported tables make the threshold reproducible: in addition to
 the conventional \(\alpha=0.05\), a reader can recompute pass counts at
 stricter levels such as \(\alpha=0.01\) without changing the statistical
 objects being tested.
-The same-date permutation gate is a panel placebo: it is applicable only
+The same-date permutation check is a panel placebo: it is applicable only
 when row-level signals can be permuted within date.  Pre-aggregated
 factor series can still be economically interesting and can pass
 HAC-delta or Romano-Wolf tests, but they do not contain the row-level
 signal panel needed for this placebo.  Such cases are reported as not
-applicable for the permutation gate rather than as passed panel evaluations.
+applicable for the permutation check rather than as passed panel evaluations.
 
 The stages have different interpretations.  The permutation diagnostic asks
 whether the signal-return pairing beats a same-date placebo.  The HAC
@@ -587,7 +589,7 @@ holdout, subperiod, and stationarity diagnostics are reported alongside
 these checks to prevent a single favorable statistic from becoming the
 claim.
 
-\section{Sharpe UVIF theory}
+\section{Sharpe UVIF method}
 
 \subsection{Mean-return special case}
 \label{sec:theory}
@@ -830,13 +832,13 @@ delta-method construction extends the moment vector from
 higher-moment UVIF is the ratio of the adjusted-Sharpe long-run variance
 at the date-return boundary to the corresponding row-pooled IID variance.
 It is reported as a tail-risk diagnostic, not as an additional rejection
-gate.  The full expression is in the technical appendix.
+rule.  The full expression is in the technical appendix.
 
 \subsection{Descriptive row-retention diagnostics}
 
 The appendix reports Effective Row Information Retention (ERIR) as a
 descriptive design-effect diagnostic.  ERIR is not a rejection rule, is
-not used in the main composite gate, and is reported separately from the
+not used in the main composite rule, and is reported separately from the
 one-sided floored UVIF values in the main dependence table.
 
 \begin{assumption}[Fixed-menu bootstrap validity]
@@ -885,7 +887,7 @@ The reporting rule is not mechanically anti-discovery.  To check that the
 composite criteria can pass a true signal, a synthetic panel is generated
 with a persistent predictive signal, moderate same-date dependence, and
 serial dependence in the date-level returns.  The signal is constructed
-before inference is run, the same date-aggregation and audit criteria are
+before inference is run, the same date-aggregation and reporting criteria are
 applied, and the resulting positive-control candidate passes HAC,
 Romano-Wolf, and same-date permutation checks.  This calibration is not
 used as evidence for a public trading strategy; it shows that the
@@ -896,55 +898,58 @@ The positive-control DGP uses \(T=5000\) dates and \(N=100\) entities,
 annual alpha \(0.12\) (daily alpha \(0.12/252\)), idiosyncratic
 volatility \(0.01\), common-factor loading \(0.50\), AR(1) common-factor
 coefficient \(0.10\), signal-stay probability \(0.98\), and seed 777.
-The generated artifact records the bootstrap and permutation counts used
+The generated output records the bootstrap and permutation counts used
 for the detailed run and reports a lower-resolution replication screen
 as a power sanity check.  The design is intentionally simple: it is a
-representative known-edge calibration check for the audit criteria, not
+representative known-edge calibration check for the reporting criteria, not
 a model of any public anomaly.
 
 \input{generated_positive_control_artifacts.tex}
 
 \paragraph{Appendix material.}
 The worked numerical example, full proof details, positive-control data
-generation notes, and secondary robustness artifacts are reported in the
+generation notes, and secondary robustness tables are reported in the
 technical appendix.  The main manuscript keeps only the decision rule
 and the evidence needed to evaluate it.
 
-\section{Public benchmark and stress-test evidence}
+\section{Results: public benchmarks and stress tests}
 \label{sec:empirical}
 
-The public experiment is a registry-defined candidate campaign rather than
-a single example.  It evaluates the canonical Kenneth French
+The public evidence is illustrative rather than a broad anomaly-panel
+survey.  It evaluates the canonical Kenneth French
 winner-minus-loser momentum decile benchmark, a broader Kenneth French
 decile-rank threshold profile, Kenneth French 25 Size/BM portfolios with
 a skipped-momentum signal, and public AQR value, momentum, quality, beta,
 and HML-style factor candidates.  The AQR series are economically meaningful
 factor-series benchmarks, but they are pre-aggregated series rather than
-row-level constituent panels; when the same-date permutation gate cannot
-be applied, the benchmark is outside the composite panel-audit gate.  The
+row-level constituent panels; when the same-date permutation check cannot
+be applied, the benchmark is outside the composite panel rule.  The
 main tables therefore separate panel candidates from single-series
 factor benchmarks.  Failed public-data access attempts are kept in the
-provenance artifacts rather than treated as main empirical results.
+provenance files rather than treated as main empirical results.
 
 Table \ref{tab:panel-candidates} reports row-level panel candidates
-subject to the composite audit gate.  Table
+subject to the composite reporting rule.  Table
 \ref{tab:single-series-benchmarks} reports
 pre-aggregated factor benchmarks subject to time-series inference only.
 Table \ref{tab:momentum-benchmark} verifies that the canonical WML
 candidate matches the direct French winner-minus-loser decile benchmark.
-Table \ref{tab:dependence-audit} gives the dependence audit
-summary using row \(p\)-values, displayed UVIF, audit \(p\)-values, and
+Table \ref{tab:standard-comparator} compares the row-naive report,
+date-level HAC inference, dependent-bootstrap inference, and Sharpe UVIF
+for the panel candidates.  Table \ref{tab:dependence-audit} gives the
+sampling-boundary summary using row \(p\)-values, displayed UVIF,
+conservative maximum \(p\)-values, and
 net Sharpe status for panel candidates.  Table \ref{tab:horizon-effect}
-reports the targeted \(L=1,5,21\) horizon-effect audit for the dynamic
+reports the targeted \(L=1,5,21\) horizon-effect sensitivity for the dynamic
 Size/BM momentum panel.  The technical appendix reports the full
 secondary table set: sampling-boundary diagnostics, same-date
 permutation details, HAC bandwidth/prewhitening/fixed-\(b\) robustness,
-gate sensitivity, holdout splits, and cost sweeps.
+rule sensitivity, holdout splits, and cost sweeps.
 The production metadata include the SHA256 hash of
 \path{code/campaign_registry.json}; this hash is the reproducibility
-record for the frozen public sources, candidate types, source
+record for the fixed public sources, candidate types, source
 frequencies, annualization factors, thresholds, lookbacks, skips, and
-eligibility rules used in the rendered campaign.
+eligibility rules used in the reported tables.
 
 The factor-alpha, data-snooping, stationarity, holdout, and cost tables
 are secondary diagnostics, not replacements for the primary date-return
@@ -954,18 +959,18 @@ placebos, or plausible costs should not be interpreted as reliable
 portfolio-performance evidence.  This is the empirical implication of
 the sampling-boundary design: familiar
 public candidates can look attractive at one boundary and fail at the
-composite decision boundary.
+date-level decision boundary.
 
 \input{generated_empirical_main_artifacts.tex}
 
-The campaign separates benchmark validation from broader search
+The public illustrations separate benchmark validation from broader search
 claims.  The canonical French WML candidate is expected to match the
 direct Kenneth French winner-minus-loser decile construction and is
-reported as a public benchmark check.  Its audit-gate pass does not
+reported as a public benchmark check.  Its composite-rule pass does not
 undermine the sampling-boundary argument; it shows that the claim
 boundary can preserve canonical date-level evidence when the signal is
 strong enough and the placebo, menu, dependence, and cost diagnostics do
-not overturn it.  In the rendered campaign, the WML panel Sharpe matches
+not overturn it.  In the reported output, the WML panel Sharpe matches
 the direct WML Sharpe at approximately 0.50; the scale difference is
 exactly one-half because the panel portfolio holds equal long and short
 legs while the direct WML series is winner minus loser.  The broader
@@ -977,7 +982,7 @@ reported HAC and block-bootstrap diagnostics, but because they are
 pre-aggregated factor returns rather than row-level signal panels, they
 are not classified as passed panel-evaluation candidates.
 
-The horizon-effect audit shows that the dynamic Size/BM momentum stress
+The horizon-effect sensitivity shows that the dynamic Size/BM momentum stress
 case fails because of weak signal and execution drag, not because the
 canonical momentum benchmark is missing.  At threshold 0.5, \(L=1\)
 has very high turnover and a negative 5 bps net Sharpe; \(L=21\) lowers
@@ -987,14 +992,14 @@ The empirical Sharpe UVIF relative to row-naive inference is about
 one in this sample.  Thus the dominant inflation channel in this public
 stress panel is cross-sectional row multiplication; a longer lookback
 does not mechanically make serial dependence the dominant force.
-The dependence audit summary is intentionally artifact-backed rather than
-illustrative.  It does not assert that every named factor is a panel
+The sampling-boundary summary is intentionally limited to rows with the
+needed public panel structure.  It does not assert that every named factor is a panel
 candidate.  Pre-aggregated AQR factor series are excluded from that
 table because they do not provide row-level signal-return pairs from
 which row \(p\)-values, same-date permutation tests, or panel
 row-retention diagnostics can be computed.
 
-\section{Monte Carlo evidence}
+\section{Results: Monte Carlo evidence}
 \label{sec:simulation}
 
 The Monte Carlo study is designed as a size-and-power check of the
@@ -1013,7 +1018,7 @@ volatility, multifactor exposure, and regime switching.  The
 high-persistence AR(1) case is reported as such; it is not labeled as a
 long-memory design.  The high-volatility GARCH case is not described as
 an infinite-variance heavy-tail design.
-The production campaign uses \(1000\) Monte Carlo replications for the
+The simulation uses \(1000\) Monte Carlo replications for the
 displayed size and rejection-rate tables, \(T=1000\) dates and \(N=50\)
 entities in the main null designs, \(5000\) bootstrap draws per
 simulation, and seed-indexed replications generated from the simulation
@@ -1022,8 +1027,8 @@ block-length rule reported in Table \ref{tab:simulation-settings}: for
 moving-block bootstrap,
 \(\ell=\lceil T^{1/5}\max(D,1)\rceil\), capped at
 \(\lfloor T/3\rfloor\), and the stationary bootstrap uses the same mean
-block length.  The full DGP grid, seed policy, registry hash, and run
-metadata are included in the reproducibility package.
+block length.  The full DGP grid, seed policy, configuration hash, and
+run metadata are included in the reproducibility package.
 The null designs set the true edge to zero while varying
 cross-sectional correlation and serial memory; the power designs then
 increase the true annualized Sharpe on the same dependence-aware
@@ -1048,7 +1053,7 @@ that appears powerful because it overrejects under the null is not
 acceptable for confirmatory evaluation.
 
 Table \ref{tab:simulation-settings} reports the compact simulation and
-resampling settings used for the rendered campaign.  Table
+resampling settings used for the reported results.  Table
 \ref{tab:size} gives the main size evidence.  The row-naive column is the familiar
 symbol-date analysis; the HAC-delta, moving-block, stationary, and
 Romano-Wolf columns make decisions from the date-return series.  When
@@ -1089,7 +1094,7 @@ when such data are available.
 \section{Reproducibility and data availability}
 
 The reproducibility package contains the LaTeX source, generated public
-aggregate artifacts, public-data loaders, simulation code, unit tests,
+aggregate tables, public-data loaders, simulation code, unit tests,
 release scripts, and SHA256 provenance.  The public repository is:
 \ifblinded
 {\scriptsize\noindent Repository link omitted from the review manuscript
@@ -1100,24 +1105,25 @@ page and submission metadata.\par}
 \url{https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence}\par}
 \fi
 Code is released under Apache-2.0 and manuscript/public aggregate
-artifacts under CC-BY 4.0 unless a target venue requires different terms.
+tables under CC-BY 4.0 unless a target venue requires different terms.
 Raw third-party data are not
 redistributed where source terms do not permit redistribution; the
 repository instead provides documented loaders, source links, access
-metadata, generated aggregate artifacts, and checksums needed to
+metadata, generated aggregate tables, and checksums needed to
 reproduce the analysis.  Proprietary predictions, raw trades, private
 tickers, production feature definitions, and unrelated workspace
-artifacts are excluded.  The technical appendix contains the full
-simulation grid, robustness tables, positive-control artifact, registry
-notes, and proof details omitted from the main manuscript for length.
+files are excluded.  The technical appendix contains the full
+simulation grid, robustness tables, positive-control output,
+configuration notes, and proof details omitted from the main manuscript
+for length.
 
 \section{Conclusion}
 
 The paper's central message is simple.  In financial panels, multiplying
 same-date rows does not automatically create independent Sharpe-ratio
-evidence when the allocable object is a date-level portfolio return.  The
+evidence when the relevant payoff is a date-level portfolio return.  The
 solution proposed here is not a new anomaly but a sampling-boundary
-framework: aggregate to the date-return series, estimate long-run Sharpe
+method: aggregate to the date-return series, estimate long-run Sharpe
 uncertainty at that boundary, and record how far the row-pooled report
 differed from the confirmatory date-level claim.
 
@@ -1126,10 +1132,10 @@ French WML result while overturning weaker stress-panel claims once
 dependence, permutation validity, researcher menus, and turnover costs
 are respected.  Pre-aggregated AQR factor series remain useful
 time-series benchmarks, but without row-level constituent signals they
-cannot clear the panel permutation gate.
+cannot be evaluated by the panel permutation check.
 
 The broader implication is that Sharpe-ratio evidence in panels should be
-judged at the date boundary that investors can actually hold.  Future
+judged at the date-level portfolio return boundary.  Future
 work can extend the framework to nonlinear market-impact and capacity
 models, time-varying cross-sectional dependence, variable selected-count
 asymptotics, larger anomaly panels, and richer blocked-permutation
@@ -1147,14 +1153,29 @@ responsible for conceptualization, methodology, software, validation,
 formal analysis, data curation, writing, and revision.
 \fi
 
-\section*{Acknowledgments}
+\section*{Funding}
 
 This research did not receive any specific grant from funding agencies in
 the public, commercial, or not-for-profit sectors.
 
-\section*{Conflict of interest}
+\section*{Acknowledgments}
+
+\ifblinded
+Acknowledgments are omitted from the review manuscript to preserve
+double-blind anonymity.
+\else
+The author thanks reviewers of earlier manuscript drafts and public data
+providers for maintaining the datasets used in this study.
+\fi
+
+\section*{Declaration of interest}
 
 The author declares no conflict of interest.
+
+\section*{Use of AI tools}
+
+No AI tool is listed as an author. Any venue-required tool-use
+disclosure is supplied in the separate submission metadata.
 
 \section*{Ethics statement}
 

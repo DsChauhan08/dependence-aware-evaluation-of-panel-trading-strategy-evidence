@@ -308,17 +308,16 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
         encoding="utf-8",
     )
     (journal / MF_COVER_LETTER).write_text(
-        "# Cover Letter Template\n\n"
+        "# Cover Letter\n\n"
         "Dear Editor,\n\n"
-        "I am submitting my manuscript, \"Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels,\" for consideration as an Article in Modern Finance.\n\n"
-        "The paper is a financial econometrics methodology paper. It studies how Sharpe-ratio inference can be distorted when selected rows in an entity-time financial panel are treated as independent even though the economically meaningful object is a date-level portfolio return. The main contribution is the Sharpe Unified Variance Inflation Factor, which links row-pooled IID Sharpe inference to date-level long-run Sharpe inference, together with a reproducible evaluation framework based on date aggregation, HAC-delta inference, dependent bootstrap resampling, researcher-menu correction, placebo tests, factor-alpha checks, and cost sensitivity.\n\n"
-        "The empirical sections use public Kenneth French and AQR data as benchmark and stress-test applications, while the Monte Carlo section shows that row-naive inference can substantially overreject under dependent nulls. The manuscript is positioned as a testing framework for evaluating Sharpe-ratio evidence in entity-time financial panels rather than as a new-anomaly or trading-rule paper.\n\n"
-        "The manuscript should be of interest to readers working in financial econometrics, empirical asset pricing, portfolio-performance evaluation, factor screening, and reproducible finance methodology. The manuscript is not under consideration by another journal and has not been formally published in a peer-reviewed venue.\n\n"
-        "I am the sole author. I received no external funding for this research and declare no conflict of interest. The replication code, public aggregate artifacts, configuration files, simulation scripts, and reproducibility materials are available at https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence.\n\n"
-        "Suggested reviewers:\n\n"
-        "1. [Name], [Affiliation], [Email], [Reason this reviewer is suitable and has no conflict]\n"
-        "2. [Name], [Affiliation], [Email], [Reason this reviewer is suitable and has no conflict]\n"
-        "3. [Name], [Affiliation], [Email], [Reason this reviewer is suitable and has no conflict]\n\n"
+        "Please consider the manuscript, \"Sampling-Boundary Distortion in Sharpe-Ratio Evidence from Financial Panels,\" for publication as an Article in Modern Finance.\n\n"
+        "The paper is a financial econometrics methodology study. It examines how Sharpe-ratio evidence can be misstated when selected rows in an entity-time panel are treated as independent observations even though the economically relevant payoff is a date-level portfolio return. The paper proposes Sharpe UVIF, a diagnostic comparing row-pooled IID Sharpe uncertainty with date-level long-run Sharpe uncertainty, and evaluates the problem using date aggregation, HAC-delta inference, dependent bootstrap procedures, public benchmark applications, and Monte Carlo evidence.\n\n"
+        "The empirical illustrations use public Kenneth French and AQR data, while the simulations show that row-naive testing can substantially overreject under dependence. The manuscript is positioned as a methods paper for evaluating panel-based Sharpe evidence rather than as a new anomaly or trading-rule paper.\n\n"
+        "The submission is original, is not under consideration elsewhere, and has not been published in a peer-reviewed outlet. Separate blinded manuscript files, a separate blinded appendix, an anonymized replication ZIP, and a separate title page have been prepared in accordance with the journal's review requirements.\n\n"
+        "Potential reviewers:\n\n"
+        "1. [Name], [Affiliation], [Email]\n"
+        "2. [Name], [Affiliation], [Email]\n"
+        "3. [Name], [Affiliation], [Email]\n\n"
         "Sincerely,\n\n"
         "Dhananjay S. Chauhan\n"
         "Independent Researcher, India\n"
@@ -335,7 +334,7 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
         "Email: dschauhan08.me@gmail.com\n\n"
         "ORCID: https://orcid.org/0009-0003-1049-2213\n\n"
         "Public repository: https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence\n\n"
-        "Keywords: Sharpe ratio; sampling-boundary distortion; financial econometrics; panel data; cross-sectional dependence; serial dependence; HAC inference; dependent bootstrap; multiple testing; portfolio signal evaluation\n\n"
+        "Keywords: Sharpe ratio; panel data; cross-sectional dependence; serial dependence; bootstrap inference; portfolio evaluation; date-level portfolio returns\n\n"
         "JEL Codes: C12; C15; G11; G12; G17\n",
         encoding="utf-8",
     )

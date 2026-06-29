@@ -84,10 +84,10 @@ STATUS_LABELS = {
     "not_applicable_single_series": "Not applicable",
     "insufficient_permutation_draws": "Insufficient permutation draws",
     "failed": "Source not loaded",
-    "phantom": "Fails permutation gate",
-    "robust": "Passes composite gate",
-    " ".join(("cost", "fail")): "Fails cost gate",
-    " ".join(("not", "robust")): "Fails composite gate",
+    "phantom": "Fails permutation check",
+    "robust": "Passes full rule",
+    " ".join(("cost", "fail")): "Fails cost check",
+    " ".join(("not", "robust")): "Fails full rule",
 }
 STATUS_LABELS[" ".join(("not", "available"))] = "Unavailable"
 
@@ -262,7 +262,7 @@ def candidate_campaign_table(campaign_root: Path) -> pd.DataFrame:
             "RW p": r.get("rw_p", np.nan),
             "Perm p": display_permutation_p(gate.get("permutation_status", r.get("permutation_status", "")), r.get("permutation_p", np.nan)),
             "Net SR": gate.get("net_sharpe_5bps", np.nan),
-            "Audit gate 5%": bool_field(gate.get("passes_all", False)),
+            "Full rule 5%": bool_field(gate.get("passes_all", False)),
             "Applicable checks 5%": bool_field(gate.get("passes_applicable", False)),
         })
     return pd.DataFrame(rows)
@@ -301,8 +301,37 @@ def panel_candidate_table(campaign_root: Path) -> pd.DataFrame:
             "RW p": r.get("rw_p", np.nan),
             "Perm p": display_permutation_p(gate.get("permutation_status", r.get("permutation_status", "")), r.get("permutation_p", np.nan)),
             "Net SR": gate.get("net_sharpe_5bps", np.nan),
-            "Audit gate 5%": bool_field(gate.get("passes_all", False)),
+            "Full rule 5%": bool_field(gate.get("passes_all", False)),
             "Applicable checks 5%": bool_field(gate.get("passes_applicable", False)),
+        })
+    return pd.DataFrame(rows)
+
+
+def standard_comparator_table(campaign_root: Path) -> pd.DataFrame:
+    rows = []
+    for cdir in campaign_candidates(campaign_root):
+        if cdir.name not in PANEL_CANDIDATES:
+            continue
+        rb_path = cdir / "row_boundary.csv"
+        if not rb_path.exists():
+            continue
+        rb = pd.read_csv(rb_path)
+        if rb.empty or rb.iloc[0].get("status") != "ok":
+            continue
+        r = rb.iloc[0]
+        methods_path = cdir / "methods.csv"
+        methods = pd.read_csv(methods_path) if methods_path.exists() else pd.DataFrame()
+        blocked = methods[methods.get("method") == "blocked"] if not methods.empty else pd.DataFrame()
+        iid = methods[methods.get("method") == "iid"] if not methods.empty else pd.DataFrame()
+        sei = r.get("trading_moulton_factor", np.nan)
+        uvif = max(1.0, float(sei) ** 2) if pd.notna(sei) else np.nan
+        rows.append({
+            "Panel candidate": candidate_name(cdir.name),
+            "row p+": r.get("row_p_positive", np.nan),
+            "date-IID p+": iid.iloc[0].get("p_positive", np.nan) if len(iid) else np.nan,
+            "date-HAC p+": r.get("hac_p_positive", np.nan),
+            "block p+": blocked.iloc[0].get("p_positive", np.nan) if len(blocked) else np.nan,
+            "UVIF": uvif,
         })
     return pd.DataFrame(rows)
 
@@ -539,22 +568,22 @@ def campaign_phantom_audit_table(campaign_root: Path) -> pd.DataFrame:
         stat_fail = pd.notna(audit_p) and float(audit_p) > 0.05
         cost_fail = pd.notna(net_sr) and float(net_sr) <= 0
         if passes_all:
-            status = "Passes composite gate"
+            status = "Passes full rule"
         elif str(perm_status).lower() == "degenerate" and passes_applicable:
             status = "Permutation uninformative; applicable checks pass"
         elif pd.notna(row_p) and float(row_p) <= 0.05 and pd.notna(audit_p) and float(audit_p) > 0.05:
-            status = "Fails permutation gate"
+            status = "Fails permutation check"
         elif stat_fail and cost_fail:
-            status = "Fails statistical and cost gates"
+            status = "Fails statistical and cost checks"
         elif cost_fail:
-            status = "Fails cost gate"
+            status = "Fails cost check"
         else:
-            status = "Fails composite gate"
+            status = "Fails full rule"
         rows.append({
             "Candidate": candidate_name(cid),
             "Row p+": row_p,
             "UVIF": uvif,
-            "Audit p+": audit_p,
+            "Max p+": audit_p,
             "Net SR": net_sr,
             "Status": status,
         })
@@ -935,17 +964,39 @@ def design_sweep_table(outdir: Path) -> pd.DataFrame:
         return pd.DataFrame()
     df = pd.read_csv(path)
     rows = []
-    for _, r in df.iterrows():
+    def metric(group: pd.DataFrame, method: str, col: str) -> float:
+        vals = group[group["method"].eq(method)][col]
+        return vals.iloc[0] if len(vals) else np.nan
+
+    rho_keys = (
+        df[df["N"].eq(50)][["N", "rho_cross"]]
+        .drop_duplicates()
+        .sort_values("rho_cross")
+    )
+    for _, key in rho_keys.iterrows():
+        group = df[df["N"].eq(key["N"]) & df["rho_cross"].eq(key["rho_cross"])]
         rows.append({
-            "design": r.get("sweep", ""),
-            "method": r.get("method", ""),
-            "rej.": r.get("rejection_rate", np.nan),
-            "SE": r.get("rejection_se", np.nan),
-            "bias": r.get("mean_bias_vs_date_sr", np.nan),
-            "mean interval SE": r.get("mean_se", np.nan),
-            "N": r.get("N", np.nan),
-            "rho": r.get("rho_cross", np.nan),
-            "n": r.get("n_valid", np.nan),
+            "Panel": "A. Same-date correlation (N=50)",
+            "Setting": f"rho={fmt(key.get('rho_cross', np.nan))}",
+            "Row rej.": metric(group, "row_naive", "rejection_rate"),
+            "HAC rej.": metric(group, "hac_delta", "rejection_rate"),
+            "Row mean SE": metric(group, "row_naive", "mean_se"),
+            "HAC mean SE": metric(group, "hac_delta", "mean_se"),
+        })
+    n_keys = (
+        df[df["rho_cross"].eq(0.35)][["N", "rho_cross"]]
+        .drop_duplicates()
+        .sort_values("N")
+    )
+    for _, key in n_keys.iterrows():
+        group = df[df["N"].eq(key["N"]) & df["rho_cross"].eq(key["rho_cross"])]
+        rows.append({
+            "Panel": "B. Selected count (rho=0.35)",
+            "Setting": f"N={int(key.get('N'))}",
+            "Row rej.": metric(group, "row_naive", "rejection_rate"),
+            "HAC rej.": metric(group, "hac_delta", "rejection_rate"),
+            "Row mean SE": metric(group, "row_naive", "mean_se"),
+            "HAC mean SE": metric(group, "hac_delta", "mean_se"),
         })
     return pd.DataFrame(rows)
 
@@ -1107,30 +1158,41 @@ def plot_null_size(outdir: Path, figdir: Path) -> None:
     df = read(outdir, "size_test_audit.csv")
     method_order = ["row_naive", "date_iid", "hac_delta", "moving_block", "stationary", "romano_wolf"]
     method_labels = {
-        "row_naive": "Row naive",
-        "date_iid": "Date IID",
+        "row_naive": "Row-naive",
+        "date_iid": "Date-IID bootstrap",
         "hac_delta": "HAC-delta",
-        "moving_block": "Moving block",
-        "stationary": "Stationary",
+        "moving_block": "Moving-block bootstrap",
+        "stationary": "Stationary bootstrap",
         "romano_wolf": "Romano-Wolf",
     }
-    dgp_order = list(dict.fromkeys(df["dgp"].tolist()))
-    x = np.arange(len(dgp_order))
-    width = 0.12
-    plt.figure(figsize=(7.4, 4.2))
-    for idx, method in enumerate(method_order):
-        group = df[df["method"] == method].set_index("dgp")
-        heights = [group.loc[dgp, "rejection_rate"] if dgp in group.index else np.nan for dgp in dgp_order]
-        offset = (idx - (len(method_order) - 1) / 2) * width
-        plt.bar(x + offset, heights, width=width, label=method_labels.get(method, method))
-    plt.axhline(0.05, color="black", linewidth=1.0, linestyle="--", label="Nominal 5%")
-    plt.xticks(x, [d.replace("_", " ") for d in dgp_order], rotation=18, ha="right", fontsize=9)
-    plt.yticks(fontsize=9)
-    plt.ylabel("Rejection rate", fontsize=10)
-    plt.ylim(0, max(0.40, float(df["rejection_rate"].max()) + 0.05))
-    plt.legend(fontsize=8, loc="upper center", bbox_to_anchor=(0.5, -0.24), ncol=3, frameon=False)
-    plt.tight_layout(rect=(0, 0.12, 1, 1))
-    plt.savefig(figdir / "null_size_rejections.png", dpi=300)
+    dgp_order = ["null_iid", "null_dep", "null_garch"]
+    title_map = {
+        "null_iid": "IID null",
+        "null_dep": "Dependent null",
+        "null_garch": "GARCH null",
+    }
+    fig, axes = plt.subplots(1, len(dgp_order), figsize=(9.2, 4.6), sharex=True, sharey=True)
+    y = np.arange(len(method_order))
+    colors = ["#B23A48", "#6B7280", "#2563A5", "#2F855A", "#6D597A", "#D97706"]
+    x_max = max(0.42, float(df["rejection_rate"].max()) + 0.05)
+    for ax, dgp in zip(axes, dgp_order):
+        group = df[df["dgp"].eq(dgp)].set_index("method")
+        vals = [group.loc[m, "rejection_rate"] if m in group.index else np.nan for m in method_order]
+        ax.barh(y, vals, color=colors, height=0.72)
+        ax.axvline(0.05, color="black", linewidth=1.1, linestyle="--")
+        ax.set_title(title_map.get(dgp, dgp.replace("_", " ")), fontsize=11)
+        ax.set_xlim(0, x_max)
+        ax.grid(axis="x", alpha=0.20, linewidth=0.7)
+        ax.tick_params(axis="x", labelsize=9)
+    axes[0].set_yticks(y)
+    axes[0].set_yticklabels([method_labels[m] for m in method_order], fontsize=9)
+    axes[0].invert_yaxis()
+    axes[0].set_ylabel("Inference method", fontsize=10)
+    for ax in axes:
+        ax.set_xlabel("Rejection rate", fontsize=10)
+    fig.text(0.53, 0.02, "Dashed vertical line: nominal 5 percent size", ha="center", fontsize=9)
+    plt.tight_layout(rect=(0, 0.05, 1, 1))
+    plt.savefig(figdir / "null_size_rejections.png", dpi=350)
     plt.savefig(figdir / "null_size_rejections.pdf")
     plt.close()
 
@@ -1140,7 +1202,7 @@ def empirical_figure_tex() -> str:
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.82\textwidth]{generated_figures/threshold_profile.png}
-\caption{Threshold-profile diagnostics for public candidate panels; each line shows how annualized Sharpe changes when the registry-defined confidence threshold is varied.}
+\caption{Threshold-profile diagnostics for public candidate panels; each line shows how annualized Sharpe changes when the pre-specified confidence threshold is varied.}
 \label{fig:threshold-profile}
 \end{figure}
 
@@ -1158,8 +1220,8 @@ def size_figure_tex() -> str:
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.82\textwidth]{generated_figures/null_size_rejections.png}
-\caption{Null rejection rates under dependent and IID designs. The dashed line is the nominal 5 percent rejection rate.}
+\includegraphics[width=0.98\textwidth]{generated_figures/null_size_rejections.png}
+\caption{Rejection rates under null designs. The dashed line is the nominal 5 percent rejection rate. Row-naive rejection is near nominal under IID sampling but rises sharply under dependent nulls, while date-level dependence-aware procedures remain much closer to nominal size.}
 \label{fig:null-size}
 \end{figure}
 """
@@ -1213,7 +1275,12 @@ def render(outdir: Path, paper_dir: Path) -> None:
             "tab:target-boundary",
             note="These are not ordinary row-estimator coverage rates; they evaluate the row-naive interval against the economically relevant date-level target.",
         ),
-        latex_table(design_sweep_table(outdir), "Target-boundary design sweeps over same-date correlation and selected-count pressure.", "tab:design-sweeps"),
+        latex_table(
+            design_sweep_table(outdir),
+            "Sampling-boundary stress tests under a zero-edge null.",
+            "tab:design-sweeps",
+            note="Row-naive overrejection rises with same-date dependence and selected-count pressure, whereas date-level HAC remains close to nominal size.",
+        ),
         latex_table(size_table(outdir), "Null rejection rates at nominal 5 percent size.", "tab:size"),
         latex_table(power_table(outdir), "Rejection rates across true annualized Sharpe values.", "tab:power"),
     ]
@@ -1257,20 +1324,26 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
     pagebreak = "\n\\clearpage\n"
     empirical_sections = [
         "This supplement reports loaded sources in separated groups.  The\n"
-        "full-campaign loader provenance is retained in the generated metadata;\n"
-        "it is not a comparable pass/fail audit table.  The tables are audit\n"
-        "logs rather than primary evidence; the main text reports the compressed\n"
+        "loader provenance is retained in the generated metadata; it is not a\n"
+        "comparable pass/fail table.  The tables are supporting diagnostics\n"
+        "rather than primary evidence; the main text reports the compressed\n"
         "interpretation.\n",
         latex_table(annualization_metadata_table(campaign_root), "Source frequency and annualization metadata.", "tab:annualization-metadata"),
-        latex_table(panel_candidate_table(campaign_root), "Panel candidates subject to the composite audit gate.", "tab:panel-candidates"),
+        latex_table(panel_candidate_table(campaign_root), "Panel candidates subject to the composite reporting rule.", "tab:panel-candidates"),
         pagebreak,
         latex_table(
             single_series_factor_table(campaign_root),
             "Single-series factor benchmarks subject to time-series inference only.",
             "tab:single-series-benchmarks",
-            note="Time-series only means not eligible for same-date permutation, row-retention diagnostics, or the composite panel audit gate.",
+            note="Time-series only means not eligible for same-date permutation, row-retention diagnostics, or the composite panel rule.",
         ),
         latex_table(campaign_momentum_benchmark_table(campaign_root), "Canonical French momentum benchmark validation.", "tab:momentum-benchmark"),
+        latex_table(
+            standard_comparator_table(campaign_root),
+            "Comparison with common row and date-level inference choices for panel candidates.",
+            "tab:standard-comparator",
+            note="The row-naive column treats selected rows as independent. Date-IID, date-HAC, and block-bootstrap columns operate on the date-level portfolio return series.",
+        ),
         pagebreak,
         latex_table(
             campaign_row_boundary_count_table(campaign_root),
@@ -1291,11 +1364,11 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         pagebreak,
         latex_table(
             campaign_phantom_audit_table(campaign_root),
-            "Dependence audit summary for panel candidates.",
+            "Sampling-boundary summary for panel candidates.",
             "tab:dependence-audit",
             note="Displayed UVIF is a one-sided inflation summary floored at one. Degenerate same-date permutation diagnostics are reported as uninformative rather than converted into failures.",
         ),
-        latex_table(campaign_horizon_effect_table(campaign_root), "Horizon-effect audit for the dynamic Size/BM momentum panel.", "tab:horizon-effect"),
+        latex_table(campaign_horizon_effect_table(campaign_root), "Horizon-effect sensitivity for the dynamic Size/BM momentum panel.", "tab:horizon-effect"),
         pagebreak,
         latex_table(campaign_inference_table(campaign_root), "Primary-threshold dependence-aware Sharpe inference.", "tab:empirical-inference"),
         pagebreak,
@@ -1308,7 +1381,7 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         pagebreak,
         latex_table(campaign_robustness_table(campaign_root), "HAC bandwidth, prewhitening, and fixed-b robustness diagnostics.", "tab:hac-robustness"),
         pagebreak,
-        latex_table(campaign_gate_table(campaign_root), "Composite gate sensitivity by alpha threshold.", "tab:gate-sensitivity"),
+        latex_table(campaign_gate_table(campaign_root), "Composite reporting-rule sensitivity by alpha threshold.", "tab:gate-sensitivity"),
         latex_table(campaign_holdout_table(campaign_root), "Holdout and subperiod Sharpe diagnostics.", "tab:holdout-subperiods"),
         latex_table(campaign_cost_table(campaign_root), "Turnover-scaled cost sensitivity and break-even cost.", "tab:costs"),
         empirical_figure_tex(),
@@ -1332,7 +1405,12 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
             "tab:target-boundary",
             note="These are not ordinary row-estimator coverage rates; they evaluate the row-naive interval against the economically relevant date-level target.",
         ),
-        latex_table(design_sweep_table(sim_dir), "Target-boundary design sweeps over same-date correlation and selected-count pressure.", "tab:design-sweeps"),
+        latex_table(
+            design_sweep_table(sim_dir),
+            "Sampling-boundary stress tests under a zero-edge null.",
+            "tab:design-sweeps",
+            note="Row-naive overrejection rises with same-date dependence and selected-count pressure, whereas date-level HAC remains close to nominal size.",
+        ),
         latex_table(size_table(sim_dir), "Null rejection rates at nominal 5 percent size.", "tab:size"),
         latex_table(power_table(sim_dir), "Rejection rates across true annualized Sharpe values.", "tab:power"),
     ])
@@ -1353,32 +1431,41 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         "% Main-manuscript subset generated from generated_empirical_artifacts.tex.\n",
         "The panel-candidate table reports only sources with row-level\n"
         "signal-return structure and therefore eligibility for the composite\n"
-        "panel audit gate.  The single-series benchmark table reports pre-aggregated\n"
+        "panel rule.  The single-series benchmark table reports pre-aggregated\n"
         "factor returns separately; those rows are time-series benchmarks, not\n"
-        "failed panel-audit candidates.\n",
-        latex_table(panel_candidate_table(campaign_root), "Panel candidates subject to the composite audit gate.", "tab:panel-candidates"),
+        "failed panel candidates.\n",
+        latex_table(panel_candidate_table(campaign_root), "Panel candidates subject to the composite reporting rule.", "tab:panel-candidates"),
         latex_table(
             single_series_factor_table(campaign_root),
             "Single-series factor benchmarks subject to time-series inference only.",
             "tab:single-series-benchmarks",
-            note="Time-series only means not eligible for same-date permutation, row-retention diagnostics, or the composite panel audit gate.",
+            note="Time-series only means not eligible for same-date permutation, row-retention diagnostics, or the composite panel rule.",
         ),
         "The benchmark validation table shows that the panel implementation\n"
         "matches the direct French winner-minus-loser construction.\n",
         latex_table(campaign_momentum_benchmark_table(campaign_root), "Canonical French momentum benchmark validation.", "tab:momentum-benchmark"),
-        "The dependence audit table summarizes the boundary directly: row-level\n"
-        "evidence can disappear once same-date redundancy, placebo evidence,\n"
-        "and turnover-scaled net Sharpe are evaluated together.\n",
+        "The comparator table makes the standard-practice contrast explicit:\n"
+        "row-naive evidence is shown next to date-level HAC and bootstrap\n"
+        "inference on the portfolio return series.\n",
+        latex_table(
+            standard_comparator_table(campaign_root),
+            "Comparison with common row and date-level inference choices for panel candidates.",
+            "tab:standard-comparator",
+            note="The row-naive column treats selected rows as independent. Date-IID, date-HAC, and block-bootstrap columns operate on the date-level portfolio return series.",
+        ),
+        "The sampling-boundary table summarizes the boundary directly:\n"
+        "row-level evidence can disappear once same-date redundancy, placebo\n"
+        "evidence, and turnover-scaled net Sharpe are evaluated together.\n",
         latex_table(
             campaign_phantom_audit_table(campaign_root),
-            "Dependence audit summary for panel candidates.",
+            "Sampling-boundary summary for panel candidates.",
             "tab:dependence-audit",
             note="Displayed UVIF is a one-sided inflation summary floored at one. Degenerate same-date permutation diagnostics are reported as uninformative rather than converted into failures.",
         ),
         "The horizon table shows that changing the lookback reduces turnover in\n"
         "the Size/BM stress panel but does not convert it into a robust net-Sharpe\n"
         "claim.\n",
-        latex_table(campaign_horizon_effect_table(campaign_root), "Horizon-effect audit for the dynamic Size/BM momentum panel.", "tab:horizon-effect"),
+        latex_table(campaign_horizon_effect_table(campaign_root), "Horizon-effect sensitivity for the dynamic Size/BM momentum panel.", "tab:horizon-effect"),
     ]
     simulation_main_sections = [
         "% Main-manuscript subset generated from generated_simulation_artifacts.tex.\n",
@@ -1395,7 +1482,12 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
             "tab:target-boundary",
             note="These are not ordinary row-estimator coverage rates; they evaluate the row-naive interval against the economically relevant date-level target.",
         ),
-        latex_table(design_sweep_table(sim_dir), "Target-boundary design sweeps over same-date correlation and selected-count pressure.", "tab:design-sweeps"),
+        latex_table(
+            design_sweep_table(sim_dir),
+            "Sampling-boundary stress tests under a zero-edge null.",
+            "tab:design-sweeps",
+            note="Row-naive overrejection rises with same-date dependence and selected-count pressure, whereas date-level HAC remains close to nominal size.",
+        ),
     ]
     (paper_dir / "generated_empirical_main_artifacts.tex").write_text(
         header + "\n".join(empirical_main_sections),
