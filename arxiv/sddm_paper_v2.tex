@@ -96,24 +96,24 @@ serial dependence; HAC/bootstrap inference; portfolio evaluation
 
 \subsection{Problem: Row-to-date sampling boundary}
 
-Empirical finance often evaluates signals in entity-time panels: factor
-screens, anomaly sorts, automated portfolio-signal screens,
-model-selection grids, and trading-strategy backtests.  The practical
-question in this paper is whether the reported Sharpe evidence is being
-attached to the right sampling unit.  In the Monte Carlo null designs
-reported below, treating selected rows as independent produces rejection
-rates around 35 percent at a nominal 5 percent level when the true edge
-is zero, while date-level HAC and dependent-bootstrap methods stay much
-closer to nominal size.
+Empirical finance often tests signals in entity-time panels: factor
+sorts, anomaly screens, automated portfolio-signal evaluations,
+model-selection grids, and trading-strategy backtests.  A screen selects
+assets on each date, forms a portfolio, and reports a Sharpe ratio.  The
+statistical question is whether that Sharpe evidence is attached to the
+right sampling unit: selected asset-date rows or date-level portfolio
+returns.
 
-Suppose a signal screen selects many assets on each decision date and
-then reports a Sharpe ratio by pooling all selected asset-date rows.  If
-the payoff is the portfolio return earned on each date, the apparent row
-count can exaggerate precision even before serial dependence is
-considered.  A row-pooled Sharpe report or \(t\)-test implicitly treats
-the cross-section on a date as many independent draws from the same
-experiment.  A portfolio signal or trading strategy, however, is marked
-to market by date.
+The distinction matters because portfolio performance is realized once
+per date.  If a researcher treats each selected asset-date return as an
+independent observation, the apparent sample size becomes the number of
+selected rows.  If same-date rows share common shocks, however, the
+additional rows do not contain that much independent information.  This
+row-to-date mismatch is the sampling-boundary distortion studied here.
+In the Monte Carlo null designs below, row-naive tests reject around 35
+percent of the time at a nominal 5 percent level when the true edge is
+zero, while date-level HAC and dependent-bootstrap methods stay much
+closer to nominal size.
 
 The underlying entity-time panel is denoted by
 \(\mathcal P=\{(t,i,s_{t,i},r_{t+1,i})\}\), where \(t\) indexes dates,
@@ -208,14 +208,16 @@ stationary bootstrap, and joint resampling decisions.
 This paper sits at the intersection of literatures that are often
 discussed separately.  Survey and grouped-error design effects explain
 why row counts overstate information
-\citep{kish1965survey,moulton1986random}, and finance-panel standard
-error work explains why cross-sectional and time clustering matter in
-empirical finance \citep{petersen2009estimating}.  Those results are
-central background, but they mainly address means or regression
-coefficients rather than nonlinear portfolio-performance evidence after
-entity-date rows have been aggregated into a date-level return.  They do
-not define a target-aware distortion ratio for nonlinear portfolio
-performance statistics.
+\citep{kish1965survey,moulton1986random}.  Large-panel econometrics
+studies cross-sectional dependence directly
+\citep{chudik2015large}, and finance-panel standard error work explains
+why cross-sectional and time clustering matter in empirical finance
+\citep{petersen2009estimating}.  Those results are central background,
+but they mainly address means or regression coefficients rather than
+nonlinear portfolio-performance evidence after entity-date rows have
+been aggregated into a date-level return.  They do not define a
+target-aware distortion ratio for nonlinear portfolio performance
+statistics.
 
 Sharpe-ratio inference follows a separate time-series literature.
 \citet{lo2002statistics} studies Sharpe-ratio sampling under return
@@ -419,8 +421,9 @@ Explicitly, for centered moments \(\tilde g_u=g_u-\bar g\),
     +\sum_{k=1}^{K_T} \left(1-\frac{k}{K_T+1}\right)
       \left(\widehat{\Gamma}_k+\widehat{\Gamma}_k'\right).
 \]
-This is a covariance matrix for the joint process
-\((R_u,R_u^2)\), so the off-diagonal terms carry the
+This is the standard Newey-West/Andrews Bartlett-kernel construction
+\citep{newey1987simple,andrews1991heteroskedasticity} applied to the
+joint process \((R_u,R_u^2)\), so the off-diagonal terms carry the
 long-run covariance between the sample mean and second moment into the
 Sharpe-ratio delta method.
 The bandwidth \(K_T\) is a tuning choice and may depend on \(T\).  The
@@ -574,6 +577,14 @@ thresholds:
   p_{\mathrm{RW}}\le \alpha,\qquad
   \widehat{\SR}_{net}(c)>0 .
 \]
+In the reported tables \(\alpha=0.05\).  Here \(p_{\mathrm{boot}}\) is
+the one-sided dependent-bootstrap Sharpe \(p\)-value,
+\(p_{\mathrm{perm}}\) is the same-date signal-permutation \(p\)-value,
+\(p_{\mathrm{HAC}}\) is the HAC-delta positive-edge \(p\)-value, and
+\(p_{\mathrm{RW}}\) is the Romano-Wolf familywise adjusted \(p\)-value
+over the fixed researcher menu.  The final condition requires the
+turnover-cost-adjusted Sharpe to remain positive at the specified cost
+stress \(c\).
 If the same-date permutation null is degenerate or otherwise
 uninformative, the candidate is reported separately as passing or failing
 the remaining applicable checks; it is not classified as a full pass.
@@ -1024,6 +1035,15 @@ every market setting.  A locked holdout period or independently refreshed
 sample after the researcher menu is frozen remains the stronger design
 when such data are available.
 
+The same adjustment that controls false positives also reduces apparent
+power because the effective evidence is closer to the number of active
+dates than to the number of selected rows.  A non-rejection after
+date-level HAC or dependent-bootstrap adjustment should therefore be read
+as insufficient date-level evidence under the maintained design, not as
+proof that the underlying economic effect is exactly zero.  Longer
+date histories, independent holdouts, or stronger prior restrictions on
+the researcher menu are needed when power is the binding concern.
+
 \section{Data and code availability}
 
 The reproducibility package contains the LaTeX source, generated public
@@ -1167,6 +1187,12 @@ Carhart, M. M. (1997).
 \newblock On persistence in mutual fund performance.
 \newblock {\em Journal of Finance}, 52(1):57--82.
 
+\bibitem[Chudik and Pesaran, 2015]{chudik2015large}
+Chudik, A. and Pesaran, M. H. (2015).
+\newblock Large panel data models with cross-sectional dependence: A survey.
+\newblock In B. H. Baltagi, editor, {\em The Oxford Handbook of Panel Data}.
+Oxford University Press.
+
 \bibitem[Fama and French, 1993]{fama1993common}
 Fama, E. F. and French, K. R. (1993).
 \newblock Common risk factors in the returns on stocks and bonds.
@@ -1246,6 +1272,12 @@ McLean, R. D. and Pontiff, J. (2016).
 Moulton, B. R. (1986).
 \newblock Random group effects and the precision of regression estimates.
 \newblock {\em Journal of Econometrics}, 32(3):385--397.
+
+\bibitem[Newey and West, 1987]{newey1987simple}
+Newey, W. K. and West, K. D. (1987).
+\newblock A simple, positive semi-definite, heteroskedasticity and
+autocorrelation consistent covariance matrix.
+\newblock {\em Econometrica}, 55(3):703--708.
 
 \bibitem[Novy-Marx, 2014]{novymarx2014predicting}
 Novy-Marx, R. (2014).
