@@ -2,7 +2,7 @@
 
 Dear Editor,
 
-Please consider the manuscript, "Sharpe-Ratio Inference at the Date Boundary in Financial Panels," for publication as an Article in Modern Finance.
+Please consider the manuscript, "Sampling-boundary distortion in Sharpe ratio evidence from financial panels," for publication as an Article in Modern Finance.
 
 The paper is a financial econometrics methodology study using public Kenneth French panels, AQR factor series, and Monte Carlo designs. It examines how Sharpe-ratio evidence can be misstated when selected rows in an entity-time panel are treated as independent observations even though the economically relevant payoff is a date-level portfolio return.
 

@@ -38,7 +38,7 @@
   \blindedfalse
 \fi
 
-\title{Technical Appendix: Sharpe-Ratio Inference at the Date Boundary in Financial Panels}
+\title{Technical Appendix: Sampling-boundary distortion in Sharpe ratio evidence from financial panels}
 \ifblinded
 \author{}
 \else
@@ -55,6 +55,36 @@ This appendix provides derivations, calibration checks, robustness
 tables, and reproducibility details omitted from the main manuscript for
 brevity.  It supports the proof, calibration, and robustness record; it
 is not an independent empirical claim.
+
+\section{Public-Panel Momentum Implementation}
+
+The public French panel implementation uses a skipped-momentum signal as
+the running row-level illustration.  The sampling-boundary diagnostic
+does not depend on this particular signal, but the formulas below define
+the exact public-panel construction used in the reported tables.
+For lookback \(L\) and skip \(q\), the skipped compounded signal is
+\begin{equation}
+  s_{t,i}^{(L,q)} =
+  \prod_{j=t-L-q+1}^{t-q} (1+r_{j,i}) - 1 .
+  \label{eq:appendix-signal}
+\end{equation}
+With \(q\ge1\), the signal excludes the outcome return and is executable
+at date \(t\) when all signals in the available universe \(A_t\) are
+known before the trading decision.  The signed one-period row return is
+\begin{equation}
+  y_{t+1,i}^{(L,q)}=\sign(s_{t,i}^{(L,q)})r_{t+1,i},
+\end{equation}
+with \(\sign(0)=0\); zero-signal and missing-signal rows receive zero
+economic weight.  The confidence score \(c_{t,i}^{(L,q)}\) is the
+within-date percentile rank of \(|s_{t,i}^{(L,q)}|\), and the selected
+set is
+\[
+  \mathcal S_t(L,q,\tau)=\{i:c_{t,i}^{(L,q)}\ge\tau\}.
+\]
+The percentile score is a baseline screening rule, not an optimal
+weighting theorem.  The replication files record tie handling, one-name
+dates, selected-count granularity, and source-specific frequency and
+annualization metadata.
 
 \section{Mean-Return Design-Effect Proof}
 
@@ -90,8 +120,8 @@ Sharpe-ratio distortion result.
 
 \section{Sharpe UVIF Derivation}
 
-These calculations supply the algebra behind Proposition 1 in the main
-manuscript.
+These calculations supply the algebra behind the Sharpe UVIF
+decomposition in the main manuscript.
 Let \(R_t\) be the date-level portfolio excess return and
 \(G_t=(R_t,R_t^2)'\).  The annualized Sharpe ratio is the smooth
 functional
@@ -148,16 +178,16 @@ the serial long-run factor.  Componentwise,
 The \(\Omega_{22}\) term contains long-run covariances of squared
 returns and therefore brings fourth moments into Sharpe-ratio variance.
 
-\section{Optional Square-Root Impact Sensitivity}
+\section{Optional Order-Size Sensitivity}
 
 The public sorted-portfolio examples in the main manuscript do not
 contain average daily volume or order-size information, so they do not
-support a capacity claim.  For traded-security panels where those inputs
+support an execution-scale claim.  For traded-security panels where those inputs
 are available, a square-root impact diagnostic can be added as an
 optional sensitivity extension.
 
-\begin{proposition}[Square-root impact sensitivity bound]
-\label{prop:capacity-frontier}
+\begin{proposition}[Square-root order-size sensitivity bound]
+\label{prop:order-size-frontier}
 Suppose a traded panel has row-pooled gross mean \(\bar r_{\mathrm{gross}}\),
 row-pooled return standard deviation \(\sigma_{\mathrm{row}}\),
 strictly positive average turnover \(\widehat{\mathrm{TO}}\), \(T\)
@@ -175,7 +205,7 @@ screened asset scale \(A^*\) must satisfy
       -z_{\alpha}\mathcal M\sigma_{\mathrm{row}}/\sqrt{T}}
          {\lambda \widehat{\mathrm{TO}}}
   \right)^2
-  \label{eq:capacity-frontier}
+  \label{eq:order-size-frontier}
 \end{equation}
 when the numerator is positive; otherwise no positive scale is screened
 by the margin.
@@ -198,7 +228,7 @@ margin to be nonnegative gives
   - z_{\alpha}\mathcal M\sigma_{\mathrm{row}}/\sqrt{T}.
 \]
 Rearranging yields the sensitivity bound in Proposition
-\ref{prop:capacity-frontier}.  If
+\ref{prop:order-size-frontier}.  If
 the volatility input is already the date-level portfolio volatility, the
 date boundary has already embedded the cross-sectional UVIF component,
 so the cross-sectional part of \(\mathcal M\) must not be multiplied in

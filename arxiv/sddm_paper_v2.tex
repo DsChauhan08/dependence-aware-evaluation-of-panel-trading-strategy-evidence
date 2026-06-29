@@ -47,7 +47,7 @@
   \blindedfalse
 \fi
 
-\title{Sharpe-Ratio Inference at the Date Boundary in Financial Panels}
+\title{Sampling-boundary distortion in Sharpe ratio evidence from financial panels}
 \ifblinded
 \author{}
 \else
@@ -71,17 +71,18 @@ Researcher, India.\\
 \fi
 
 \begin{abstract}
-Using public Kenneth French panels, AQR factor series, and Monte Carlo
-designs, this paper shows that Sharpe-ratio evidence can be overstated
-when selected asset-date rows are treated as independent even though the
-payoff is a date-level portfolio return. I compare row-pooled IID Sharpe
-uncertainty with date-level long-run Sharpe uncertainty through Sharpe
-UVIF and evaluate claims using HAC-delta and dependent-bootstrap
-inference on date returns. In dependent-null simulations, row-naive
-tests reject about 35 percent of the time at a nominal 5 percent level,
-while date-level procedures remain close to nominal size. The public
-benchmarks illustrate when the correction preserves strong momentum
-evidence and when weaker panel claims disappear.
+Financial researchers often form portfolios from many asset-date signals,
+but treating these dependent rows as independent observations can misstate
+Sharpe ratio significance. This paper studies that sampling-boundary
+distortion using public Kenneth French panels, AQR factor series, and
+Monte Carlo designs. The analysis compares row-pooled IID Sharpe
+uncertainty with date-level long-run Sharpe uncertainty through the Sharpe
+Unified Variance Inflation Factor and evaluates claims using HAC-delta and
+dependent-bootstrap inference on date returns. In dependent-null
+simulations, row-naive tests reject about 35 percent of the time at a
+nominal 5 percent level, while date-level procedures remain close to
+nominal size. Public benchmarks show that the correction preserves strong
+momentum evidence but removes weaker panel claims.
 \end{abstract}
 
 \noindent\textbf{Keywords:} Sharpe ratio; panel data; cross-sectional dependence;
@@ -112,7 +113,7 @@ the cross-section on a date as many independent draws from the same
 experiment.  A portfolio signal or trading strategy, however, is marked
 to market by date.
 
-I denote the underlying entity-time panel by
+The underlying entity-time panel is denoted by
 \(\mathcal P=\{(t,i,s_{t,i},r_{t+1,i})\}\), where \(t\) indexes dates,
 \(i\) indexes assets or portfolios, \(s_{t,i}\) is the signal, and
 \(r_{t+1,i}\) is the next-period return.  One evaluation failure mode is
@@ -156,8 +157,8 @@ row-pooled IID uncertainty sits from the date-level long-run uncertainty.
 
 The required diagnostic is a ratio between the uncertainty attached to
 the date-level Sharpe claim and the uncertainty a row-pooled IID analysis
-would report.  I refer to this ratio as the Sharpe Unified Variance
-Inflation Factor, or Sharpe UVIF:
+would report.  This ratio is the Sharpe Unified Variance Inflation
+Factor, or Sharpe UVIF:
 \[
   \UVIF_{\SR}
   =
@@ -435,31 +436,13 @@ robustness-fragile rather than summarized as a positive-edge finding.
 
 \subsection{Public-panel momentum implementation}
 
-The following construction is used for the public momentum-panel
-implementation; the sampling-boundary diagnostic itself does not depend
-on this particular signal.  For lookback \(L\) and skip \(q\), the
-skipped compounded signal is
-\begin{equation}
-  s_{t,i}^{(L,q)} =
-  \prod_{j=t-L-q+1}^{t-q} (1+r_{j,i}) - 1 .
-  \label{eq:signal}
-\end{equation}
-With \(q\ge1\), the signal excludes the outcome return and is executable
-at date \(t\) when all signals in the available universe \(A_t\) are
-known before the trading decision.  The signed one-period row return is
-\begin{equation}
-  y_{t+1,i}^{(L,q)}=\sign(s_{t,i}^{(L,q)})r_{t+1,i},
-\end{equation}
-with \(\sign(0)=0\); zero-signal and missing-signal rows receive zero
-economic weight.  The confidence score \(c_{t,i}^{(L,q)}\) is the
-within-date percentile rank of \(|s_{t,i}^{(L,q)}|\), and the selected
-set is
-\[
-  \mathcal S_t(L,q,\tau)=\{i:c_{t,i}^{(L,q)}\ge\tau\}.
-\]
-The percentile score is a baseline screening rule, not an optimal
-weighting theorem.  Tie handling, one-name dates, and selected-count
-granularity are reported in the appendix and replication files.
+For the public French panel illustrations, the empirical implementation
+uses a skipped-momentum signal, within-date percentile thresholds, and
+equal-weighted signed returns.  The construction is intentionally simple:
+it supplies a transparent panel example for the sampling-boundary
+diagnostic rather than an optimized trading rule.  Detailed formulas for
+the skipped signal, selected set, tie handling, and selected-count
+granularity are reported in the technical appendix and replication files.
 
 \subsection{Researcher menus, placebos, and factor alpha}
 
@@ -768,7 +751,7 @@ counterfactual reporting benchmark rather than the maintained sampling
 law.
 \end{assumption}
 
-\begin{proposition}[Sharpe UVIF decomposition]
+\paragraph{Sharpe UVIF decomposition.}
 Let \(R_t\) be the date-level portfolio excess return and
 \(G_t=(R_t,R_t^2)'\).  Define
 \(\theta_R=(\mu_R,m_{2,R})'=\E[G_t]\),
@@ -825,13 +808,12 @@ and the scalar long-run variance entering the numerator is
   \label{eq:uvif-fourth-moment}
 \end{equation}
 where \(\Omega_{ab}\) denotes the \((a,b)\) element of \(\Omega_R\).
-\end{proposition}
 
 \noindent The proof is given in the technical appendix.
 
-\subsection{What Proposition 1 does and does not identify}
+\subsection{What the Sharpe UVIF decomposition does and does not identify}
 
-Proposition 1 is a first-order variance decomposition for a fixed
+The decomposition is a first-order variance calculation for a fixed
 aggregation rule and a constant selected-count approximation.  It
 identifies how a row-pooled IID Sharpe uncertainty report changes when
 the claim is moved to the date-return boundary and when the date series
@@ -1165,14 +1147,16 @@ The author thanks reviewers of earlier manuscript drafts and public data
 providers for maintaining the datasets used in this study.
 \fi
 
-\section*{Declaration of interest}
+\section*{Conflicts of interest}
 
-The author declares no conflict of interest.
+The author declares no conflicts of interest.
 
 \section*{Use of AI tools}
 
-No AI tool is listed as an author. Any venue-required tool-use
-disclosure is supplied in the separate submission metadata.
+AI-assisted language editing and formatting support was used during
+revision. The author reviewed all manuscript text, code, data sources,
+statistical outputs, references, and conclusions and remains fully
+responsible for the submitted work. No AI tool is listed as an author.
 
 \section*{Ethics statement}
 

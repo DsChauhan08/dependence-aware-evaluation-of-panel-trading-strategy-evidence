@@ -28,7 +28,7 @@ MF_TITLE_PAGE = "MF_sharpe_uvif_title_page.md"
 MF_COVER_LETTER = "MF_sharpe_uvif_cover_letter.md"
 MF_REPLICATION_ZIP = "MF_sharpe_uvif_replication_blinded.zip"
 MF_SHA256 = "MF_sharpe_uvif_sha256.txt"
-PAPER_TITLE = "Sharpe-Ratio Inference at the Date Boundary in Financial Panels"
+PAPER_TITLE = "Sampling-boundary distortion in Sharpe ratio evidence from financial panels"
 FORBIDDEN_PARTS = {
     "venv",
     ".venv",
