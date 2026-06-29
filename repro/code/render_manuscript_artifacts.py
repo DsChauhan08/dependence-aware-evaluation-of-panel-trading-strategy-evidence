@@ -1257,14 +1257,14 @@ def empirical_figure_tex() -> str:
     return r"""
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.82\textwidth]{generated_figures/threshold_profile.png}
+\includegraphics[width=0.82\textwidth]{generated_figures/threshold_profile.pdf}
 \caption{Threshold-profile diagnostics for public candidate panels; each line shows how annualized Sharpe changes when the pre-specified confidence threshold is varied.}
 \label{fig:threshold-profile}
 \end{figure}
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.82\textwidth]{generated_figures/cost_sensitivity.png}
+\includegraphics[width=0.82\textwidth]{generated_figures/cost_sensitivity.pdf}
 \caption{Turnover-scaled cost sensitivity at primary candidate thresholds; positive values indicate that the candidate remains above zero after the displayed linear cost stress.}
 \label{fig:cost-sensitivity}
 \end{figure}
@@ -1276,7 +1276,7 @@ def size_figure_tex() -> str:
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.98\textwidth]{generated_figures/null_size_rejections.png}
+\includegraphics[width=0.98\textwidth]{generated_figures/null_size_rejections.pdf}
 \caption{Rejection rates under null designs. The dashed line is the nominal 5 percent rejection rate. Row-naive rejection is near nominal under IID sampling but rises sharply under dependent nulls, while date-level dependence-aware procedures remain much closer to nominal size.}
 \label{fig:null-size}
 \end{figure}
@@ -1288,7 +1288,7 @@ def power_figure_tex() -> str:
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.82\textwidth]{generated_figures/power_curve.png}
+\includegraphics[width=0.82\textwidth]{generated_figures/power_curve.pdf}
 \caption{Monte Carlo rejection rates by true annualized Sharpe; the figure separates genuine power from methods that already overreject under zero-edge null designs.}
 \label{fig:power-curve}
 \end{figure}
@@ -1385,13 +1385,13 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         "rather than primary evidence; the main text reports the compressed\n"
         "interpretation.\n",
         latex_table(annualization_metadata_table(campaign_root), "Source frequency and annualization metadata.", "tab:annualization-metadata"),
-        latex_table(panel_candidate_table(campaign_root), "Panel candidates subject to the composite reporting rule.", "tab:panel-candidates"),
+        latex_table(panel_candidate_table(campaign_root), "Panel candidates with row-level signal-return structure.", "tab:panel-candidates"),
         pagebreak,
         latex_table(
             single_series_factor_table(campaign_root),
             "Single-series factor benchmarks subject to time-series inference only.",
             "tab:single-series-benchmarks",
-            note="Time-series only means not eligible for same-date permutation, row-retention diagnostics, or the composite panel rule.",
+            note="Time-series only means not eligible for same-date permutation, row-retention diagnostics, or the full panel decision rule.",
         ),
         latex_table(campaign_momentum_benchmark_table(campaign_root), "Canonical French momentum benchmark validation.", "tab:momentum-benchmark"),
         latex_table(
@@ -1421,7 +1421,7 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         latex_table(
             campaign_phantom_audit_table(campaign_root),
             "Sampling-boundary summary for panel candidates.",
-            "tab:dependence-audit",
+            "tab:dependence-summary",
             note="Displayed UVIF is a one-sided inflation summary floored at one. Degenerate same-date permutation diagnostics are reported as uninformative rather than converted into failures.",
         ),
         latex_table(campaign_horizon_effect_table(campaign_root), "Horizon-effect sensitivity for the dynamic Size/BM momentum panel.", "tab:horizon-effect"),
@@ -1437,7 +1437,7 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         pagebreak,
         latex_table(campaign_robustness_table(campaign_root), "HAC bandwidth, prewhitening, and fixed-b robustness diagnostics.", "tab:hac-robustness"),
         pagebreak,
-        latex_table(campaign_gate_table(campaign_root), "Composite reporting-rule sensitivity by alpha threshold.", "tab:gate-sensitivity"),
+        latex_table(campaign_gate_table(campaign_root), "Decision-rule sensitivity by alpha threshold.", "tab:gate-sensitivity"),
         latex_table(campaign_holdout_table(campaign_root), "Holdout and subperiod Sharpe diagnostics.", "tab:holdout-subperiods"),
         latex_table(campaign_cost_table(campaign_root), "Turnover-scaled cost sensitivity and break-even cost.", "tab:costs"),
         empirical_figure_tex(),
@@ -1492,16 +1492,16 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
     empirical_main_sections = [
         "% Main-manuscript subset generated from generated_empirical_artifacts.tex.\n",
         "The panel-candidate table reports only sources with row-level\n"
-        "signal-return structure and therefore eligibility for the composite\n"
-        "panel rule.  The single-series benchmark table reports pre-aggregated\n"
+        "signal-return structure and therefore eligibility for the full panel\n"
+        "decision rule.  The single-series benchmark table reports pre-aggregated\n"
         "factor returns separately; those rows are time-series benchmarks, not\n"
         "failed panel candidates.\n",
-        latex_table(panel_candidate_table(campaign_root), "Panel candidates subject to the composite reporting rule.", "tab:panel-candidates"),
+        latex_table(panel_candidate_table(campaign_root), "Panel candidates with row-level signal-return structure.", "tab:panel-candidates"),
         latex_table(
             single_series_factor_table(campaign_root),
             "Single-series factor benchmarks subject to time-series inference only.",
             "tab:single-series-benchmarks",
-            note="Time-series only means not eligible for same-date permutation, row-retention diagnostics, or the composite panel rule.",
+            note="Time-series only means not eligible for same-date permutation, row-retention diagnostics, or the full panel decision rule.",
         ),
         "The benchmark validation table shows that the panel implementation\n"
         "matches the direct French winner-minus-loser construction.\n",
@@ -1521,7 +1521,7 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         latex_table(
             campaign_phantom_audit_table(campaign_root),
             "Sampling-boundary summary for panel candidates.",
-            "tab:dependence-audit",
+            "tab:dependence-summary",
             note="Displayed UVIF is a one-sided inflation summary floored at one. Degenerate same-date permutation diagnostics are reported as uninformative rather than converted into failures.",
         ),
         "The horizon table shows that changing the lookback reduces turnover in\n"

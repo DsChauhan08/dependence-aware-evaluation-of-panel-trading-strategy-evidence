@@ -2,15 +2,15 @@
 % Main-manuscript subset generated from generated_empirical_artifacts.tex.
 
 The panel-candidate table reports only sources with row-level
-signal-return structure and therefore eligibility for the composite
-panel rule.  The single-series benchmark table reports pre-aggregated
+signal-return structure and therefore eligibility for the full panel
+decision rule.  The single-series benchmark table reports pre-aggregated
 factor returns separately; those rows are time-series benchmarks, not
 failed panel candidates.
 
 \begin{table}[!htbp]
 \centering
 \small
-\caption{Panel candidates subject to the composite reporting rule.}
+\caption{Panel candidates with row-level signal-return structure.}
 \label{tab:panel-candidates}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lllllllll}
@@ -42,7 +42,7 @@ AQR Value and Momentum Everywhere & 0.572 & 1.62e-04 & 2.00e-04 & 2.00e-04 & tim
 \bottomrule
 \end{tabular}%
 }
-\par\footnotesize\emph{Note:} Time-series only means not eligible for same-date permutation, row-retention diagnostics, or the composite panel rule.
+\par\footnotesize\emph{Note:} Time-series only means not eligible for same-date permutation, row-retention diagnostics, or the full panel decision rule.
 \end{table}
 
 The benchmark validation table shows that the panel implementation
@@ -95,7 +95,7 @@ evidence, and turnover-scaled net Sharpe are evaluated together.
 \centering
 \small
 \caption{Sampling-boundary summary for panel candidates.}
-\label{tab:dependence-audit}
+\label{tab:dependence-summary}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{llllll}
 \toprule

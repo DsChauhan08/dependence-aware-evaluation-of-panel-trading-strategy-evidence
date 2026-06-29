@@ -30,7 +30,7 @@ French 25 Size/BM, skipped-momentum panel & panel & daily & 252.000 & 3477 \\
 \begin{table}[!htbp]
 \centering
 \small
-\caption{Panel candidates subject to the composite reporting rule.}
+\caption{Panel candidates with row-level signal-return structure.}
 \label{tab:panel-candidates}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lllllllll}
@@ -65,7 +65,7 @@ AQR Value and Momentum Everywhere & 0.572 & 1.62e-04 & 2.00e-04 & 2.00e-04 & tim
 \bottomrule
 \end{tabular}%
 }
-\par\footnotesize\emph{Note:} Time-series only means not eligible for same-date permutation, row-retention diagnostics, or the composite panel rule.
+\par\footnotesize\emph{Note:} Time-series only means not eligible for same-date permutation, row-retention diagnostics, or the full panel decision rule.
 \end{table}
 
 \begin{table}[!htbp]
@@ -168,7 +168,7 @@ French 25 Size/BM, skipped-momentum panel & 0.667 & 3.000 & 9.002 & 9.002 & 0.11
 \centering
 \small
 \caption{Sampling-boundary summary for panel candidates.}
-\label{tab:dependence-audit}
+\label{tab:dependence-summary}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{llllll}
 \toprule
@@ -329,7 +329,7 @@ French 25 Size/BM, skipped-momentum panel & fixed-b 0.1 & 0.058 & 0.172 & 0.360 
 \begin{table}[!htbp]
 \centering
 \small
-\caption{Composite reporting-rule sensitivity by alpha threshold.}
+\caption{Decision-rule sensitivity by alpha threshold.}
 \label{tab:gate-sensitivity}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{llll}
@@ -439,14 +439,14 @@ French 25 Size/BM, skipped-momentum panel & 25 & 0.169 & 0.058 & -0.480 & 2.683 
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.82\textwidth]{generated_figures/threshold_profile.png}
+\includegraphics[width=0.82\textwidth]{generated_figures/threshold_profile.pdf}
 \caption{Threshold-profile diagnostics for public candidate panels; each line shows how annualized Sharpe changes when the pre-specified confidence threshold is varied.}
 \label{fig:threshold-profile}
 \end{figure}
 
 \begin{figure}[!htbp]
 \centering
-\includegraphics[width=0.82\textwidth]{generated_figures/cost_sensitivity.png}
+\includegraphics[width=0.82\textwidth]{generated_figures/cost_sensitivity.pdf}
 \caption{Turnover-scaled cost sensitivity at primary candidate thresholds; positive values indicate that the candidate remains above zero after the displayed linear cost stress.}
 \label{fig:cost-sensitivity}
 \end{figure}
