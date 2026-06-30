@@ -4,7 +4,7 @@
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.82\textwidth]{generated_figures/power_curve.pdf}
-\caption{Monte Carlo rejection rates by true annualized Sharpe; the figure separates genuine power from methods that already overreject under zero-edge null designs.}
+\caption{Monte Carlo rejection rates by true annualized Sharpe; the figure separates genuine power from methods that already overreject under null designs with no true edge.}
 \label{fig:power-curve}
 \end{figure}
 
@@ -147,7 +147,7 @@ DGP & Name & row coverage & bias vs date SR & CI width & mean SE & n \\
 \begin{table}[!htbp]
 \centering
 \small
-\caption{Sampling-boundary stress tests under a zero-edge null.}
+\caption{Sampling-boundary stress tests under a null design with no true edge.}
 \label{tab:design-sweeps}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{llllll}
@@ -173,19 +173,20 @@ B. Selected count (rho=0.35) & N=100 & 0.421 & 0.056 & 0.050 & 0.598 \\
 \begin{table}[!htbp]
 \centering
 \small
-\caption{Null rejection rates at nominal 5 percent size.}
+\caption{Monte Carlo rejection rates under null designs with no true edge.}
 \label{tab:size}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lllllll}
 \toprule
-dgp & date\_iid & hac\_delta & moving\_block & romano\_wolf & row\_naive & stationary \\
+Null design & Row-naive & Date-IID bootstrap & HAC-delta & Moving-block bootstrap & Stationary bootstrap & Romano-Wolf \\
 \midrule
-null\_dep & 0.094 & 0.066 & 0.070 & 0.068 & 0.352 & 0.067 \\
-null\_garch & 0.098 & 0.063 & 0.070 & 0.067 & 0.351 & 0.068 \\
-null\_iid & 0.060 & 0.060 & 0.061 & 0.060 & 0.062 & 0.062 \\
+Dependent null & 0.352 & 0.094 & 0.066 & 0.070 & 0.067 & 0.068 \\
+GARCH null & 0.351 & 0.098 & 0.063 & 0.070 & 0.068 & 0.067 \\
+IID null & 0.062 & 0.060 & 0.060 & 0.061 & 0.062 & 0.060 \\
 \bottomrule
 \end{tabular}%
 }
+\par\footnotesize\emph{Note:} Each entry is the fraction of 1000 Monte Carlo replications rejected at nominal 5 percent size. Row-naive treats selected asset-date rows as independent; the other procedures operate on the date-level portfolio return series.
 \end{table}
 
 \begin{table}[!htbp]

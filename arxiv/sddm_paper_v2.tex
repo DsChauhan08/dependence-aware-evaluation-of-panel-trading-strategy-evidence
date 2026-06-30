@@ -73,20 +73,20 @@ Researcher, India.\\
 
 \begin{abstract}
 Sharpe ratios from financial panels can look too precise when each
-asset-date return is treated as independent, although portfolio
-performance is observed as one aggregate return per date. This paper
+asset-date return is treated as independent. Portfolio performance,
+however, is observed as one aggregate return per date. This paper
 studies that row-to-date sampling-boundary distortion using public
 Kenneth French panels, AQR factor series, and Monte Carlo designs. It
 introduces Sharpe UVIF (Unified Variance Inflation Factor), defined as
 the date-level long-run variance of the Sharpe estimator divided by the
-naive row-pooled IID variance. Empirical claims are evaluated after date
-aggregation with heteroskedasticity-and-autocorrelation consistent (HAC)
-delta tests and dependent bootstraps; menu, same-date permutation, and
-turnover-cost diagnostics are reported separately. Under dependent
-zero-edge null designs, row-naive tests reject about 35 percent at
-nominal 5 percent, while date-level corrections stay much closer to
-nominal size. Benchmark momentum remains significant after adjustment;
-weaker panel claims do not.
+naive row-pooled IID variance. The analysis evaluates empirical claims
+after date aggregation with heteroskedasticity-and-autocorrelation
+consistent (HAC) delta tests and dependent bootstraps; multiple-testing,
+same-date permutation, and turnover-cost diagnostics are reported
+separately. Under dependent null designs with no true edge, row-naive
+tests reject about 35 percent at nominal 5 percent, while date-level
+corrections stay much closer to nominal size. Benchmark momentum remains
+significant after adjustment; weaker panel claims do not.
 \end{abstract}
 
 \noindent\textbf{Keywords:} Sharpe ratio; panel data; cross-sectional dependence;
@@ -199,7 +199,18 @@ long-run uncertainty, extending standard design-effect logic to the
 nonlinear Sharpe functional.  Third, public Kenneth French panels, AQR
 factor series, and Monte Carlo designs show that the correction preserves
 canonical WML momentum evidence while weakening weaker panel claims, and
-that row-naive tests overreject under dependent zero-edge nulls.
+that row-naive tests overreject under dependent nulls with no true edge.
+
+The novelty claim is deliberately narrow.  The paper does not introduce
+a new Sharpe estimator, replace HAC or bootstrap inference, or claim a
+new asset-pricing anomaly.  Its contribution is a diagnostic and
+workflow for a finance-panel reporting problem: row-pooled IID Sharpe
+uncertainty is compared with date-level long-run Sharpe uncertainty
+before portfolio-performance evidence is interpreted.  Standard
+design-effect logic explains the mean-return special case; Sharpe UVIF
+extends that reporting comparison to the nonlinear Sharpe functional and
+places it inside a reproducible date-aggregation, multiple-testing,
+permutation, and cost-sensitivity workflow.
 
 The empirical section checks the implementation on canonical French
 WML, evaluates French panel stress cases, and reports AQR factor
@@ -1007,6 +1018,13 @@ volatility, multifactor exposure, and regime switching.  The
 high-persistence AR(1) case is reported as such; it is not labeled as a
 long-memory design.  The high-volatility GARCH case is not described as
 an infinite-variance heavy-tail design.
+The exercise should be read as a falsification-style stress test rather
+than a universal theorem about all return processes.  It asks whether a
+common row-naive workflow can badly overreject when same-date common
+shocks and serial dependence are present.  A method that behaves well in
+this grid still needs the regularity conditions stated above; the grid
+does not exhaust long memory, infinite-variance returns, structural
+breaks, or changing researcher menus.
 The simulation uses \(1000\) Monte Carlo replications for the
 displayed size table, \(T=1000\) dates and \(N=50\) entities in the
 main null designs, \(5000\) bootstrap draws per simulation, and
@@ -1123,13 +1141,13 @@ reproduction instructions are recorded in the release manifest and
 
 \section{Conclusion}
 
-The paper's central message is simple.  In financial panels, multiplying
-same-date rows does not automatically create independent Sharpe-ratio
-evidence when the relevant payoff is a date-level portfolio return.  The
-solution proposed here is not a new anomaly but a sampling-boundary
-method: aggregate to the date-return series, estimate long-run Sharpe
-uncertainty at that boundary, and record how far the row-pooled report
-differed from the confirmatory date-level claim.
+The central implication is methodological.  In financial panels,
+multiplying same-date rows does not automatically create independent
+Sharpe-ratio evidence when the relevant payoff is a date-level portfolio
+return.  The proposed contribution is not a new anomaly but a
+sampling-boundary diagnostic: aggregate to the date-return series,
+estimate long-run Sharpe uncertainty at that boundary, and record how far
+the row-pooled report differed from the confirmatory date-level claim.
 
 In public benchmark evidence, this framework preserves the canonical
 French WML result while overturning weaker stress-panel claims once

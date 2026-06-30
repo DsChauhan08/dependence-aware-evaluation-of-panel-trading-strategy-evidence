@@ -1124,7 +1124,25 @@ def monte_carlo_design_contract_table(campaign_root: Path) -> pd.DataFrame:
 def size_table(outdir: Path) -> pd.DataFrame:
     df = read(outdir, "size_test_audit.csv")
     pivot = df.pivot_table(values="rejection_rate", index="dgp", columns="method", aggfunc="first").reset_index()
-    return pivot
+    dgp_labels = {
+        "null_dep": "Dependent null",
+        "null_garch": "GARCH null",
+        "null_iid": "IID null",
+    }
+    method_labels = {
+        "dgp": "Null design",
+        "date_iid": "Date-IID bootstrap",
+        "hac_delta": "HAC-delta",
+        "moving_block": "Moving-block bootstrap",
+        "romano_wolf": "Romano-Wolf",
+        "row_naive": "Row-naive",
+        "stationary": "Stationary bootstrap",
+    }
+    pivot["dgp"] = pivot["dgp"].map(dgp_labels).fillna(pivot["dgp"])
+    ordered = ["dgp", "row_naive", "date_iid", "hac_delta", "moving_block", "stationary", "romano_wolf"]
+    ordered = [col for col in ordered if col in pivot.columns]
+    pivot = pivot[ordered]
+    return pivot.rename(columns=method_labels)
 
 
 def power_table(outdir: Path) -> pd.DataFrame:
@@ -1309,7 +1327,7 @@ def power_figure_tex() -> str:
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.82\textwidth]{generated_figures/power_curve.pdf}
-\caption{Monte Carlo rejection rates by true annualized Sharpe; the figure separates genuine power from methods that already overreject under zero-edge null designs.}
+\caption{Monte Carlo rejection rates by true annualized Sharpe; the figure separates genuine power from methods that already overreject under null designs with no true edge.}
 \label{fig:power-curve}
 \end{figure}
 """
@@ -1353,11 +1371,16 @@ def render(outdir: Path, paper_dir: Path) -> None:
         ),
         latex_table(
             design_sweep_table(outdir),
-            "Sampling-boundary stress tests under a zero-edge null.",
+            "Sampling-boundary stress tests under a null design with no true edge.",
             "tab:design-sweeps",
             note="Row-naive overrejection rises with same-date dependence and selected-count pressure, whereas date-level HAC remains close to nominal size.",
         ),
-        latex_table(size_table(outdir), "Null rejection rates at nominal 5 percent size.", "tab:size"),
+        latex_table(
+            size_table(outdir),
+            "Monte Carlo rejection rates under null designs with no true edge.",
+            "tab:size",
+            note="Each entry is the fraction of 1000 Monte Carlo replications rejected at nominal 5 percent size. Row-naive treats selected asset-date rows as independent; the other procedures operate on the date-level portfolio return series.",
+        ),
         latex_table(power_table(outdir), "Rejection rates across true annualized Sharpe values.", "tab:power"),
     ]
     sections = empirical_sections + simulation_sections
@@ -1489,11 +1512,16 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         ),
         latex_table(
             design_sweep_table(sim_dir),
-            "Sampling-boundary stress tests under a zero-edge null.",
+            "Sampling-boundary stress tests under a null design with no true edge.",
             "tab:design-sweeps",
             note="Row-naive overrejection rises with same-date dependence and selected-count pressure, whereas date-level HAC remains close to nominal size.",
         ),
-        latex_table(size_table(sim_dir), "Null rejection rates at nominal 5 percent size.", "tab:size"),
+        latex_table(
+            size_table(sim_dir),
+            "Monte Carlo rejection rates under null designs with no true edge.",
+            "tab:size",
+            note="Each entry is the fraction of 1000 Monte Carlo replications rejected at nominal 5 percent size. Row-naive treats selected asset-date rows as independent; the other procedures operate on the date-level portfolio return series.",
+        ),
         latex_table(power_table(sim_dir), "Rejection rates across true annualized Sharpe values.", "tab:power"),
     ])
 
@@ -1538,7 +1566,12 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         "at a nominal 5 percent level, while date-level HAC, block-bootstrap,\n"
         "stationary, and Romano-Wolf procedures stay much closer to size.\n",
         size_figure_tex(),
-        latex_table(size_table(sim_dir), "Null rejection rates at nominal 5 percent size.", "tab:size"),
+        latex_table(
+            size_table(sim_dir),
+            "Monte Carlo rejection rates under null designs with no true edge.",
+            "tab:size",
+            note="Each entry is the fraction of 1000 Monte Carlo replications rejected at nominal 5 percent size. Row-naive treats selected asset-date rows as independent; the other procedures operate on the date-level portfolio return series.",
+        ),
     ]
     (paper_dir / "generated_empirical_main_artifacts.tex").write_text(
         header + "\n".join(empirical_main_sections),
