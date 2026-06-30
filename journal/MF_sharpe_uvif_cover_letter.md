@@ -10,6 +10,14 @@ The simulations show that row-naive testing rejects about 35 percent of the time
 
 The submission is original, is not under consideration elsewhere, and has not been published in a peer-reviewed outlet. Separate blinded manuscript files, a separate blinded appendix, an anonymized replication ZIP, and a separate title page have been prepared in accordance with the journal's review requirements.
 
+Potential reviewers:
+
+1. Michael Wolf, Department of Economics, University of Zurich, michael.wolf@econ.uzh.ch
+2. Andrew J. Patton, School of Economics, Singapore Management University, andrewpatton@smu.edu.sg
+3. Amit Goyal, Faculty of Business and Economics, University of Lausanne and Swiss Finance Institute, Amit.Goyal@unil.ch
+
+These suggestions are provided for the editor's consideration; the final reviewer selection remains at the journal's discretion.
+
 Sincerely,
 
 Dhananjay S. Chauhan

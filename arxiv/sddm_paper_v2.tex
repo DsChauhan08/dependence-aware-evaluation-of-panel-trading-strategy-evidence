@@ -216,8 +216,8 @@ permutation, and cost-sensitivity workflow.
 The empirical section checks the implementation on canonical French
 WML, evaluates French panel stress cases, and reports AQR factor
 benchmarks as time-series-only evidence.  The public Kenneth French and
-AQR evidence is based on documented public data sources and reproduction
-files.
+AQR evidence uses documented public data sources, recorded source URLs,
+and reproduction files supplied with the release package.
 The conservative empirical question is whether apparently significant
 portfolio-signal claims owe their precision to row-level sampling and
 disappear after date aggregation, dependence adjustment, and
@@ -387,7 +387,8 @@ active dates only unless otherwise stated.
 In the public equal-weight threshold implementation, optional
 non-negative weights \(a_{t,i}\) are normalized within the selected set
 \(\mathcal S_t\), where \(\mathcal S_t\) is produced by the declared
-signal and threshold rule, giving
+lookback \(L\), skip \(q\), and signal threshold \(\tau\).  The resulting
+date return is
 \begin{equation}
   \bar r_{t+1}(L,q,\tau) =
   \frac{\sum_{i\in\mathcal S_t} a_{t,i}y_{t+1,i}^{(L,q)}}
