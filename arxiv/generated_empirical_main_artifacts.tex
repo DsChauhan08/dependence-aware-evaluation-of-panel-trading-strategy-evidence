@@ -16,13 +16,13 @@ technical appendix.
 \toprule
 Panel candidate & Annualized SR & Date-HAC p+ & Permutation p & Net SR (5 bps) & Status \\
 \midrule
-French momentum deciles, rank-threshold panel & 0.447 & 7.54e-05 & N/A & 0.447 & Permutation uninformative; remaining criteria pass \\
+French momentum deciles, rank-threshold panel & 0.447 & 7.54e-05 & N/A & 0.447 & Permutation N/A; remaining checks pass \\
 French WML decile benchmark & 0.497 & 5.53e-06 & 1.00e-04 & 0.497 & Passes full evaluation \\
 French 25 Size/BM, skipped-momentum panel & 0.058 & 0.412 & 0.943 & -0.050 & Fails statistical and cost checks \\
 \bottomrule
 \end{tabular}%
 }
-\par\footnotesize\emph{Note:} Annualized SR is the gross date-level Sharpe ratio. Date-HAC p+ is the one-sided HAC-delta positive-edge p-value computed on the date-level portfolio return series. Permutation p is the same-date signal-placebo p-value; N/A means the placebo was uninformative for that threshold and is not counted as a full pass. Net SR (5 bps) is the Sharpe ratio after the reported 5 bps turnover-cost stress.
+\par\footnotesize\emph{Note:} Annualized SR is the gross date-level Sharpe ratio. Date-HAC p+ is the one-sided HAC-delta positive-edge p-value computed on the date-level portfolio return series. Permutation p is the same-date signal-placebo p-value; N/A means the placebo was degenerate or otherwise uninformative for that threshold and is not counted as a full pass. Net SR (5 bps) is the Sharpe ratio after the reported 5 bps turnover-cost stress.
 \end{table}
 
 The comparator table makes the standard-practice contrast explicit:
@@ -37,7 +37,7 @@ inference on the portfolio return series.
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{llllll}
 \toprule
-Panel candidate & Row-naive p+ & Date-IID p+ & Date-HAC p+ & Block-bootstrap p+ & Sharpe UVIF \\
+Panel candidate & Row-naive p+ & Date-IID p+ & Date-HAC p+ & Moving-block p+ & Sharpe UVIF \\
 \midrule
 French momentum deciles, rank-threshold panel & 1.70e-04 & 2.00e-04 & 7.54e-05 & 2.00e-04 & 1.000 \\
 French WML decile benchmark & 4.85e-04 & 2.00e-04 & 5.53e-06 & 2.00e-04 & 1.000 \\
@@ -45,5 +45,5 @@ French 25 Size/BM, skipped-momentum panel & 0.253 & 0.417 & 0.412 & 0.422 & 9.00
 \bottomrule
 \end{tabular}%
 }
-\par\footnotesize\emph{Note:} p+ denotes a one-sided positive-Sharpe p-value. Row-naive p+ treats selected asset-date rows as independent. Date-IID, Date-HAC, and Block-bootstrap p+ operate on the date-level portfolio return series. Sharpe UVIF is the diagnostic variance ratio between date-level long-run Sharpe uncertainty and row-pooled IID Sharpe uncertainty.
+\par\footnotesize\emph{Note:} p+ denotes a one-sided positive-Sharpe p-value. Row-naive p+ treats selected asset-date rows as independent. Date-IID, Date-HAC, and Moving-block p+ operate on the date-level portfolio return series. Sharpe UVIF is the diagnostic variance ratio between date-level long-run Sharpe uncertainty and row-pooled IID Sharpe uncertainty.
 \end{table}

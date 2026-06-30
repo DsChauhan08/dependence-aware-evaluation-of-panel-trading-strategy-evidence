@@ -295,7 +295,7 @@ def test_renderer_labels_degenerate_permutation_as_applicable_checks_pass(tmp_pa
         }
     ]).to_csv(emp / "row_boundary.csv", index=False)
     table = campaign_phantom_audit_table(tmp_path)
-    assert table.iloc[0]["Status"] == "Permutation uninformative; remaining criteria pass"
+    assert table.iloc[0]["Status"] == "Permutation N/A; remaining checks pass"
     assert "ERIR" not in table.columns
 
 
