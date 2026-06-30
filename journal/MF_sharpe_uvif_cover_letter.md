@@ -2,7 +2,7 @@
 
 Dear Editor,
 
-Please consider the manuscript, "Sampling-boundary distortion in Sharpe ratio evidence from financial panels," for publication as an Article in Modern Finance.
+Please consider the manuscript, "Sampling-Boundary Distortion in Sharpe Ratio: Evidence from Financial Panels," for publication as a Research Article in Modern Finance.
 
 The paper is a financial econometrics methodology study using public Kenneth French panels, AQR factor series, and Monte Carlo designs. It examines how Sharpe-ratio evidence can be misstated when selected rows in an entity-time panel are treated as independent observations even though the economically relevant payoff is a date-level portfolio return.
 
@@ -12,9 +12,7 @@ The submission is original, is not under consideration elsewhere, and has not be
 
 Potential reviewers:
 
-1. [Name], [Affiliation], [Email]
-2. [Name], [Affiliation], [Email]
-3. [Name], [Affiliation], [Email]
+The submission system requests three potential reviewers. Reviewer names, affiliations, and emails should be entered in the portal before final upload; this draft cover letter does not fabricate reviewer identities.
 
 Sincerely,
 

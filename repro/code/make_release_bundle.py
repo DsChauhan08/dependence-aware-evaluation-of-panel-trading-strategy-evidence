@@ -28,7 +28,7 @@ MF_TITLE_PAGE = "MF_sharpe_uvif_title_page.md"
 MF_COVER_LETTER = "MF_sharpe_uvif_cover_letter.md"
 MF_REPLICATION_ZIP = "MF_sharpe_uvif_replication_blinded.zip"
 MF_SHA256 = "MF_sharpe_uvif_sha256.txt"
-PAPER_TITLE = "Sampling-boundary distortion in Sharpe ratio evidence from financial panels"
+PAPER_TITLE = "Sampling-Boundary Distortion in Sharpe Ratio: Evidence from Financial Panels"
 FORBIDDEN_PARTS = {
     "venv",
     ".venv",
@@ -311,14 +311,12 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
     (journal / MF_COVER_LETTER).write_text(
         "# Cover Letter\n\n"
         "Dear Editor,\n\n"
-        f"Please consider the manuscript, \"{PAPER_TITLE},\" for publication as an Article in Modern Finance.\n\n"
+        f"Please consider the manuscript, \"{PAPER_TITLE},\" for publication as a Research Article in Modern Finance.\n\n"
         "The paper is a financial econometrics methodology study using public Kenneth French panels, AQR factor series, and Monte Carlo designs. It examines how Sharpe-ratio evidence can be misstated when selected rows in an entity-time panel are treated as independent observations even though the economically relevant payoff is a date-level portfolio return.\n\n"
         "The simulations show that row-naive testing rejects about 35 percent of the time at a nominal 5 percent level under dependent zero-edge nulls, while date-level HAC and dependent-bootstrap procedures remain much closer to nominal size. The public benchmarks show that the correction preserves canonical momentum evidence but removes weaker stress-panel claims. The manuscript is positioned as a methods paper for evaluating panel-based Sharpe evidence rather than as a new anomaly or trading-rule paper.\n\n"
         "The submission is original, is not under consideration elsewhere, and has not been published in a peer-reviewed outlet. Separate blinded manuscript files, a separate blinded appendix, an anonymized replication ZIP, and a separate title page have been prepared in accordance with the journal's review requirements.\n\n"
         "Potential reviewers:\n\n"
-        "1. [Name], [Affiliation], [Email]\n"
-        "2. [Name], [Affiliation], [Email]\n"
-        "3. [Name], [Affiliation], [Email]\n\n"
+        "The submission system requests three potential reviewers. Reviewer names, affiliations, and emails should be entered in the portal before final upload; this draft cover letter does not fabricate reviewer identities.\n\n"
         "Sincerely,\n\n"
         "Dhananjay S. Chauhan\n"
         "Independent Researcher, India\n"
@@ -342,6 +340,7 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
     (journal / "reproducibility_statement.md").write_text(
         "# Reproducibility Statement\n\n"
         "The public manuscript tables, figures, and conclusions are generated from public Kenneth French and AQR data sources and from simulation code included in the reproducibility package. "
+        "The source registry records source URLs, including the Kenneth French Data Library (https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html) and the AQR datasets page (https://www.aqr.com/Insights/Datasets), plus candidate-specific download URLs and checksums. "
         "No nonpublic or workspace-specific production artifacts enter the reported evidence.\n",
         encoding="utf-8",
     )

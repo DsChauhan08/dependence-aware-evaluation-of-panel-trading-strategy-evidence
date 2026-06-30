@@ -1,6 +1,6 @@
 # Title Page
 
-Title: Sampling-boundary distortion in Sharpe ratio evidence from financial panels
+Title: Sampling-Boundary Distortion in Sharpe Ratio: Evidence from Financial Panels
 
 Author: Dhananjay S. Chauhan
 

@@ -1,4 +1,4 @@
-# Sampling-boundary distortion in Sharpe ratio evidence from financial panels
+# Sampling-Boundary Distortion in Sharpe Ratio: Evidence from Financial Panels
 
 This repository contains the public manuscript, technical appendix, aggregate public artifacts, and reproducibility code for the paper.
 

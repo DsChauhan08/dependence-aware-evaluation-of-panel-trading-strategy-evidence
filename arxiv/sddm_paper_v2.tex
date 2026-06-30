@@ -48,7 +48,7 @@
   \blindedfalse
 \fi
 
-\title{Sampling-boundary distortion in Sharpe ratio evidence from financial panels}
+\title{Sampling-Boundary Distortion in Sharpe Ratio: Evidence from Financial Panels}
 \ifblinded
 \author{}
 \else
@@ -72,20 +72,21 @@ Researcher, India.\\
 \fi
 
 \begin{abstract}
-Sharpe ratios computed from financial panels may appear overly precise
-if each asset-date return is treated as independent, even though
-portfolio performance is realized once per date. This paper studies that
-row-to-date sampling-boundary distortion using public Kenneth French
-panels, AQR factor series, and Monte Carlo designs. It introduces Sharpe
-UVIF (Unified Variance Inflation Factor), a diagnostic ratio of
-row-pooled IID Sharpe variance to date-level long-run Sharpe variance.
-Empirical claims are evaluated after date aggregation using
-heteroskedasticity-and-autocorrelation consistent (HAC) delta tests and
-moving-block or stationary bootstraps; menu, same-date placebo, and
-turnover-cost diagnostics are reported separately. When the true edge is
-zero under dependent null designs, row-naive tests reject about 35
-percent at nominal 5 percent, while date-level corrections stay much
-closer. Canonical momentum survives; weaker panel claims do not.
+Sharpe ratios from financial panels can look too precise when each
+asset-date return is treated as independent, although portfolio
+performance is observed as one aggregate return per date. This paper
+studies that row-to-date sampling-boundary distortion using public
+Kenneth French panels, AQR factor series, and Monte Carlo designs. It
+introduces Sharpe UVIF (Unified Variance Inflation Factor), defined as
+the date-level long-run variance of the Sharpe estimator divided by the
+naive row-pooled IID variance. Empirical claims are evaluated after date
+aggregation with heteroskedasticity-and-autocorrelation consistent (HAC)
+delta tests and dependent bootstraps; menu, same-date permutation, and
+turnover-cost diagnostics are reported separately. Under dependent
+zero-edge null designs, row-naive tests reject about 35 percent at
+nominal 5 percent, while date-level corrections stay much closer to
+nominal size. Benchmark momentum remains significant after adjustment;
+weaker panel claims do not.
 \end{abstract}
 
 \noindent\textbf{Keywords:} Sharpe ratio; panel data; cross-sectional dependence;
@@ -230,9 +231,14 @@ target-aware distortion ratio for nonlinear portfolio performance
 statistics.
 
 Sharpe-ratio inference follows a separate time-series literature.
+Classical Sharpe and Treynor comparison tests start with
+\citet{jobson1981performance}, with corrections and extensions by
+\citet{memmel2003performance}, \citet{opdyke2007comparing}, and
+\citet{ledoit2008robust}; related work also studies whether alternative
+performance measures change fund rankings \citep{eling2007does}.
 \citet{lo2002statistics} studies Sharpe-ratio sampling under return
 dynamics, and robust Sharpe testing builds on HAC and bootstrap methods
-\citep{ledoit2008robust,opdyke2007comparing,andrews1991heteroskedasticity,kiefer2005new,kunsch1989jackknife,politis1994stationary,lahiri2003resampling}.
+\citep{andrews1991heteroskedasticity,kiefer2005new,kunsch1989jackknife,politis1994stationary,lahiri2003resampling}.
 These tools define the date-level sampling law once the return series is
 specified.  They do not quantify how much apparent Sharpe precision was
 created before the evidence was moved from selected entity-date rows to
@@ -1094,6 +1100,12 @@ page and submission metadata.\par}
 \fi
 Code is released under Apache-2.0 and manuscript/public aggregate
 tables under CC-BY 4.0 unless a target venue requires different terms.
+The public source registry records source URLs, including the Kenneth
+French Data Library
+(\url{https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html})
+and the AQR datasets page (\url{https://www.aqr.com/Insights/Datasets});
+candidate-specific direct download URLs and checksums are included in
+the reproducibility package.
 Raw third-party data are not
 redistributed where source terms do not permit redistribution; the
 repository instead provides documented loaders, source links, access
@@ -1159,9 +1171,9 @@ The author thanks the maintainers of the public datasets used in this
 study.
 \fi
 
-\section*{Conflicts of interest}
+\section*{Declaration of interest}
 
-The author declares no conflicts of interest.
+The author declares no competing interests.
 
 \section*{Ethics statement}
 
@@ -1229,6 +1241,12 @@ Chudik, A. and Pesaran, M. H. (2015).
 \newblock In B. H. Baltagi, editor, {\em The Oxford Handbook of Panel Data}.
 Oxford University Press.
 
+\bibitem[Eling and Schuhmacher, 2007]{eling2007does}
+Eling, M. and Schuhmacher, F. (2007).
+\newblock Does the choice of performance measure influence the evaluation of
+hedge funds?
+\newblock {\em Journal of Banking \& Finance}, 31(9):2632--2647.
+
 \bibitem[Fama and French, 1993]{fama1993common}
 Fama, E. F. and French, K. R. (1993).
 \newblock Common risk factors in the returns on stocks and bonds.
@@ -1269,6 +1287,11 @@ Holm, S. (1979).
 \newblock A simple sequentially rejective multiple test procedure.
 \newblock {\em Scandinavian Journal of Statistics}, 6(2):65--70.
 
+\bibitem[Jobson and Korkie, 1981]{jobson1981performance}
+Jobson, J. D. and Korkie, B. M. (1981).
+\newblock Performance hypothesis testing with the Sharpe and Treynor measures.
+\newblock {\em Journal of Finance}, 36(4):889--908.
+
 \bibitem[Kish, 1965]{kish1965survey}
 Kish, L. (1965).
 \newblock {\em Survey Sampling}.
@@ -1303,6 +1326,11 @@ Lo, A. W. (2002).
 McLean, R. D. and Pontiff, J. (2016).
 \newblock Does academic research destroy stock return predictability?
 \newblock {\em Journal of Finance}, 71(1):5--32.
+
+\bibitem[Memmel, 2003]{memmel2003performance}
+Memmel, C. (2003).
+\newblock Performance hypothesis testing with the Sharpe ratio.
+\newblock {\em Finance Letters}, 1:21--23.
 
 \bibitem[Moulton, 1986]{moulton1986random}
 Moulton, B. R. (1986).
