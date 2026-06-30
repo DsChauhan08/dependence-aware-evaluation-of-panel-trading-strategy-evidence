@@ -72,19 +72,20 @@ Researcher, India.\\
 \fi
 
 \begin{abstract}
-Sharpe ratios from financial panels can look more precise when
-asset-date rows are treated as independent even though portfolio
-performance is realized as date-level returns. This paper studies that
-sampling-boundary distortion in public Kenneth French panels, AQR factor
-series, and Monte Carlo designs. It introduces Sharpe UVIF, a diagnostic
-ratio comparing row-pooled IID Sharpe uncertainty with date-level
-long-run uncertainty. Empirical claims are evaluated after date
-aggregation using heteroskedasticity-and-autocorrelation consistent
-(HAC) delta inference and dependent bootstraps, with menu, placebo, and
-turnover-cost diagnostics reported separately. Under dependent zero-edge
-nulls, row-naive tests reject about 35 percent at a nominal 5 percent
-level, while date-level corrections stay much closer to nominal.
-Canonical momentum evidence survives; weaker panel claims do not.
+Sharpe ratios computed from financial panels may appear overly precise
+if each asset-date return is treated as independent, even though
+portfolio performance is realized once per date. This paper studies that
+row-to-date sampling-boundary distortion using public Kenneth French
+panels, AQR factor series, and Monte Carlo designs. It introduces Sharpe
+UVIF (Unified Variance Inflation Factor), a diagnostic ratio of
+row-pooled IID Sharpe variance to date-level long-run Sharpe variance.
+Empirical claims are evaluated after date aggregation using
+heteroskedasticity-and-autocorrelation consistent (HAC) delta tests and
+moving-block or stationary bootstraps; menu, same-date placebo, and
+turnover-cost diagnostics are reported separately. When the true edge is
+zero under dependent null designs, row-naive tests reject about 35
+percent at nominal 5 percent, while date-level corrections stay much
+closer. Canonical momentum survives; weaker panel claims do not.
 \end{abstract}
 
 \noindent\textbf{Keywords:} Sharpe ratio; panel data; cross-sectional dependence;
@@ -270,6 +271,16 @@ signal-return rows and are therefore reported as time-series evidence
 only.  These public applications are benchmark illustrations of the
 method, not a survey of all asset-pricing anomalies.
 
+The registry records all source URLs, source frequencies, annualization
+factors, and sample windows.  The two French momentum-decile daily
+panels run from 1926-11-03 to 2026-04-29 with 26,131 active dates.  The
+French 25 Size/BM stress case uses the trailing daily window
+2012-06-29 to 2026-04-29 with 3,477 active dates.  The AQR daily
+factor-series benchmarks end on 2026-03-31, with start dates determined
+by the public source series, and the monthly AQR value-and-momentum
+series runs from 1972-01-31 to 2026-03-31 with annualization factor 12.
+Daily sources use annualization factor 252.
+
 The method is a dependence-aware inference design rather than a single
 test.  Its first channel is cross-sectional: all evidence is translated
 from selected asset-date rows into one economically interpretable
@@ -284,6 +295,12 @@ sensitivity diagnostics.
 Each panel candidate is reported at three levels: the row-naive
 baseline, the date-level confirmatory estimate, and the UVIF diagnostic
 gap between them.
+Figure \ref{fig:workflow} summarizes the workflow.  The top row shows
+the maintained empirical path: selected entity-date rows are first
+aggregated to one return per date and then evaluated with date-return
+inference.  The bottom row shows the diagnostic path: the row-pooled IID
+report is retained only to measure the sampling-boundary gap and to
+organize supplementary checks.
 
 \begin{figure}[!htbp]
 \centering
@@ -355,7 +372,10 @@ and signal-magnitude-weighted returns are sensitivity checks.
 
 \subsection{Sharpe inference}
 
-The inference design separates estimation from testing.  It reports two-sided
+The Sharpe ratio throughout is annualized mean excess return divided by
+period return volatility, with the source-specific annualization factor
+applied after the period mean and variance are computed.  The inference
+design separates estimation from testing.  It reports two-sided
 95 percent intervals for \(\widehat{\SR}\) and one-sided positive-edge
 \(p\)-values for \(H_0:\SR\le0\).  For a fixed return series with
 positive volatility, this is equivalent to a nonpositive mean excess
@@ -451,6 +471,10 @@ it supplies a transparent panel example for the sampling-boundary
 diagnostic rather than an optimized trading rule.  Detailed formulas for
 the skipped signal, selected set, tie handling, and selected-count
 granularity are reported in the technical appendix and replication files.
+In brief, for lookback \(L\) and skip \(q\), the signal compounds prior
+returns through date \(t-q\), excluding the outcome return; selected
+rows then receive signed one-period returns according to the signal
+sign.
 
 \subsection{Researcher menus, placebos, and factor alpha}
 
