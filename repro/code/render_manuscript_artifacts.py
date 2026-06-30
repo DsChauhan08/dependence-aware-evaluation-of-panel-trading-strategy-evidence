@@ -318,10 +318,10 @@ def main_panel_status_table(campaign_root: Path) -> pd.DataFrame:
         name = r.get("Panel candidate", "")
         rows.append({
             "Panel candidate": name,
-            "SR": r.get("SR", np.nan),
-            "HAC p+": r.get("HAC p+", np.nan),
-            "Perm p": r.get("Perm p", np.nan),
-            "Net SR": r.get("Net SR", np.nan),
+            "Annualized SR": r.get("SR", np.nan),
+            "Date-HAC p+": r.get("HAC p+", np.nan),
+            "Permutation p": r.get("Perm p", np.nan),
+            "Net SR (5 bps)": r.get("Net SR", np.nan),
             "Status": status_by_name.get(name, ""),
         })
     return pd.DataFrame(rows)
@@ -347,11 +347,11 @@ def standard_comparator_table(campaign_root: Path) -> pd.DataFrame:
         uvif = max(1.0, float(sei) ** 2) if pd.notna(sei) else np.nan
         rows.append({
             "Panel candidate": candidate_name(cdir.name),
-            "row p+": r.get("row_p_positive", np.nan),
-            "date-IID p+": iid.iloc[0].get("p_positive", np.nan) if len(iid) else np.nan,
-            "date-HAC p+": r.get("hac_p_positive", np.nan),
-            "block p+": blocked.iloc[0].get("p_positive", np.nan) if len(blocked) else np.nan,
-            "UVIF": uvif,
+            "Row-naive p+": r.get("row_p_positive", np.nan),
+            "Date-IID p+": iid.iloc[0].get("p_positive", np.nan) if len(iid) else np.nan,
+            "Date-HAC p+": r.get("hac_p_positive", np.nan),
+            "Block-bootstrap p+": blocked.iloc[0].get("p_positive", np.nan) if len(blocked) else np.nan,
+            "Sharpe UVIF": uvif,
         })
     return pd.DataFrame(rows)
 
@@ -1517,18 +1517,18 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         "technical appendix.\n",
         latex_table(
             main_panel_status_table(campaign_root),
-            "Panel candidates and final evaluation status.",
+            "Panel candidates and date-level evaluation status.",
             "tab:panel-status",
-            note="Permutation N/A means that the same-date placebo was uninformative for that threshold; it is not counted as a full pass.",
+            note="Date-HAC p+ is the one-sided HAC-delta positive-edge p-value computed on the date-level portfolio return series. Permutation p is the same-date signal-placebo p-value; N/A means the placebo was uninformative for that threshold and is not counted as a full pass. Net SR uses the reported 5 bps turnover-cost stress.",
         ),
         "The comparator table makes the standard-practice contrast explicit:\n"
         "row-naive evidence is shown next to date-level HAC and bootstrap\n"
         "inference on the portfolio return series.\n",
         latex_table(
             standard_comparator_table(campaign_root),
-            "Comparison with common row and date-level inference choices for panel candidates.",
+            "Row-naive and date-level inference comparisons for panel candidates.",
             "tab:standard-comparator",
-            note="The row-naive column treats selected rows as independent. Date-IID, date-HAC, and block-bootstrap columns operate on the date-level portfolio return series.",
+            note="Row-naive p+ treats selected asset-date rows as independent. Date-IID, Date-HAC, and Block-bootstrap p+ operate on the date-level portfolio return series. Sharpe UVIF is the diagnostic variance ratio between date-level long-run Sharpe uncertainty and row-pooled IID Sharpe uncertainty.",
         ),
     ]
     simulation_main_sections = [

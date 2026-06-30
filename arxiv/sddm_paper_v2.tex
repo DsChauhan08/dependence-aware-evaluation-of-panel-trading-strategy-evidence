@@ -183,9 +183,10 @@ is interpreted as a reported-uncertainty ratio between row-pooled IID
 Sharpe inference and date-level long-run Sharpe inference.
 A value of \(\UVIF_{\SR}=10\), for example, means that the row-pooled
 IID variance report is smaller than the date-level long-run variance by
-a factor of ten under the displayed diagnostic approximation; rejection
-decisions are still made from the date-level HAC and bootstrap
-procedures.
+a factor of ten under the displayed diagnostic approximation.  Equivalently,
+the row-based standard error is too small by a factor of \(\sqrt{10}\)
+under that approximation.  Rejection decisions are still made from the
+date-level HAC and bootstrap procedures.
 
 \subsection{Contribution and empirical approach}
 
@@ -333,9 +334,11 @@ date vs row uncertainty}}\quad
 \(\rightarrow\)\quad
 \fbox{\parbox{0.25\textwidth}{\centering Supplementary checks\\
 menu, placebo, alpha, cost}}
-\caption{Inference workflow. The empirical claim is evaluated at the
-date-level portfolio-return boundary; row-pooled evidence is retained as
-a comparator rather than as the maintained sampling law.}
+\caption{Inference workflow. Selected asset-date rows are first
+aggregated into one portfolio return per date, and Sharpe inference is
+then conducted on that date-return series. The row-pooled IID path is
+retained only as a comparator for Sharpe UVIF and for organizing
+supplementary menu, placebo, alpha, and turnover-cost checks.}
 \label{fig:workflow}
 \end{figure}
 
