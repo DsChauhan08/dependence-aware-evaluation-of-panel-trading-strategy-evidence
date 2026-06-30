@@ -1379,7 +1379,7 @@ def render(outdir: Path, paper_dir: Path) -> None:
             size_table(outdir),
             "Monte Carlo rejection rates under null designs with no true edge.",
             "tab:size",
-            note="Each entry is the fraction of 1000 Monte Carlo replications rejected at nominal 5 percent size. Row-naive treats selected asset-date rows as independent; the other procedures operate on the date-level portfolio return series.",
+            note="Each entry is the fraction of 1000 Monte Carlo replications rejected at nominal 5 percent size. The main null designs use T=1000 dates and N=50 entities. Row-naive treats selected asset-date rows as independent; the other procedures operate on the date-level portfolio return series.",
         ),
         latex_table(power_table(outdir), "Rejection rates across true annualized Sharpe values.", "tab:power"),
     ]
@@ -1520,7 +1520,7 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
             size_table(sim_dir),
             "Monte Carlo rejection rates under null designs with no true edge.",
             "tab:size",
-            note="Each entry is the fraction of 1000 Monte Carlo replications rejected at nominal 5 percent size. Row-naive treats selected asset-date rows as independent; the other procedures operate on the date-level portfolio return series.",
+            note="Each entry is the fraction of 1000 Monte Carlo replications rejected at nominal 5 percent size. The main null designs use T=1000 dates and N=50 entities. Row-naive treats selected asset-date rows as independent; the other procedures operate on the date-level portfolio return series.",
         ),
         latex_table(power_table(sim_dir), "Rejection rates across true annualized Sharpe values.", "tab:power"),
     ])
@@ -1547,7 +1547,7 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
             main_panel_status_table(campaign_root),
             "Panel candidates and date-level evaluation status.",
             "tab:panel-status",
-            note="Date-HAC p+ is the one-sided HAC-delta positive-edge p-value computed on the date-level portfolio return series. Permutation p is the same-date signal-placebo p-value; N/A means the placebo was uninformative for that threshold and is not counted as a full pass. Net SR uses the reported 5 bps turnover-cost stress.",
+            note="Annualized SR is the gross date-level Sharpe ratio. Date-HAC p+ is the one-sided HAC-delta positive-edge p-value computed on the date-level portfolio return series. Permutation p is the same-date signal-placebo p-value; N/A means the placebo was uninformative for that threshold and is not counted as a full pass. Net SR (5 bps) is the Sharpe ratio after the reported 5 bps turnover-cost stress.",
         ),
         "The comparator table makes the standard-practice contrast explicit:\n"
         "row-naive evidence is shown next to date-level HAC and bootstrap\n"
@@ -1556,7 +1556,7 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
             standard_comparator_table(campaign_root),
             "Row-naive and date-level inference comparisons for panel candidates.",
             "tab:standard-comparator",
-            note="Row-naive p+ treats selected asset-date rows as independent. Date-IID, Date-HAC, and Block-bootstrap p+ operate on the date-level portfolio return series. Sharpe UVIF is the diagnostic variance ratio between date-level long-run Sharpe uncertainty and row-pooled IID Sharpe uncertainty.",
+            note="p+ denotes a one-sided positive-Sharpe p-value. Row-naive p+ treats selected asset-date rows as independent. Date-IID, Date-HAC, and Block-bootstrap p+ operate on the date-level portfolio return series. Sharpe UVIF is the diagnostic variance ratio between date-level long-run Sharpe uncertainty and row-pooled IID Sharpe uncertainty.",
         ),
     ]
     simulation_main_sections = [
@@ -1570,7 +1570,7 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
             size_table(sim_dir),
             "Monte Carlo rejection rates under null designs with no true edge.",
             "tab:size",
-            note="Each entry is the fraction of 1000 Monte Carlo replications rejected at nominal 5 percent size. Row-naive treats selected asset-date rows as independent; the other procedures operate on the date-level portfolio return series.",
+            note="Each entry is the fraction of 1000 Monte Carlo replications rejected at nominal 5 percent size. The main null designs use T=1000 dates and N=50 entities. Row-naive treats selected asset-date rows as independent; the other procedures operate on the date-level portfolio return series.",
         ),
     ]
     (paper_dir / "generated_empirical_main_artifacts.tex").write_text(

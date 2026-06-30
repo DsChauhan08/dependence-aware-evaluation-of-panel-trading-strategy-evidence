@@ -22,7 +22,7 @@ French 25 Size/BM, skipped-momentum panel & 0.058 & 0.412 & 0.943 & -0.050 & Fai
 \bottomrule
 \end{tabular}%
 }
-\par\footnotesize\emph{Note:} Date-HAC p+ is the one-sided HAC-delta positive-edge p-value computed on the date-level portfolio return series. Permutation p is the same-date signal-placebo p-value; N/A means the placebo was uninformative for that threshold and is not counted as a full pass. Net SR uses the reported 5 bps turnover-cost stress.
+\par\footnotesize\emph{Note:} Annualized SR is the gross date-level Sharpe ratio. Date-HAC p+ is the one-sided HAC-delta positive-edge p-value computed on the date-level portfolio return series. Permutation p is the same-date signal-placebo p-value; N/A means the placebo was uninformative for that threshold and is not counted as a full pass. Net SR (5 bps) is the Sharpe ratio after the reported 5 bps turnover-cost stress.
 \end{table}
 
 The comparator table makes the standard-practice contrast explicit:
@@ -45,5 +45,5 @@ French 25 Size/BM, skipped-momentum panel & 0.253 & 0.417 & 0.412 & 0.422 & 9.00
 \bottomrule
 \end{tabular}%
 }
-\par\footnotesize\emph{Note:} Row-naive p+ treats selected asset-date rows as independent. Date-IID, Date-HAC, and Block-bootstrap p+ operate on the date-level portfolio return series. Sharpe UVIF is the diagnostic variance ratio between date-level long-run Sharpe uncertainty and row-pooled IID Sharpe uncertainty.
+\par\footnotesize\emph{Note:} p+ denotes a one-sided positive-Sharpe p-value. Row-naive p+ treats selected asset-date rows as independent. Date-IID, Date-HAC, and Block-bootstrap p+ operate on the date-level portfolio return series. Sharpe UVIF is the diagnostic variance ratio between date-level long-run Sharpe uncertainty and row-pooled IID Sharpe uncertainty.
 \end{table}

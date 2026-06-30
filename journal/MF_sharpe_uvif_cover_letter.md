@@ -10,10 +10,6 @@ The simulations show that row-naive testing rejects about 35 percent of the time
 
 The submission is original, is not under consideration elsewhere, and has not been published in a peer-reviewed outlet. Separate blinded manuscript files, a separate blinded appendix, an anonymized replication ZIP, and a separate title page have been prepared in accordance with the journal's review requirements.
 
-Potential reviewers:
-
-The submission system requests three potential reviewers. Reviewer names, affiliations, and emails should be entered in the portal before final upload; this draft cover letter does not fabricate reviewer identities.
-
 Sincerely,
 
 Dhananjay S. Chauhan
