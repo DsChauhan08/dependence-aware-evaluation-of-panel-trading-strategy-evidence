@@ -19,4 +19,4 @@ Public repository: https://github.com/DsChauhan08/dependence-aware-evaluation-of
 
 ## Redaction Boundary
 
-The public release excludes proprietary predictions, raw trade records, private tickers, production feature definitions, and unrelated workspace artifacts.
+The manuscript tables, figures, and conclusions use public Kenneth French and AQR data plus simulations only. No nonpublic or workspace-specific production artifacts enter the reported evidence.

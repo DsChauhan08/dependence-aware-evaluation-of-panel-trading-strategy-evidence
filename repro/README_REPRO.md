@@ -49,9 +49,10 @@ Compile the peer-review manuscript and technical appendix from
 ## Release Boundary
 
 The public release includes code, public-data fetchers, aggregate artifacts,
-simulation outputs, and provenance hashes.  It excludes proprietary
-predictions, raw trades, private tickers, production feature definitions, and
-unrelated workspace artifacts.
+simulation outputs, and provenance hashes.  The manuscript tables, figures,
+and conclusions use public Kenneth French and AQR data plus simulations only.
+No nonpublic or workspace-specific production artifacts enter the reported
+evidence.
 
 Code is released under Apache-2.0.  Manuscript text and generated public
 aggregate artifacts are intended for release under CC-BY 4.0 unless a target

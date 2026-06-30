@@ -4,7 +4,7 @@ Build a redacted journal/preprint release bundle.
 The bundle is intentionally whitelist-based.  It copies manuscript source,
 aggregate public artifacts, reproducibility code, tests, and provenance files
 from this project only.  It refuses smoke-generated manuscript artifacts and
-paths that would leak unrelated workspace or proprietary strategy material.
+paths that would leak unrelated nonpublic workspace material.
 """
 
 from __future__ import annotations
@@ -341,8 +341,8 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
     )
     (journal / "reproducibility_statement.md").write_text(
         "# Reproducibility Statement\n\n"
-        "The public manuscript tables are generated from public Kenneth French and AQR data sources and from simulation code included in the reproducibility package. "
-        "The release excludes proprietary predictions, raw trade records, private tickers, and production strategy features.\n",
+        "The public manuscript tables, figures, and conclusions are generated from public Kenneth French and AQR data sources and from simulation code included in the reproducibility package. "
+        "No nonpublic or workspace-specific production artifacts enter the reported evidence.\n",
         encoding="utf-8",
     )
     (root / "README.md").write_text(
@@ -360,7 +360,8 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
         "`arxiv.tar.gz`, `journal.tar.gz`, `ssrn.tar.gz`, and `repro.tar.gz` mirror the corresponding release folders. "
         "Each release subfolder includes a `MANIFEST.sha256` file for integrity checks.\n\n"
         "## Redaction Boundary\n\n"
-        "The public release excludes proprietary predictions, raw trade records, private tickers, production feature definitions, and unrelated workspace artifacts.\n",
+        "The manuscript tables, figures, and conclusions use public Kenneth French and AQR data plus simulations only. "
+        "No nonpublic or workspace-specific production artifacts enter the reported evidence.\n",
         encoding="utf-8",
     )
     scope_note = PAPER_DIR / "modern_finance_scope_control.md"
