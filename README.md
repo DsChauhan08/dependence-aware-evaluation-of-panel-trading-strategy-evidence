@@ -6,6 +6,7 @@ Public repository: https://github.com/DsChauhan08/dependence-aware-evaluation-of
 
 ## Main Files
 
+- `journal/MF_sharpe_uvif_main_blinded.docx`: blinded peer-review manuscript in Microsoft Word format for portals that require Word/OpenOffice/RTF upload.
 - `journal/MF_sharpe_uvif_main_blinded.pdf`: blinded peer-review manuscript PDF for journals that require separate title pages.
 - `journal/MF_sharpe_uvif_title_page.md`: author title page.
 - `journal/MF_sharpe_uvif_appendix_blinded.pdf`: blinded technical appendix for supplementary upload.

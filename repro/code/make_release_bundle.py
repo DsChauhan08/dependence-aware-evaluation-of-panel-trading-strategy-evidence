@@ -23,6 +23,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PAPER_DIR = PROJECT_ROOT / "paper"
 RELEASE_DIR = PROJECT_ROOT / "release"
 MF_MAIN_BLINDED = "MF_sharpe_uvif_main_blinded.pdf"
+MF_MAIN_BLINDED_DOCX = "MF_sharpe_uvif_main_blinded.docx"
 MF_APPENDIX_BLINDED = "MF_sharpe_uvif_appendix_blinded.pdf"
 MF_TITLE_PAGE = "MF_sharpe_uvif_title_page.md"
 MF_COVER_LETTER = "MF_sharpe_uvif_cover_letter.md"
@@ -274,6 +275,8 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
         guarded_copy(PAPER_DIR / "sddm_paper_v2.pdf", ssrn / "sddm_paper_v2.pdf")
     if (PAPER_DIR / "sddm_paper_v2_blinded.pdf").exists():
         guarded_copy(PAPER_DIR / "sddm_paper_v2_blinded.pdf", journal / MF_MAIN_BLINDED)
+    if (PAPER_DIR / "sddm_paper_v2_blinded.docx").exists():
+        guarded_copy(PAPER_DIR / "sddm_paper_v2_blinded.docx", journal / MF_MAIN_BLINDED_DOCX)
     if (PAPER_DIR / "sddm_technical_appendix_blinded.pdf").exists():
         guarded_copy(PAPER_DIR / "sddm_technical_appendix_blinded.pdf", journal / MF_APPENDIX_BLINDED)
 
@@ -353,6 +356,7 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
         "This repository contains the public manuscript, technical appendix, aggregate public artifacts, and reproducibility code for the paper.\n\n"
         "Public repository: https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence\n\n"
         "## Main Files\n\n"
+        f"- `journal/{MF_MAIN_BLINDED_DOCX}`: blinded peer-review manuscript in Microsoft Word format for portals that require Word/OpenOffice/RTF upload.\n"
         f"- `journal/{MF_MAIN_BLINDED}`: blinded peer-review manuscript PDF for journals that require separate title pages.\n"
         f"- `journal/{MF_TITLE_PAGE}`: author title page.\n"
         f"- `journal/{MF_APPENDIX_BLINDED}`: blinded technical appendix for supplementary upload.\n"
