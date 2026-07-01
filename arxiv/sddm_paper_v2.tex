@@ -153,7 +153,7 @@ is largest when many same-date entities are selected, common shocks are
 strong, menus are searched, and the confirmatory statistic is a nonlinear
 Sharpe functional.
 
-The intuition is simple.  If 50 selected rows are generated from only a
+The intuition is direct.  If 50 selected rows are generated from only a
 small number of economically relevant dates, the row count can make the
 Sharpe estimate look more precise than the portfolio-return evidence
 supports.  The relevant sampling object is the date-level return series,
@@ -276,6 +276,10 @@ Menu corrections control search across candidate strategies; they do not
 correct a mismatch between the row-level sampling unit used to report
 Sharpe evidence and the date-level return series that defines portfolio
 performance.
+The contribution is not that dependence-adjusted inference exists; it is
+that the paper gives a target-boundary diagnostic for how much Sharpe
+precision was created by evaluating selected entity-date rows before the
+claim is moved to the economically relevant date-return series.
 
 Recent empirical asset-pricing work asks whether
 published predictors survive stricter implementation, data, and
@@ -443,6 +447,12 @@ zero, this map is Hadamard differentiable.  The asymptotic normality of
 \(\sqrt{T_R}(\widehat{\SR}-\SR)\) follows from the functional delta method
 provided the long-run covariance matrix \(\Omega\) is consistently
 estimated by a kernel-based HAC estimator.
+For the HAC and dependent-bootstrap validity statements, assume the
+date-level process is strongly mixing, or near-epoch dependent on a
+strongly mixing process, with mixing and moment conditions sufficient
+for a functional central limit theorem for \(G_t=(R_t,R_t^2)'\).  The
+HAC bandwidth satisfies \(K_T\to\infty\) and \(K_T/T\to0\); block
+lengths satisfy \(\ell\to\infty\) and \(\ell/T\to0\).
 Evaluated at \((\hat\mu,\hat m_2)\),
 \[
   \widehat{\SR}=\sqrt{A_f}\frac{\hat\mu}{\sqrt{\hat v}},
@@ -511,9 +521,10 @@ sign.
 For a fixed menu \(\mathcal M\) of lookbacks and thresholds, the primary
 joint adjustment is Romano-Wolf stepdown max-\(t\) resampling over
 \(\{R_u(m):m\in\mathcal M\}\).  Holm-adjusted marginal bootstrap
-\(p\)-values and White's Reality Check are secondary diagnostics.  The
-Deflated Sharpe Ratio diagnostic of \citet{bailey2014probability} is
-reported as an additional selection-bias check.
+\(p\)-values, White's Reality Check, and the Deflated Sharpe Ratio
+diagnostic of \citet{bailey2014probability} are implemented in the
+replication package as secondary checks.  The manuscript reports
+Romano-Wolf stepdown as the primary fixed-menu adjustment.
 In the public implementation, the menu is the finite pre-specified set
 \[
   \mathcal M=\{(c,\theta_c,\tau):c\in\mathcal C,\ \tau\in\mathcal T_c\},
@@ -1048,6 +1059,10 @@ closer to nominal size.  In the power grid, row-naive rejection reaches
 about 50 percent at a true annualized Sharpe near 0.19, before the
 dependence-aware methods show comparable power; that gap reflects null
 overrejection rather than valid incremental power.
+In the null designs, \(\mu_t\) is set or centered so that the date-level
+strategy return has population Sharpe zero; dependence parameters affect
+the covariance structure and false precision, not the true positive-edge
+status.
 
 The size and power experiment compares row-level naive testing,
 date-IID bootstrap, HAC-delta inference, moving-block bootstrap,
@@ -1109,12 +1124,15 @@ the researcher menu are needed when power is the binding concern.
 
 The reproducibility package contains the LaTeX source, generated public
 aggregate tables, public-data loaders, simulation code, unit tests,
-release scripts, and SHA256 provenance.  The public repository is:
+release scripts, and SHA256 provenance.
 \ifblinded
-{\scriptsize\noindent Repository link omitted from the review manuscript
-to preserve double-blind anonymity; it is supplied in the separate title
-page and submission metadata.\par}
+For double-blind review, the public repository URL is omitted from the
+manuscript.  An anonymized reproducibility package is supplied
+separately for refereeing; the public repository URL is provided on the
+title page and will be inserted into the manuscript after review if
+required.
 \else
+The public repository is:
 {\scriptsize\noindent
 \url{https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence}\par}
 \fi
@@ -1283,12 +1301,12 @@ Frazzini, A., Israel, R., and Moskowitz, T. J. (2015).
 \newblock Working paper.
 
 \bibitem[Harvey and Liu, 2020a]{harvey2020false}
-Harvey, C. R. and Liu, Y. (2020).
+Harvey, C. R. and Liu, Y. (2020a).
 \newblock False (and missed) discoveries in financial economics.
 \newblock {\em Journal of Finance}, 75(5):2503--2553.
 
 \bibitem[Harvey and Liu, 2020b]{harvey2020census}
-Harvey, C. R. and Liu, Y. (2020).
+Harvey, C. R. and Liu, Y. (2020b).
 \newblock A census of the factor zoo.
 \newblock SSRN working paper, revised October 2020.
 

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import os
 from pathlib import Path
 
@@ -590,7 +591,7 @@ def campaign_phantom_audit_table(campaign_root: Path) -> pd.DataFrame:
         if passes_all:
             status = "Passes full evaluation"
         elif str(perm_status).lower() == "degenerate" and passes_applicable:
-            status = "Permutation N/A; remaining checks pass"
+            status = "Permutation uninformative; remaining applicable checks pass"
         elif pd.notna(row_p) and float(row_p) <= 0.05 and pd.notna(audit_p) and float(audit_p) > 0.05:
             status = "Fails permutation check"
         elif stat_fail and cost_fail:
@@ -731,6 +732,11 @@ def campaign_holdout_table(campaign_root: Path) -> pd.DataFrame:
 def campaign_cost_table(campaign_root: Path) -> pd.DataFrame:
     rows = []
     for cdir in campaign_candidates(campaign_root):
+        meta_path = cdir / "metadata.json"
+        if meta_path.exists():
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
+            if meta.get("candidate_type") == "single_series_factor":
+                continue
         path = cdir / "costs.csv"
         if not path.exists():
             continue
@@ -1482,7 +1488,12 @@ def render_campaign(campaign_root: Path, paper_dir: Path) -> None:
         pagebreak,
         latex_table(campaign_gate_table(campaign_root), "Decision-rule sensitivity by alpha threshold.", "tab:gate-sensitivity"),
         latex_table(campaign_holdout_table(campaign_root), "Holdout and subperiod Sharpe diagnostics.", "tab:holdout-subperiods"),
-        latex_table(campaign_cost_table(campaign_root), "Turnover-scaled cost sensitivity and break-even cost.", "tab:costs"),
+        latex_table(
+            campaign_cost_table(campaign_root),
+            "Turnover-scaled cost sensitivity and break-even cost.",
+            "tab:costs",
+            note="AQR factor series are pre-aggregated returns. Constituent-level turnover is not observed in the public series, so turnover-cost diagnostics are reported only for row-level panel candidates.",
+        ),
         empirical_figure_tex(),
     ]
 

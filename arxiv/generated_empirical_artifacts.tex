@@ -1,4 +1,4 @@
-% Generated from campaign root sddm-paper-v2/code/output_modern_finance_hardening_20260628
+% Generated from campaign root code/output_modern_finance_hardening_20260628
 This supplement reports loaded sources in separated groups.  The
 loader provenance is retained in the generated metadata; it is not a
 comparable pass/fail table.  The tables are supporting diagnostics
@@ -174,7 +174,7 @@ French 25 Size/BM, skipped-momentum panel & 0.667 & 3.000 & 9.002 & 9.002 & 0.11
 \toprule
 Candidate & Row p+ & UVIF & Max p+ & Net SR & Status \\
 \midrule
-French momentum deciles, rank-threshold panel & 1.70e-04 & 1.000 & 2.00e-04 & 0.447 & Permutation N/A; remaining checks pass \\
+French momentum deciles, rank-threshold panel & 1.70e-04 & 1.000 & 2.00e-04 & 0.447 & Permutation uninformative; remaining applicable checks pass \\
 French WML decile benchmark & 4.85e-04 & 1.000 & 2.00e-04 & 0.497 & Passes full evaluation \\
 French 25 Size/BM, skipped-momentum panel & 0.253 & 9.002 & 0.943 & -0.050 & Fails statistical and cost checks \\
 \bottomrule
@@ -396,26 +396,6 @@ French 25 Size/BM, skipped-momentum panel & quarter\_max & 0.210 & 875 \\
 \toprule
 Candidate & cost bps & turnover & gross SR & net SR & break-even bps \\
 \midrule
-AQR Betting Against Beta, equity factors & 0 & 0.000 & 0.741 & 0.741 &  \\
-AQR Betting Against Beta, equity factors & 1 & 0.000 & 0.741 & 0.741 &  \\
-AQR Betting Against Beta, equity factors & 5 & 0.000 & 0.741 & 0.741 &  \\
-AQR Betting Against Beta, equity factors & 10 & 0.000 & 0.741 & 0.741 &  \\
-AQR Betting Against Beta, equity factors & 25 & 0.000 & 0.741 & 0.741 &  \\
-AQR HML Devil & 0 & 0.000 & 0.336 & 0.336 &  \\
-AQR HML Devil & 1 & 0.000 & 0.336 & 0.336 &  \\
-AQR HML Devil & 5 & 0.000 & 0.336 & 0.336 &  \\
-AQR HML Devil & 10 & 0.000 & 0.336 & 0.336 &  \\
-AQR HML Devil & 25 & 0.000 & 0.336 & 0.336 &  \\
-AQR Quality Minus Junk & 0 & 0.000 & 0.536 & 0.536 &  \\
-AQR Quality Minus Junk & 1 & 0.000 & 0.536 & 0.536 &  \\
-AQR Quality Minus Junk & 5 & 0.000 & 0.536 & 0.536 &  \\
-AQR Quality Minus Junk & 10 & 0.000 & 0.536 & 0.536 &  \\
-AQR Quality Minus Junk & 25 & 0.000 & 0.536 & 0.536 &  \\
-AQR Value and Momentum Everywhere & 0 & 0.000 & 0.572 & 0.572 &  \\
-AQR Value and Momentum Everywhere & 1 & 0.000 & 0.572 & 0.572 &  \\
-AQR Value and Momentum Everywhere & 5 & 0.000 & 0.572 & 0.572 &  \\
-AQR Value and Momentum Everywhere & 10 & 0.000 & 0.572 & 0.572 &  \\
-AQR Value and Momentum Everywhere & 25 & 0.000 & 0.572 & 0.572 &  \\
 French momentum deciles, rank-threshold panel & 0 & 1.91e-05 & 0.447 & 0.447 & 85893.000 \\
 French momentum deciles, rank-threshold panel & 1 & 1.91e-05 & 0.447 & 0.447 & 85893.000 \\
 French momentum deciles, rank-threshold panel & 5 & 1.91e-05 & 0.447 & 0.447 & 85893.000 \\
@@ -434,6 +414,7 @@ French 25 Size/BM, skipped-momentum panel & 25 & 0.169 & 0.058 & -0.480 & 2.683 
 \bottomrule
 \end{tabular}%
 }
+\par\footnotesize\emph{Note:} AQR factor series are pre-aggregated returns. Constituent-level turnover is not observed in the public series, so turnover-cost diagnostics are reported only for row-level panel candidates.
 \end{table}
 
 

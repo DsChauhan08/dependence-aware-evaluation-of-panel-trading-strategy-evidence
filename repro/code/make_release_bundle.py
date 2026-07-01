@@ -24,8 +24,6 @@ PAPER_DIR = PROJECT_ROOT / "paper"
 RELEASE_DIR = PROJECT_ROOT / "release"
 MF_MAIN_BLINDED = "MF_sharpe_uvif_main_blinded.pdf"
 MF_APPENDIX_BLINDED = "MF_sharpe_uvif_appendix_blinded.pdf"
-MF_MAIN_BLINDED_DOCX = "MF_sharpe_uvif_main_blinded.docx"
-MF_APPENDIX_BLINDED_DOCX = "MF_sharpe_uvif_appendix_blinded.docx"
 MF_TITLE_PAGE = "MF_sharpe_uvif_title_page.md"
 MF_COVER_LETTER = "MF_sharpe_uvif_cover_letter.md"
 MF_REPLICATION_ZIP = "MF_sharpe_uvif_replication_blinded.zip"
@@ -276,12 +274,8 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
         guarded_copy(PAPER_DIR / "sddm_paper_v2.pdf", ssrn / "sddm_paper_v2.pdf")
     if (PAPER_DIR / "sddm_paper_v2_blinded.pdf").exists():
         guarded_copy(PAPER_DIR / "sddm_paper_v2_blinded.pdf", journal / MF_MAIN_BLINDED)
-    if (PAPER_DIR / "sddm_paper_v2_blinded.docx").exists():
-        guarded_copy(PAPER_DIR / "sddm_paper_v2_blinded.docx", journal / MF_MAIN_BLINDED_DOCX)
     if (PAPER_DIR / "sddm_technical_appendix_blinded.pdf").exists():
         guarded_copy(PAPER_DIR / "sddm_technical_appendix_blinded.pdf", journal / MF_APPENDIX_BLINDED)
-    if (PAPER_DIR / "sddm_technical_appendix_blinded.docx").exists():
-        guarded_copy(PAPER_DIR / "sddm_technical_appendix_blinded.docx", journal / MF_APPENDIX_BLINDED_DOCX)
 
     for name in ["README_REPRO.md", "requirements-paper.txt", "LICENSE", "CITATION.cff"]:
         guarded_copy(PROJECT_ROOT / name, repro / name)
@@ -339,7 +333,7 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
         "Author: Dhananjay S. Chauhan\n\n"
         "Affiliation: Independent Researcher, India\n\n"
         "Corresponding author: Dhananjay S. Chauhan, Independent Researcher, India\n\n"
-        "Contact address: Independent Researcher, India; Email: dschauhan08.me@gmail.com\n\n"
+        "Contact address: Delhi, National Capital Territory of Delhi, India; Email: dschauhan08.me@gmail.com\n\n"
         "Email: dschauhan08.me@gmail.com\n\n"
         "ORCID: https://orcid.org/0009-0003-1049-2213\n\n"
         "Public repository: https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence\n\n"
@@ -360,10 +354,8 @@ def build(campaign_root: Path, version: str, compile_pdf: bool = False) -> None:
         "Public repository: https://github.com/DsChauhan08/dependence-aware-evaluation-of-panel-trading-strategy-evidence\n\n"
         "## Main Files\n\n"
         f"- `journal/{MF_MAIN_BLINDED}`: blinded peer-review manuscript PDF for journals that require separate title pages.\n"
-        f"- `journal/{MF_MAIN_BLINDED_DOCX}`: blinded peer-review manuscript in Microsoft Word format.\n"
         f"- `journal/{MF_TITLE_PAGE}`: author title page.\n"
         f"- `journal/{MF_APPENDIX_BLINDED}`: blinded technical appendix for supplementary upload.\n"
-        f"- `journal/{MF_APPENDIX_BLINDED_DOCX}`: blinded technical appendix in Microsoft Word format.\n"
         f"- `journal/{MF_REPLICATION_ZIP}`: anonymized replication materials for double-blind review.\n"
         "- `arxiv/`: editable LaTeX source and generated manuscript artifacts.\n"
         "- `repro/`: public-data loaders, simulations, tests, aggregate artifacts, and reproduction instructions.\n\n"
