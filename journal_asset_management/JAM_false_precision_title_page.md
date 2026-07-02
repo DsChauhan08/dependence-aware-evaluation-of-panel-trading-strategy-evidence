@@ -1,6 +1,6 @@
 # Title Page
 
-Title: False Precision in Panel-Based Sharpe Backtests: A Practical Date-Aggregation Diagnostic
+Title: A Practical Sharpe-Ratio Diagnostic for Portfolio Backtests
 
 Author: Dhananjay S. Chauhan
 
